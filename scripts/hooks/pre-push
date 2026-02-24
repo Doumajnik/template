@@ -1,0 +1,27 @@
+#!/bin/sh
+# Pre-push hook: runs tests before allowing a push.
+# Add your project's test command below once the language is chosen.
+# Agents should update this hook when test runners are configured.
+
+echo "🧪 Running tests before push..."
+
+# ──────────────────────────────────────
+# TODO: Add your test command here.
+# Examples:
+#   python -m pytest tests/ -v --tb=long
+#   npm test
+#   dotnet test
+#   go test -v ./...
+#   cargo test
+# ──────────────────────────────────────
+
+# Uncomment and replace with your test command:
+# echo "  ▸ Running tests..."
+# your-test-command-here
+# if [ $? -ne 0 ]; then
+#     echo "❌ Tests failed. Push aborted."
+#     exit 1
+# fi
+
+echo "✅ Pre-push checks passed. Pushing..."
+exit 0

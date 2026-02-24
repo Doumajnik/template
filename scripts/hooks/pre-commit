@@ -1,0 +1,93 @@
+#!/bin/sh
+# Pre-commit hook: runs linters and formatters before allowing a commit.
+# Auto-detects project language/tools and runs the appropriate checks.
+# Agents should update this hook when new frameworks or linters are added.
+
+echo "🔍 Running pre-commit checks..."
+FAILED=0
+
+# Get staged files (only check what's being committed)
+STAGED=$(git diff --cached --name-only --diff-filter=ACM)
+
+if [ -z "$STAGED" ]; then
+    echo "  No staged files. Skipping checks."
+    exit 0
+fi
+
+# ──────────────────────────────────────
+# General style checks (all languages)
+# ──────────────────────────────────────
+
+# Trailing whitespace
+TRAILING=$(echo "$STAGED" | xargs grep -lnP '\s+$' 2>/dev/null || true)
+if [ -n "$TRAILING" ]; then
+    echo "  ⚠️  Trailing whitespace found:"
+    echo "$TRAILING" | sed 's/^/       /'
+    # Warning only — not blocking
+fi
+
+# Merge conflict markers (skip hook files — they contain these patterns as strings)
+CONFLICTS=$(echo "$STAGED" | grep -v '^scripts/hooks/' | xargs grep -lnE '^(<{7}|>{7}|={7})( |$)' 2>/dev/null || true)
+if [ -n "$CONFLICTS" ]; then
+    echo "  ❌ Merge conflict markers found:"
+    echo "$CONFLICTS" | sed 's/^/       /'
+    FAILED=1
+fi
+
+# Debug statements (common across languages — skip hook files)
+DEBUG_PATTERNS='console\.log\(|debugger;|binding\.pry|import pdb|breakpoint\(\)|System\.out\.println|Debug\.Log'
+DEBUG_HITS=$(echo "$STAGED" | grep -v '^scripts/hooks/' | xargs grep -lnE "$DEBUG_PATTERNS" 2>/dev/null || true)
+if [ -n "$DEBUG_HITS" ]; then
+    echo "  ⚠️  Possible debug statements found:"
+    echo "$DEBUG_HITS" | sed 's/^/       /'
+    echo "       (review before pushing — not blocking commit)"
+fi
+
+# Large files (>500KB)
+for f in $STAGED; do
+    if [ -f "$f" ]; then
+        SIZE=$(wc -c < "$f" 2>/dev/null || echo 0)
+        if [ "$SIZE" -gt 512000 ]; then
+            echo "  ❌ Large file detected: $f ($(( SIZE / 1024 ))KB > 500KB)"
+            FAILED=1
+        fi
+    fi
+done
+
+# Secrets / credentials (basic patterns — skip hook files)
+SECRET_PATTERNS='(password|secret|api_key|apikey|access_token|private_key)\s*[:=]\s*["\x27][^"\x27]{8,}'
+SECRET_HITS=$(echo "$STAGED" | grep -v '^scripts/hooks/' | xargs grep -liE "$SECRET_PATTERNS" 2>/dev/null || true)
+if [ -n "$SECRET_HITS" ]; then
+    echo "  ⚠️  Possible hardcoded secrets found:"
+    echo "$SECRET_HITS" | sed 's/^/       /'
+    echo "       (review carefully — not blocking commit)"
+fi
+
+# TODO/FIXME/HACK reminders (info only)
+TODO_HITS=$(echo "$STAGED" | xargs grep -cnE 'TODO|FIXME|HACK|XXX' 2>/dev/null | grep -v ':0$' || true)
+if [ -n "$TODO_HITS" ]; then
+    echo "  ℹ️  TODOs/FIXMEs found in staged files:"
+    echo "$TODO_HITS" | sed 's/^/       /'
+fi
+
+# ──────────────────────────────────────
+# Language-specific linters & formatters
+# ──────────────────────────────────────
+# TODO: Add your linter/formatter commands here once the project language is chosen.
+# Examples:
+#   ruff check src/ tests/              (Python)
+#   npx eslint src/ --max-warnings=0    (Node.js)
+#   dotnet format --verify-no-changes   (.NET)
+#   go vet ./...                        (Go)
+#   cargo clippy -- -D warnings         (Rust)
+
+# ──────────────────────────────────────
+# Result
+# ──────────────────────────────────────
+if [ $FAILED -ne 0 ]; then
+    echo "❌ Style checks failed. Fix the issues above, then commit again."
+    exit 1
+fi
+
+echo "✅ Style checks passed."
+exit 0

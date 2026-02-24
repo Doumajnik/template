@@ -1,0 +1,33 @@
+#!/bin/sh
+# Commit-msg hook: validates conventional commit format.
+# Format: type(scope): description
+# Types: feat, fix, refactor, docs, test, chore, style, perf, ci, build, revert
+# Examples:
+#   feat(auth): add login endpoint
+#   fix(utils): handle null in formatDate
+#   docs: update README
+
+MSG=$(cat "$1")
+
+# Allow merge commits
+if echo "$MSG" | grep -qE "^Merge "; then
+    exit 0
+fi
+
+# Validate conventional commit format
+if ! echo "$MSG" | grep -qE "^(feat|fix|refactor|docs|test|chore|style|perf|ci|build|revert)(\(.+\))?: .{3,}"; then
+    echo "❌ Bad commit message format."
+    echo ""
+    echo "Expected: type(scope): description"
+    echo "Types: feat, fix, refactor, docs, test, chore, style, perf, ci, build, revert"
+    echo ""
+    echo "Examples:"
+    echo "  feat(auth): add login endpoint"
+    echo "  fix(utils): handle null in formatDate"
+    echo "  docs: update README"
+    echo ""
+    echo "Your message: $MSG"
+    exit 1
+fi
+
+exit 0
