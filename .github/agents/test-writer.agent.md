@@ -83,6 +83,6 @@ Run the test file against the stubs. All tests should fail because nothing is im
 - Tests must be **correct** — the expected value must be what a correct implementation would return.
 - Test names must describe the scenario: `test_calculate_total_with_discount_applied`.
 - One test file per source file. Mirror structure: `src/x/y.*` → `tests/x/test_y.*`.
-- Aim for **≥5 tests per function** (logic + edges + errors).
+- Aim for **≥15 tests per function** (logic + edges + errors).
 - Every assertion must have a descriptive message or the test name must make the failure obvious.
 - Do NOT test GUI, UI rendering, or visual output — only business logic.

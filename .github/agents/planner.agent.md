@@ -20,9 +20,9 @@ You are a **planning-only** agent. You read documentation and discovery summarie
    - `docs/PLAYBOOK.md` — current architecture decisions and patterns
    - `docs/CODE_INVENTORY.md` — existing code symbols to avoid duplication
 
-2. **Check for an approved architecture plan:**
-   - If DEEP_MODE is ON: read the architect's approved `.architecture.md` file in `.ai/plans/`
-   - If no architecture plan exists: analyze the request directly (standard flow)
+2. **Read the approved architecture plan:**
+   - Read the architect's approved `.architecture.md` file in `.ai/plans/` (always present since DEEP_MODE is always ON)
+   - Review the **Innovator Log** and **Critique Log** sections for context on design decisions
 
 3. **Decomposition-first breakdown:**
    Plan implementation in this order — **shared pieces first, consumers second:**

@@ -2,7 +2,7 @@
 name: Research
 description: Investigates questions, searches the codebase and docs, returns findings to the orchestrator
 model: Claude Opus 4.6
-tools: ['search', 'read', 'fetch']
+tools: ['search', 'read', 'web/fetch']
 ---
 
 # Research Agent

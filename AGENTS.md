@@ -30,6 +30,7 @@ Your job: understand intent → read docs → decide which sub-agents to spawn �
 | **Worker** | Implements functions, runs red-green loop | `.github/agents/worker.agent.md` |
 | **Reviewer** | Validates code quality, coverage, plan adherence | `.github/agents/reviewer.agent.md` |
 | **Doc Updater** | Updates all docs, commits with conventional messages | `.github/agents/doc-updater.agent.md` |
+| **Innovator** | Generates creative, unconventional solutions and alternatives | `.github/agents/innovator.agent.md` |
 | **Research** | Investigates questions, searches codebase and docs | `.github/agents/research.agent.md` |
 
 When spawning a sub-agent, read its `.agent.md` file and include the relevant instructions in the prompt.
@@ -40,7 +41,7 @@ When spawning a sub-agent, read its `.agent.md` file and include the relevant in
 
 ### Full Planning Sequence
 
-The standard pipeline for non-trivial tasks. Steps 4–5 only run when DEEP_MODE is ON.
+The standard pipeline for all tasks. DEEP_MODE is always ON — every task goes through the full Architect → Innovator → Critic pipeline.
 
 ```mermaid
 flowchart TD
@@ -50,11 +51,12 @@ flowchart TD
     O -->|no new data| P[Planning Agent]
     P -->|plan + todos → .ai/| UA{User Approval}
     UA -->|rejected / revise| P
-    UA -->|approved| DM{DEEP_MODE?}
-    DM -->|ON| A[Architect Agent]
+    UA -->|approved| A[Architect Agent]
+    A --> IN[Innovator Agent]
+    IN -->|creative alternatives| A
     A <-->|adversarial loop ≤5 rounds| C[Critic Agent]
-    C --> S
-    DM -->|OFF| S[Scaffolder Agent]
+    C --> S[Scaffolder Agent]
+    
     S -->|file stubs| TW[Test Writer Agent]
     TW -->|failing tests| W[Worker Agent]
     W -->|red → green loop| R[Reviewer Agent]
@@ -66,7 +68,6 @@ flowchart TD
     style U fill:#6c757d,color:#fff
     style Done fill:#6c757d,color:#fff
     style UA fill:#e8a838,color:#fff
-    style DM fill:#e8a838,color:#fff
 ```
 
 ### Discovery Workflow
@@ -106,24 +107,30 @@ flowchart LR
     style U fill:#6c757d,color:#fff
 ```
 
-### DEEP_MODE Architect–Critic Loop
+### Architect–Innovator–Critic Loop
 
-When DEEP_MODE is ON, architecture goes through adversarial refinement before implementation.
+Every task goes through adversarial refinement before implementation. The Orchestrator mediates all communication — agents never hand off to each other directly.
 
 ```mermaid
 sequenceDiagram
     participant O as Orchestrator
     participant A as Architect
+    participant IN as Innovator
     participant C as Critic
 
     O->>A: Design architecture
+    A-->>O: Architecture plan v1
+    O->>IN: Review plan, propose alternatives
+    IN-->>O: Innovator report (3+ ideas)
+    O->>A: Incorporate Innovator's best ideas
+    A-->>O: Architecture plan v2
     loop Up to 5 rounds
-        A->>C: Proposed design
-        C->>A: Flaws & improvements
-        A->>A: Revise design
+        O->>C: Critique the plan
+        C-->>O: Verdict + issues
+        O->>A: Fix issues from Critic
+        A-->>O: Revised plan
     end
-    A->>O: Final architecture
-    Note over O: Proceed to Scaffolder →<br/>Test Writer → Worker
+    Note over O: Proceed to Planning →<br/>Scaffolder → Test Writer → Worker
 ```
 
 ---
@@ -155,12 +162,15 @@ When the user presents new data (new codebase, files, library, API, specs):
 1. **Discovery Agent** — if new data involved (ask first).
 2. **Planning Agent** — reads docs, creates plan + todo file.
 3. **User approval** — present plan, revise if needed.
-4. **Architect → Critic** — if DEEP_MODE ON (see `.ai/DEEP_MODE.md`). Max 5 rounds.
-5. **Scaffolder** — creates file stubs.
-6. **Test Writer** — writes 15+ failing tests per function.
-7. **Worker** — implements code, red-green loop until tests pass.
-8. **Reviewer** — validates result.
-9. **Doc Updater** — updates all docs, writes session summary, commits.
+4. **Architect** — designs architecture plan.
+5. **Innovator** — reviews the plan and proposes creative alternatives and outside-the-box ideas. Reports back to Orchestrator.
+6. **Architect (revision)** — Orchestrator feeds Innovator's best ideas back to the Architect to consider incorporating.
+7. **Critic** — reviews for flaws, duplication, over-engineering. Orchestrator mediates Architect↔Critic loop (max 5 rounds). All agents report back to Orchestrator — no direct handoffs.
+8. **Scaffolder** — creates file stubs.
+9. **Test Writer** — writes 15+ failing tests per function.
+10. **Worker** — implements code, red-green loop until tests pass.
+11. **Reviewer** — validates result.
+12. **Doc Updater** — updates all docs, writes session summary, commits.
 
 Skip the full sequence for trivial tasks — spawn only needed agent(s).
 
@@ -184,6 +194,7 @@ The orchestrator and Planning Agent NEVER read raw source code. Only Workers and
 - **Orchestrator:** dispatches sub-agents, reads only docs. Does NOT write code/tests/docs.
 - **Sub-agents (Opus 4.6):** perform all concrete work. Each gets only needed context.
 - **Everything is delegated.** If it can be described in a prompt, it MUST be a sub-agent.
+- **No agent-to-agent handoffs.** Every agent reports back to the Orchestrator. The Orchestrator decides which agent to spawn next. Agents NEVER spawn or hand off to other agents directly.
 
 ---
 

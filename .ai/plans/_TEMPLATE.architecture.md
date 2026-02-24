@@ -1,7 +1,7 @@
 # Architecture Plan Template (DEEP_MODE)
 
 > Save as: `.ai/plans/{YYYY-MM-DD}_{short-topic}.architecture.md`
-> Written by the **Architect** agent, reviewed by the **Critic** agent.
+> Written by the **Architect** agent, reviewed by the **Critic** and **Innovator** agents.
 > After approval, the **Planner** breaks this into function-level impl plans.
 
 ---
@@ -104,6 +104,32 @@
 
 ## Optimization Notes
 <!-- Performance considerations — only real ones, no premature optimization -->
+
+---
+
+## Innovator Log
+
+<!-- Filled by the Innovator agent. Records assumptions challenged and alternative approaches proposed. -->
+
+### Assumptions Challenged
+
+| # | Assumption | Why It Might Be Wrong |
+| --- | --- | --- |
+| 1 |  |  |
+
+### Alternative Approaches
+
+| # | Idea Name | Core Insight | Feasibility | Verdict |
+| --- | --- | --- | --- | --- |
+| 1 |  |  | Low / Medium / High | ⏳ |
+| 2 |  |  | Low / Medium / High | ⏳ |
+| 3 |  |  | Low / Medium / High | ⏳ |
+
+### Top Recommendation
+<!-- Innovator's pick and brief justification -->
+
+### Architect Response
+<!-- How the Architect incorporated (or declined) the Innovator's ideas -->
 
 ---
 

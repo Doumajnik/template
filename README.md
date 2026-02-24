@@ -50,11 +50,11 @@ flowchart TD
     O -->|no new data| P[Planning Agent]
     P -->|plan + todos| UA{User Approval}
     UA -->|rejected| P
-    UA -->|approved| DM{DEEP_MODE?}
-    DM -->|ON| A[Architect Agent]
+    UA -->|approved| A[Architect Agent]
+    A --> IN[Innovator Agent]
+    IN -->|creative alternatives| A
     A <-->|adversarial loop| C[Critic Agent]
-    C --> S
-    DM -->|OFF| S[Scaffolder Agent]
+    C --> S[Scaffolder Agent]
     S -->|file stubs| TW[Test Writer Agent]
     TW -->|failing tests| W[Worker Agent]
     W -->|red-green loop| R[Reviewer Agent]
@@ -66,7 +66,6 @@ flowchart TD
     style U fill:#6c757d,color:#fff
     style Done fill:#6c757d,color:#fff
     style UA fill:#e8a838,color:#fff
-    style DM fill:#e8a838,color:#fff
 ```
 
 For trivial tasks, the orchestrator skips directly to the needed agent:

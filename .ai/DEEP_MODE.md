@@ -1,14 +1,14 @@
 # DEEP_MODE Pipeline
 
 > Full adversarial plan-critique-implement pipeline.
-> Enabled when `DEEP_MODE: ON` in `.ai/PREFERENCES.md`.
-> Reference file — the orchestrator reads this when DEEP_MODE is active.
+> DEEP_MODE is **permanently ON** for this project — every task goes through this pipeline.
+> Reference file — the orchestrator reads this when planning any task.
 
 ---
 
 ## When to Use
 
-Use DEEP_MODE for non-trivial **business logic** features: services, data processing, algorithms, APIs, core logic.
+Use DEEP_MODE for **ALL tasks** — every feature, fix, refactor, or change goes through the full adversarial pipeline. No exceptions. The orchestrator always runs Architect → Critic → iterate before implementation.
 
 ## Pipeline
 
@@ -16,23 +16,27 @@ The orchestrator spawns agents in this sequence:
 
 1. **Architect Agent** (Opus 4.6) — reads `docs/BUSINESS_LOGIC.md` and discovery summaries. Designs the system: logic, data flow, decomposition, deduplication report. Does NOT read source code.
 
-2. **Critic Agent** (Opus 4.6) — reviews for duplication, missing decomposition, over-engineering, completeness. Returns approval or sends back for fixes.
+2. **Innovator Agent** (Opus 4.6) — receives the Architect's plan and generates creative, unconventional alternatives. Challenges assumptions, suggests outside-the-box approaches. Reports ideas back to the Orchestrator.
 
-3. **Iterate** — orchestrator re-spawns Architect with Critic's feedback. Max 5 rounds.
+3. **Architect (revision)** — Orchestrator feeds the Innovator's best ideas to the Architect for consideration and potential incorporation.
 
-4. **Planning Agent** (Opus 4.6) — breaks the approved architecture into function-level impl plans. Reads `docs/files/` for per-file context if needed. Shared utilities first, then features, then wiring.
+4. **Critic Agent** (Opus 4.6) — reviews for duplication, missing decomposition, over-engineering, completeness. Returns approval or sends back for fixes.
 
-5. **User approval** — orchestrator presents the plan, revises if needed.
+5. **Iterate** — orchestrator re-spawns Architect with Critic's feedback. Max 5 rounds. All agents report back to the Orchestrator — no direct handoffs.
 
-6. **Scaffolder Agent** (Opus 4.6) — creates file stubs with signatures and docstrings.
+6. **Planning Agent** (Opus 4.6) — breaks the approved architecture into function-level impl plans. Reads `docs/files/` for per-file context if needed. Shared utilities first, then features, then wiring.
 
-7. **Test Writer Agent** (Opus 4.6) per file — writes 15+ tests per function that fail on stubs (red).
+7. **User approval** — orchestrator presents the plan, revises if needed.
 
-8. **Worker Agent** (Opus 4.6) per function — reads source code, implements, runs red-green loop until tests pass.
+8. **Scaffolder Agent** (Opus 4.6) — creates file stubs with signatures and docstrings.
 
-9. **Reviewer Agent** (Opus 4.6) — checks the final result for quality, correctness, adherence to plan.
+9. **Test Writer Agent** (Opus 4.6) per file — writes 15+ tests per function that fail on stubs (red).
 
-10. **Doc Updater Agent** (Opus 4.6) — updates all documentation.
+10. **Worker Agent** (Opus 4.6) per function — reads source code, implements, runs red-green loop until tests pass.
+
+11. **Reviewer Agent** (Opus 4.6) — checks the final result for quality, correctness, adherence to plan.
+
+12. **Doc Updater Agent** (Opus 4.6) — updates all documentation.
 
 ## Key Principles
 
@@ -43,4 +47,4 @@ The orchestrator spawns agents in this sequence:
 
 ## When OFF
 
-Use the standard plan-then-implement flow (skip Architect and Critic rounds). Go straight from Planning → Scaffolder → Test Writer → Worker → Reviewer → Doc Updater.
+DEEP_MODE is **permanently ON** for this project. This section is kept for reference only. If it were ever turned off, the flow would skip Architect and Critic rounds: Planning → Scaffolder → Test Writer → Worker → Reviewer → Doc Updater.

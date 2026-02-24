@@ -13,6 +13,7 @@ sequenceDiagram
     participant D as 🔎 Discovery
     participant PL as 🧠 Planning
     participant A as 🏗️ Architect
+    participant IN as 💡 Innovator
     participant C as ⚖️ Critic
     participant S as 📁 Scaffolder
     participant TW as 📝 Test Writer
@@ -58,27 +59,38 @@ Note over D: Created discovery summary (3 layers)
 D-->>-O: Discovery summary ready
 ```
 
-**Architect (DEEP_MODE):**
+**Architect (DEEP_MODE — always ON):**
 
 ```text
 O->>+A: Design architecture
 Note over A: Reading BUSINESS_LOGIC.md, discoveries, CODE_INVENTORY.md
 Note over A: Designed: ModuleA, ModuleB, SharedUtils
-A->>C: Architecture plan v1
+A-->>-O: Architecture plan v1
 ```
 
-**Critic (DEEP_MODE):**
+**Innovator:**
 
 ```text
+O->>+IN: Review plan, propose alternatives
+Note over IN: Generating alternative approaches
+Note over IN: Challenged 2 assumptions, proposed 3 alternatives
+IN-->>-O: 3 ideas proposed
+```
+
+**Critic (DEEP_MODE — always ON):**
+
+```text
+O->>+C: Critique the plan
 Note over C: Running critique checklist
-C-->>A: ❌ Rejected — duplicate utility, missing error handling
+C-->>-O: ❌ Rejected — duplicate utility, missing error handling
 ```
 
 or on approval:
 
 ```text
+O->>+C: Critique the plan
 Note over C: All checks passed ✅
-C->>O: Architecture approved
+C-->>-O: Architecture approved
 ```
 
 **Planning Agent:**

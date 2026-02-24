@@ -38,6 +38,7 @@ A repository template that gives AI coding agents **persistent memory**, **anti-
 │   ├── critic.agent.md               # Architecture review (DEEP_MODE)
 │   ├── discovery.agent.md            # Analyzes new data/codebases
 │   ├── doc-updater.agent.md          # Updates all documentation
+│   ├── innovator.agent.md            # Creative alternatives & outside-the-box ideas
 │   ├── planner.agent.md              # Creates plans and todos
 │   ├── research.agent.md             # Investigates questions
 │   ├── reviewer.agent.md             # Reviews changes
@@ -97,7 +98,7 @@ TEMPLATE_README.md                    # This file — template documentation
 
 The **Orchestrator** (the main AI agent) is a pure dispatcher — it never writes code directly. It reads documentation, decides which sub-agents to spawn, and reports results.
 
-### Full Pipeline (non-trivial tasks)
+### Full Pipeline (all tasks)
 
 ```mermaid
 flowchart TD
@@ -107,11 +108,11 @@ flowchart TD
     O -->|no new data| P[Planning Agent]
     P -->|plan + todos → .ai/| UA{User Approval}
     UA -->|rejected / revise| P
-    UA -->|approved| DM{DEEP_MODE?}
-    DM -->|ON| A[Architect Agent]
+    UA -->|approved| A[Architect Agent]
+    A --> IN[Innovator Agent]
+    IN -->|creative alternatives| A
     A <-->|adversarial loop ≤5 rounds| C[Critic Agent]
-    C --> S
-    DM -->|OFF| S[Scaffolder Agent]
+    C --> S[Scaffolder Agent]
     S -->|file stubs| TW[Test Writer Agent]
     TW -->|failing tests| W[Worker Agent]
     W -->|red → green loop| R[Reviewer Agent]
@@ -123,7 +124,6 @@ flowchart TD
     style U fill:#6c757d,color:#fff
     style Done fill:#6c757d,color:#fff
     style UA fill:#e8a838,color:#fff
-    style DM fill:#e8a838,color:#fff
 ```
 
 ### Discovery (when new data appears)
@@ -161,24 +161,30 @@ flowchart LR
     style U fill:#6c757d,color:#fff
 ```
 
-### DEEP_MODE Architect–Critic Loop
+### Architect–Innovator–Critic Loop
 
-When DEEP_MODE is ON, architecture goes through adversarial refinement before implementation.
+Every task goes through adversarial refinement before implementation. The Orchestrator mediates all communication — agents never hand off to each other directly.
 
 ```mermaid
 sequenceDiagram
     participant O as Orchestrator
     participant A as Architect
+    participant IN as Innovator
     participant C as Critic
 
     O->>A: Design architecture
+    A-->>O: Architecture plan v1
+    O->>IN: Review plan, propose alternatives
+    IN-->>O: Innovator report (3+ ideas)
+    O->>A: Incorporate Innovator's best ideas
+    A-->>O: Architecture plan v2
     loop Up to 5 rounds
-        A->>C: Proposed design
-        C->>A: Flaws & improvements
-        A->>A: Revise design
+        O->>C: Critique the plan
+        C-->>O: Verdict + issues
+        O->>A: Fix issues from Critic
+        A-->>O: Revised plan
     end
-    A->>O: Final architecture
-    Note over O: Proceed to Scaffolder →<br/>Test Writer → Worker
+    Note over O: Proceed to Planning →<br/>Scaffolder → Test Writer → Worker
 ```
 
 ---
