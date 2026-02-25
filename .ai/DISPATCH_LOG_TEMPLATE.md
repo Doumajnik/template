@@ -58,6 +58,8 @@ flowchart TD
     TW["📝 Test Writer"]
     W["🔧 Worker"]
     R["🔍 Reviewer"]
+    SEC["🔒 Security"]
+    CQ["📊 Code Quality"]
     DU["📚 Doc Updater"]
     RE["🔬 Research"]
 

@@ -36,7 +36,11 @@ The orchestrator spawns agents in this sequence:
 
 11. **Reviewer Agent** (Opus 4.6) — checks the final result for quality, correctness, adherence to plan.
 
-12. **Doc Updater Agent** (Opus 4.6) — updates all documentation.
+12. **Security Agent** (Opus 4.6) — audits all code for security vulnerabilities using the OWASP Top 10:2025 checklist. Appends findings to `docs/SECURITY_REPORT.md`. If CRITICAL/HIGH findings exist, the Orchestrator spawns Workers to fix them, then re-spawns the Security Agent to verify fixes.
+
+13. **Code Quality Agent** (Opus 4.6) — scans for duplication, suboptimal code, dead code, and code smells. Appends findings to `docs/QUALITY_REPORT.md`. If CRITICAL/HIGH findings exist, the Orchestrator spawns Workers to fix them, then re-spawns the Code Quality Agent to verify fixes.
+
+14. **Doc Updater Agent** (Opus 4.6) — updates all documentation.
 
 ## Key Principles
 
@@ -47,4 +51,4 @@ The orchestrator spawns agents in this sequence:
 
 ## When OFF
 
-DEEP_MODE is **permanently ON** for this project. This section is kept for reference only. If it were ever turned off, the flow would skip Architect and Critic rounds: Planning → Scaffolder → Test Writer → Worker → Reviewer → Doc Updater.
+DEEP_MODE is **permanently ON** for this project. This section is kept for reference only. If it were ever turned off, the flow would skip Architect and Critic rounds: Planning → Scaffolder → Test Writer → Worker → Reviewer → Security → Code Quality → Doc Updater.

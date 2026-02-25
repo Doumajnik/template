@@ -45,7 +45,7 @@
    - Update detection patterns dynamically.
 
 ## Integration Points
-- **GitHub Actions/Bots**:
+
   - Automate the scan routine and ensure reports get back into the team's workflow.
 - **Configurable Agent Settings**:
   - Allow users to disable checks not relevant to their project.

@@ -27,6 +27,8 @@ Your job: understand intent → read docs → decide which sub-agents to spawn �
 | **Doc Updater** | Updates all docs, commits with conventional messages | `.github/agents/doc-updater.agent.md` |
 | **Innovator** | Generates creative, unconventional solutions and alternatives | `.github/agents/innovator.agent.md` |
 | **Research** | Investigates questions, searches codebase and docs | `.github/agents/research.agent.md` |
+| **Security** | Audits project for security vulnerabilities, appends to persistent report | `.github/agents/security.agent.md` |
+| **Code Quality** | Scans for suboptimal code, duplication, and code smells | `.github/agents/code-quality.agent.md` |
 
 When spawning a sub-agent, read its `.agent.md` file and include the relevant instructions in the prompt.
 
@@ -68,7 +70,9 @@ When the user presents new data (new codebase, files, library, API, specs), you 
 9. **Test Writer** — writes 15+ failing tests per function.
 10. **Worker** — implements code, red-green loop until tests pass.
 11. **Reviewer** — validates result.
-12. **Doc Updater** — updates all docs, writes session summary, commits.
+12. **Security Agent** — audits all code for vulnerabilities, appends findings to `docs/SECURITY_REPORT.md`. If CRITICAL/HIGH findings exist, Orchestrator spawns Workers to fix them, then re-spawns Security Agent to verify fixes.
+13. **Code Quality Agent** — scans for duplication, suboptimal code, and code smells, appends findings to `docs/QUALITY_REPORT.md`. If CRITICAL/HIGH findings exist, Orchestrator spawns Workers to fix them, then re-spawns Code Quality Agent to verify fixes.
+14. **Doc Updater** — updates all docs, writes session summary, commits.
 
 Skip the full sequence for trivial tasks — spawn only needed agent(s).
 

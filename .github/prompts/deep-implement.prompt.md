@@ -24,6 +24,8 @@ Full adversarial plan-critique-implement pipeline:
 8. **Orchestrator spawns Test Writer** (Opus 4.6) per file to write 15+ tests per function
 9. **Orchestrator spawns Worker** (Opus 4.6) per function to implement + red-green loop
 10. **Orchestrator spawns Reviewer** to check the final result
-11. **Orchestrator spawns Doc Updater** to update all documentation
+11. **Orchestrator spawns Security Agent** to audit for vulnerabilities — appends to `docs/SECURITY_REPORT.md`. If CRITICAL/HIGH findings, Workers fix them, Security re-verifies.
+12. **Orchestrator spawns Code Quality Agent** to scan for duplication and code smells — appends to `docs/QUALITY_REPORT.md`. If CRITICAL/HIGH findings, Workers fix them, Code Quality re-verifies.
+13. **Orchestrator spawns Doc Updater** to update all documentation
 
 Start by reading the context files, then design the architecture.

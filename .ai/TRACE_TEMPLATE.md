@@ -19,6 +19,8 @@ sequenceDiagram
     participant TW as 📝 Test Writer
     participant W as 🔧 Worker
     participant R as 🔍 Reviewer
+    participant SEC as 🔒 Security
+    participant CQ as 📊 Code Quality
     participant DU as 📚 Doc Updater
     participant RE as 🔬 Research
 

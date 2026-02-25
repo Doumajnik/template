@@ -15,6 +15,8 @@ A repository template that gives AI coding agents **persistent memory**, **anti-
 | **Maintains a living playbook** | Architecture decisions accumulate in `docs/PLAYBOOK.md` across sessions |
 | **Summarizes every session** | A concise summary is written to `.ai/sessions/` after each conversation |
 | **Keeps README & .gitignore current** | Agents update these whenever project structure or tooling changes |
+| **Security audits every cycle** | Security Agent scans for OWASP Top 10 vulnerabilities, tracks fixes in `docs/SECURITY_REPORT.md` |
+| **Code quality checks every cycle** | Code Quality Agent detects duplication, dead code, and smells in `docs/QUALITY_REPORT.md` |
 
 ---
 
@@ -35,6 +37,7 @@ A repository template that gives AI coding agents **persistent memory**, **anti-
 ├── copilot-instructions.md           # Master system prompt (auto-loaded by Copilot)
 ├── agents/
 │   ├── architect.agent.md            # System design (DEEP_MODE)
+│   ├── code-quality.agent.md         # Code quality, duplication, smells audit
 │   ├── critic.agent.md               # Architecture review (DEEP_MODE)
 │   ├── discovery.agent.md            # Analyzes new data/codebases
 │   ├── doc-updater.agent.md          # Updates all documentation
@@ -43,6 +46,7 @@ A repository template that gives AI coding agents **persistent memory**, **anti-
 │   ├── research.agent.md             # Investigates questions
 │   ├── reviewer.agent.md             # Reviews changes
 │   ├── scaffolder.agent.md           # Creates file stubs
+│   ├── security.agent.md             # Security vulnerability audit
 │   ├── test-writer.agent.md          # Writes thorough tests
 │   └── worker.agent.md               # Implements functions
 ├── prompts/
@@ -67,7 +71,9 @@ docs/
 ├── API_DOCUMENTATION.md              # Exposed & consumed API registry
 ├── BUSINESS_LOGIC.md                 # System logic, data flows, modules
 ├── CODE_INVENTORY.md                 # Living registry of all code symbols
-└── PLAYBOOK.md                       # Architecture decisions & patterns
+├── PLAYBOOK.md                       # Architecture decisions & patterns
+├── QUALITY_REPORT.md                 # Persistent code quality audit trail
+└── SECURITY_REPORT.md                # Persistent security audit trail
 
 src/                                  # Application source code
 ├── utils/                            # Shared helper functions and utilities
@@ -116,8 +122,10 @@ flowchart TD
     S -->|file stubs| TW[Test Writer Agent]
     TW -->|failing tests| W[Worker Agent]
     W -->|red → green loop| R[Reviewer Agent]
-    R -->|pass| DU[Doc Updater Agent]
+    R -->|pass| SEC[Security Agent]
     R -->|fail| W
+    SEC -->|audit + report| CQ[Code Quality Agent]
+    CQ -->|quality report| DU[Doc Updater Agent]
     DU -->|docs + commit| Done([Done])
 
     style O fill:#4a90d9,color:#fff
@@ -213,6 +221,8 @@ sequenceDiagram
 | `.ai/sessions/*.md` | Conversation summaries | Doc Updater Agent, at end of session |
 | `.ai/plans/*.plan.md` | Implementation plans | Planning Agent, before implementation |
 | `.ai/todos/*.todo.md` | Persisted task tracking | Planning Agent / Orchestrator |
+| `docs/SECURITY_REPORT.md` | Persistent security audit trail | Security Agent, end of each cycle |
+| `docs/QUALITY_REPORT.md` | Persistent code quality audit trail | Code Quality Agent, end of each cycle |
 
 ---
 

@@ -31,7 +31,9 @@ docs/
 ├── API_DOCUMENTATION.md
 ├── BUSINESS_LOGIC.md
 ├── CODE_INVENTORY.md
-└── PLAYBOOK.md
+├── PLAYBOOK.md
+├── QUALITY_REPORT.md
+└── SECURITY_REPORT.md
 .ai/               → Agent memory (preferences, sessions, plans, traces, todos)
 .github/           → Copilot instructions, custom agents, prompt files
 ```
@@ -58,8 +60,10 @@ flowchart TD
     S -->|file stubs| TW[Test Writer Agent]
     TW -->|failing tests| W[Worker Agent]
     W -->|red-green loop| R[Reviewer Agent]
-    R -->|pass| DU[Doc Updater Agent]
+    R -->|pass| SEC[Security Agent]
     R -->|fail| W
+    SEC -->|audit + report| CQ[Code Quality Agent]
+    CQ -->|quality report| DU[Doc Updater Agent]
     DU -->|docs + commit| Done([Done])
 
     style O fill:#4a90d9,color:#fff
