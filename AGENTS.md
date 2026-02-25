@@ -142,8 +142,7 @@ sequenceDiagram
 3. `docs/CODE_INVENTORY.md` — what already exists.
 4. `docs/discoveries/` — summaries of previously analyzed data.
 5. Latest `.ai/sessions/` — recent context.
-6. Check `.ai/plans/` for in-progress plans (status 🔵). Ask user if they want to resume.
-
+6. Check `.ai/plans/` for in-progress plans (status 🔵). Ask user if they want to resume.7. **Create a dispatch log** — copy `.ai/DISPATCH_LOG_TEMPLATE.md` to `.ai/sessions/{YYYY-MM-DD}_{topic}.dispatch.md`. Fill in the session date and topic. All sub-agent calls during this session are logged here.
 ---
 
 ## Discovery (when new data appears)
@@ -195,6 +194,7 @@ The orchestrator and Planning Agent NEVER read raw source code. Only Workers and
 - **Sub-agents (Opus 4.6):** perform all concrete work. Each gets only needed context.
 - **Everything is delegated.** If it can be described in a prompt, it MUST be a sub-agent.
 - **No agent-to-agent handoffs.** Every agent reports back to the Orchestrator. The Orchestrator decides which agent to spawn next. Agents NEVER spawn or hand off to other agents directly.
+- **Log every dispatch.** Before spawning any sub-agent, append a row to the session's dispatch log (`.ai/sessions/{date}_{topic}.dispatch.md`) with: who is calling, which agent, why, and what it should do. Update the Result column when the agent reports back.
 
 ---
 
@@ -214,6 +214,7 @@ The orchestrator and Planning Agent NEVER read raw source code. Only Workers and
 - API documentation rules: see `docs/API_DOCUMENTATION.md` header.
 - DEEP_MODE pipeline details: see `.ai/DEEP_MODE.md`.
 - Tracing rules: see `.ai/TRACE_TEMPLATE.md`.
+- Dispatch logging rules: see `.ai/DISPATCH_LOG_TEMPLATE.md`.
 
 ---
 
