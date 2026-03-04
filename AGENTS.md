@@ -23,17 +23,33 @@ Your job: understand intent → read docs → decide which sub-agents to spawn �
 | --- | --- | --- |
 | **Discovery** | Reads new data/codebases, produces summaries in `docs/discoveries/` | `.github/agents/discovery.agent.md` |
 | **Planning** | Creates plans in `.ai/plans/` and todos in `.ai/todos/` | `.github/agents/planner.agent.md` |
-| **Architect** | Designs system architecture (DEEP_MODE only) | `.github/agents/architect.agent.md` |
-| **Critic** | Reviews architecture for flaws (DEEP_MODE only) | `.github/agents/critic.agent.md` |
+| **Architect** | Designs system architecture | `.github/agents/architect.agent.md` |
+| **Critic** | Reviews architecture for flaws | `.github/agents/critic.agent.md` |
 | **Scaffolder** | Creates file stubs with signatures and docstrings | `.github/agents/scaffolder.agent.md` |
 | **Test Writer** | Writes 15+ tests per function (red phase) | `.github/agents/test-writer.agent.md` |
 | **Worker** | Implements functions, runs red-green loop | `.github/agents/worker.agent.md` |
-| **Reviewer** | Validates code quality, coverage, plan adherence | `.github/agents/reviewer.agent.md` |
+| **Integration Tester** | Writes E2E and integration tests for multi-module flows | `.github/agents/integration-tester.agent.md` |
+| **Reviewer** | Reviews for duplication, playbook compliance, and preference alignment | `.github/agents/reviewer.agent.md` |
 | **Doc Updater** | Updates all docs, commits with conventional messages | `.github/agents/doc-updater.agent.md` |
 | **Innovator** | Generates creative, unconventional solutions and alternatives | `.github/agents/innovator.agent.md` |
-| **Research** | Investigates questions, searches codebase and docs | `.github/agents/research.agent.md` |
+| **Research** | Investigates questions via web research, codebase search, and docs | `.github/agents/research.agent.md` |
 | **Security** | Audits project for security vulnerabilities, appends to persistent report | `.github/agents/security.agent.md` |
 | **Code Quality** | Scans for suboptimal code, duplication, and code smells | `.github/agents/code-quality.agent.md` |
+| **Refactor** | Restructures existing code without changing behavior | `.github/agents/refactor.agent.md` |
+| **Debug** | Diagnoses bugs from error logs, stack traces, and failing tests. Applies fixes | `.github/agents/debug.agent.md` |
+| **Performance** | Profiles bottlenecks, algorithmic complexity, and memory issues | `.github/agents/performance.agent.md` |
+| **Database** | Designs schemas, writes migrations, optimizes queries | `.github/agents/database.agent.md` |
+| **Monitoring** | Audits observability — logging, health checks, alerting. Reports gaps — Workers implement | `.github/agents/monitoring.agent.md` |
+| **Dependency** | Audits dependency trees for outdated packages and license compliance | `.github/agents/dependency.agent.md` |
+| **Cleanup** | Removes dead code, unused imports, and stale files | `.github/agents/cleanup.agent.md` |
+| **Accessibility** | Reviews UI/frontend code for WCAG compliance | `.github/agents/accessibility.agent.md` |
+| **Compliance** | Audits for license compliance, data privacy, and regulatory requirements | `.github/agents/compliance.agent.md` |
+| **Retrospective** | Reviews agent decisions, identifies improvements, updates Playbook | `.github/agents/retrospective.agent.md` |
+| **Migration** | Handles framework upgrades, API version bumps, language migrations | `.github/agents/migration.agent.md` |
+| **API Design** | Designs API contracts, generates OpenAPI specs, validates endpoints | `.github/agents/api-design.agent.md` |
+| **Error Handling** | Audits error handling for silent catches, missing context. Reports findings — Workers fix | `.github/agents/error-handling.agent.md` |
+| **Type Safety** | Audits type coverage, finds unsafe casts, validates schema consistency. Reports findings — Workers fix | `.github/agents/type-safety.agent.md` |
+| **Git / Release** | Manages changelogs, semantic versioning, release notes, tag creation | `.github/agents/git-release.agent.md` |
 
 When spawning a sub-agent, read its `.agent.md` file and include the relevant instructions in the prompt.
 
@@ -49,24 +65,28 @@ The standard pipeline for all tasks. DEEP_MODE is always ON — every task goes 
 flowchart TD
     U([User Request]) --> O{Orchestrator}
     O -->|new data?| D[Discovery Agent]
-    D -->|summary → docs/discoveries/| P
-    O -->|no new data| P[Planning Agent]
-    P -->|plan + todos → .ai/| UA{User Approval}
-    UA -->|rejected / revise| P
-    UA -->|approved| A[Architect Agent]
+    D -->|summary → docs/discoveries/| RE
+    O -->|no new data| RE[Research Agent]
+    RE -->|research brief + deps| DEP[Install Dependencies]
+    DEP --> A[Architect Agent]
     A --> IN[Innovator Agent]
     IN -->|creative alternatives| A
-    A <-->|adversarial loop ≤5 rounds| C[Critic Agent]
-    C --> S[Scaffolder Agent]
+    A <-->|adversarial loop ≤10 rounds| C[Critic Agent]
+    C --> P[Planning Agent]
+    P -->|plan + todos → .ai/| UA{User Approval}
+    UA -->|rejected| RE
+    UA -->|approved → suggest new session| S[Scaffolder Agent]
     
     S -->|file stubs| TW[Test Writer Agent]
     TW -->|failing tests| W[Worker Agent]
-    W -->|red → green loop| R[Reviewer Agent]
+    W -->|red → green loop| IT[Integration Tester Agent]
+    IT -->|E2E tests pass| R[Reviewer Agent]
     R -->|pass| SEC[Security Agent]
     R -->|fail| W
     SEC -->|audit + report| CQ[Code Quality Agent]
     CQ -->|quality report| DU[Doc Updater Agent]
-    DU -->|docs + commit| Done([Done])
+    DU -->|docs + commit| RT[Retrospective Agent]
+    RT -->|review decisions + update Playbook| Done([Done])
 
     style O fill:#4a90d9,color:#fff
     style U fill:#6c757d,color:#fff
@@ -104,8 +124,23 @@ flowchart LR
     U([User Request]) --> O{Orchestrator}
     O -->|question| RS[Research Agent]
     O -->|small fix| W[Worker Agent]
+    O -->|bug| DB[Debug Agent]
+    O -->|refactor| RF[Refactor Agent]
     O -->|docs only| DU[Doc Updater Agent]
     O -->|review code| RV[Reviewer Agent]
+    O -->|performance| PF[Performance Agent]
+    O -->|cleanup| CL[Cleanup Agent]
+    O -->|deps audit| DP[Dependency Agent]
+    O -->|security audit| SEC[Security Agent]
+    O -->|database| DBA[Database Agent]
+    O -->|monitoring| MN[Monitoring Agent]
+    O -->|accessibility| AC[Accessibility Agent]
+    O -->|compliance| CM[Compliance Agent]
+    O -->|migration| MG[Migration Agent]
+    O -->|API design| AD[API Design Agent]
+    O -->|error patterns| EH[Error Handling Agent]
+    O -->|type audit| TS[Type Safety Agent]
+    O -->|release| GR[Git / Release Agent]
 
     style O fill:#4a90d9,color:#fff
     style U fill:#6c757d,color:#fff
@@ -128,13 +163,13 @@ sequenceDiagram
     IN-->>O: Innovator report (3+ ideas)
     O->>A: Incorporate Innovator's best ideas
     A-->>O: Architecture plan v2
-    loop Up to 5 rounds
+    loop Up to 10 rounds
         O->>C: Critique the plan
         C-->>O: Verdict + issues
         O->>A: Fix issues from Critic
         A-->>O: Revised plan
     end
-    Note over O: Proceed to Planning →<br/>Scaffolder → Test Writer → Worker
+    Note over O: Proceed to Planning →<br/>Scaffolder → Test Writer →<br/>Worker → Integration Tester
 ```
 
 ---
@@ -146,7 +181,9 @@ sequenceDiagram
 3. `docs/CODE_INVENTORY.md` — what already exists.
 4. `docs/discoveries/` — summaries of previously analyzed data.
 5. Latest `.ai/sessions/` — recent context.
-6. Check `.ai/plans/` for in-progress plans (status 🔵). Ask user if they want to resume.7. **Create a dispatch log** — copy `.ai/DISPATCH_LOG_TEMPLATE.md` to `.ai/sessions/{YYYY-MM-DD}_{topic}.dispatch.md`. Fill in the session date and topic. All sub-agent calls during this session are logged here.
+6. Check `.ai/plans/` for in-progress plans (status 🟢). Ask user if they want to resume.
+7. **Create a dispatch log** — copy `.ai/DISPATCH_LOG_TEMPLATE.md` to `.ai/sessions/{YYYY-MM-DD}_{topic}.dispatch.md`. Fill in the session date and topic. All sub-agent calls during this session are logged here.
+
 ---
 
 ## Discovery (when new data appears)
@@ -163,21 +200,44 @@ When the user presents new data (new codebase, files, library, API, specs):
 ## Planning Sequence (non-trivial tasks)
 
 1. **Discovery Agent** — if new data involved (ask first).
-2. **Planning Agent** — reads docs, creates plan + todo file.
-3. **User approval** — present plan, revise if needed.
-4. **Architect** — designs architecture plan.
+2. **Research Agent** — researches the topic on the web (best practices, libraries, patterns, pitfalls). Produces a research brief with recommended approach and dependency list. Passes findings to the Architect.
+3. **Dependency mapping & install** — based on the Research Agent's findings, map out all required dependencies and install them upfront before any coding begins.
+4. **Architect** — designs architecture plan, using the Research Agent's brief as input.
 5. **Innovator** — reviews the plan and proposes creative alternatives and outside-the-box ideas. Reports back to Orchestrator.
 6. **Architect (revision)** — Orchestrator feeds Innovator's best ideas back to the Architect to consider incorporating.
-7. **Critic** — reviews for flaws, duplication, over-engineering. Orchestrator mediates Architect↔Critic loop (max 5 rounds). All agents report back to Orchestrator — no direct handoffs.
-8. **Scaffolder** — creates file stubs.
-9. **Test Writer** — writes 15+ failing tests per function.
-10. **Worker** — implements code, red-green loop until tests pass.
-11. **Reviewer** — validates result.
-12. **Security Agent** — audits all code for vulnerabilities, appends findings to `docs/SECURITY_REPORT.md`. If CRITICAL/HIGH findings exist, Orchestrator spawns Workers to fix them, then re-spawns Security Agent to verify fixes.
-13. **Code Quality Agent** — scans for duplication, suboptimal code, and code smells, appends findings to `docs/QUALITY_REPORT.md`. If CRITICAL/HIGH findings exist, Orchestrator spawns Workers to fix them, then re-spawns Code Quality Agent to verify fixes.
-14. **Doc Updater** — updates all docs, writes session summary, commits.
+7. **Critic** — reviews for flaws, duplication, over-engineering. Orchestrator mediates Architect↔Critic loop (max 10 rounds). All agents report back to Orchestrator — no direct handoffs.
+8. **Planning Agent** — reads docs, creates plan + todo file. The todo file (`.ai/todos/{YYYY-MM-DD}_{topic}.todo.md`) is the **living tracker** — every subsequent agent reads it, marks their task(s) 🔵 in-progress before starting and ✅ done when complete, and appends to its Progress Log.
+9. **User approval (MANDATORY GATE)** — present the full plan and ask for explicit approval. Suggest opening a new chat session for implementation to keep context clean. **If user does not approve**, restart the entire pipeline from step 1 to ensure no dependencies or context are missed in the revision.
+10. **Scaffolder** — creates file stubs. Marks scaffolding tasks ✅ in todo.
+11. **Test Writer** — writes 15+ failing tests per function (one instance per function). Marks test tasks ✅ in todo.
+12. **Worker** — implements code, red-green loop until tests pass (one instance per function). Marks each function ✅ in todo as it passes.
+13. **Integration Tester** — writes and runs E2E/integration tests. Marks ✅ in todo.
+14. **Reviewer** — validates result. Checks todo for skipped/incomplete tasks. Marks review ✅ in todo.
+15. **Security Agent** — audits all code for vulnerabilities, appends to `docs/SECURITY_REPORT.md`. Marks ✅ in todo. If CRITICAL/HIGH → Workers fix → re-verify.
+16. **Code Quality Agent** — scans for duplication/smells, appends to `docs/QUALITY_REPORT.md`. Marks ✅ in todo. If CRITICAL/HIGH → Workers fix → re-verify.
+17. **Doc Updater** — updates all docs, writes session summary, commits. Marks doc tasks ✅ in todo.
+18. **Retrospective Agent** — reviews all decisions, updates `docs/PLAYBOOK.md`, appends to `docs/RETROSPECTIVE_REPORT.md`. Marks ✅ and sets todo status to ✅ Complete.
 
 Skip the full sequence for trivial tasks — spawn only needed agent(s).
+
+### Ad-Hoc Agents (spawned as needed)
+
+These agents are NOT part of the sequential pipeline. The Orchestrator spawns them on-demand based on user requests or specific needs:
+
+- **Refactor** — restructures existing code without changing behavior.
+- **Debug** — diagnoses bugs from error logs, stack traces, and failing tests.
+- **Performance** — profiles bottlenecks, algorithmic complexity, and memory issues.
+- **Database** — designs schemas, writes migrations, optimizes queries.
+- **Monitoring** — audits observability (logging, health checks, alerting). Reports gaps — Workers implement.
+- **Dependency** — audits dependency trees for outdated packages and license compliance.
+- **Cleanup** — removes dead code, unused imports, and stale files.
+- **Accessibility** — reviews UI/frontend code for WCAG compliance.
+- **Compliance** — audits for license compliance, data privacy, and regulatory requirements.
+- **Migration** — handles framework upgrades, API version bumps, language migrations.
+- **API Design** — designs API contracts, generates OpenAPI specs, validates endpoints.
+- **Error Handling** — audits error handling for silent catches, missing context. Reports findings — Workers fix.
+- **Type Safety** — audits type coverage, finds unsafe casts, validates schema consistency. Reports findings — Workers fix.
+- **Git / Release** — manages changelogs, semantic versioning, release notes, tag creation.
 
 > **TURBO_MODE** (read from `.ai/PREFERENCES.md`): When ON, plan to function level, mark all `[delegatable]`, mass-spawn. When OFF, plan at phase level, spawn per phase.
 
@@ -204,6 +264,35 @@ The orchestrator and Planning Agent NEVER read raw source code. Only Workers and
 
 ---
 
+## Error Recovery
+
+When a sub-agent fails or produces unusable output:
+
+1. **Retry once** with clarified instructions and additional context. Include the error/failure reason in the retry prompt.
+2. **Escalate to a different agent** if the failure is outside the original agent's scope (e.g., Debug Agent for runtime errors, Research Agent for missing knowledge).
+3. **Report to user** if two retries fail. Present what was attempted, what failed, and ask for guidance.
+4. **Never silently skip.** A failed step must be explicitly resolved (retried, delegated, or user-approved to skip) before proceeding.
+
+## Conflict Resolution
+
+When agents produce contradictory recommendations (e.g., Security vs. Code Quality vs. Performance):
+
+1. **Security wins by default.** Security findings always take priority over style, performance, or convenience.
+2. **Correctness over optimization.** If Performance Agent recommends an optimization that could introduce bugs, correctness wins.
+3. **Orchestrator mediates.** Present both recommendations to the user with pros/cons when priority is unclear.
+4. **Document the resolution.** Record which recommendation was chosen and why in the dispatch log.
+
+## Pipeline Abort
+
+The user can stop the pipeline at any time by saying "abort", "stop", or "cancel":
+
+1. **Immediately halt** — do not spawn the next agent.
+2. **Save progress** — spawn Doc Updater to write a session summary noting the abort point and reason.
+3. **Mark the plan** as 🟡 Paused (not ❌ Failed) in `.ai/plans/` so it can be resumed later.
+4. **Report status** — tell the user which steps completed, which step was in progress, and what remains.
+
+---
+
 ## Core Rules (pass to all sub-agents)
 
 - **Never delete a file to fix a bug.** Fix the actual problem in place.
@@ -221,6 +310,7 @@ The orchestrator and Planning Agent NEVER read raw source code. Only Workers and
 - DEEP_MODE pipeline details: see `.ai/DEEP_MODE.md`.
 - Tracing rules: see `.ai/TRACE_TEMPLATE.md`.
 - Dispatch logging rules: see `.ai/DISPATCH_LOG_TEMPLATE.md`.
+- **Decision justification.** When making a non-trivial decision (choosing one approach over another, adding a dependency, changing architecture), document WHY in your output. The Retrospective Agent reviews these justifications to improve the Playbook.
 
 ---
 

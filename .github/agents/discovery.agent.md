@@ -51,9 +51,9 @@ The orchestrator spawns you when the user presents new data:
    - Breaking changes, deprecations
    - Security concerns
 
-4. **Update `docs/CODE_INVENTORY.md`** if the new data includes code symbols that should be tracked.
-
-5. **Document any APIs found** in `docs/API_DOCUMENTATION.md` — both exposed endpoints and consumed external services. Follow the format in that file's header.
+4. **Flag documentation updates needed** (the Doc Updater agent will apply these):
+   - New code symbols for `docs/CODE_INVENTORY.md`
+   - New APIs (exposed endpoints or consumed external services) for `docs/API_DOCUMENTATION.md`
 
 ## Rules
 
@@ -61,3 +61,4 @@ The orchestrator spawns you when the user presents new data:
 - Use the template in `docs/discoveries/_TEMPLATE.discovery.md` for structure.
 - Your summary is the single source of truth for all other agents. Make it complete.
 - Never modify the original data/code — only create documentation.
+- **Always report back to the Orchestrator.** Never hand off to other agents.

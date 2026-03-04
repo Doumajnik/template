@@ -9,6 +9,7 @@
 
 - **TURBO_MODE: ON** — Plan down to every function, mark everything possible as `[delegatable]`, mass-spawn sub-agents. Set to OFF if you prefer inline implementation with fewer sub-agents.
 - **DEEP_MODE: ALWAYS ON** — Full adversarial pipeline on **every task**, no exceptions. Architect designs → Critic reviews → iterate until approved → Planner breaks down → Scaffolder creates stubs → Test Writer writes thorough tests → Workers implement with red-green loop. Never skip the Architect/Critic rounds.
+- **GRANULAR SPAWNING: ON** — Spawn one Test Writer and one Worker per **individual function**, not per file or per project. Every function gets its own dedicated Test Writer instance and its own dedicated Worker instance. Break work down to the smallest possible unit — never batch multiple functions into a single agent call.
 
 ---
 
@@ -34,7 +35,8 @@
 
 <!-- Examples: "use zod for validation", "prefer axios over fetch", "use vitest not jest" -->
 
-*No preferences learned yet.*
+- **Always create an isolated environment first.** At the start of any project or session, create the appropriate isolated/virtual environment for the language being used (e.g., `python -m venv .venv`, `node_modules` via `npm install`, `cargo` workspace, `dotnet` project, Go modules, etc.) and activate it before installing dependencies or running code. Never install packages globally.
+- **Research and install all dependencies upfront.** Before any coding begins, the Research Agent identifies all required libraries/packages. The Orchestrator installs them all at once in the project's isolated environment. No mid-implementation dependency hunting.
 
 ---
 
@@ -65,6 +67,7 @@
 <!-- Examples: "always run tests before committing", "prefer small MRs", "squash commits" -->
 
 - **At least 15 tests per function.** Every public function must have a minimum of 15 test cases covering: happy path (multiple inputs), edge cases, boundary values, empty/null/missing inputs, invalid types, large inputs, error conditions, negative logic, idempotency, combination inputs, regression cases, and any domain-specific scenarios. Test thoroughly — don't just check the obvious case. Tests are written by Test Writer and Worker sub-agents (Opus 4.6), never by the orchestrator.
+- **Run tests without asking.** Test Writer and Worker agents should run tests automatically as part of their workflow — never pause to ask the user for permission to execute tests.
 
 ---
 

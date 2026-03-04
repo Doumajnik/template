@@ -17,6 +17,7 @@ A repository template that gives AI coding agents **persistent memory**, **anti-
 | **Keeps README & .gitignore current** | Agents update these whenever project structure or tooling changes |
 | **Security audits every cycle** | Security Agent scans for OWASP Top 10 vulnerabilities, tracks fixes in `docs/SECURITY_REPORT.md` |
 | **Code quality checks every cycle** | Code Quality Agent detects duplication, dead code, and smells in `docs/QUALITY_REPORT.md` |
+| **Continuous self-improvement** | Retrospective Agent reviews agent decisions after each cycle, updates `docs/PLAYBOOK.md` with lessons learned |
 
 ---
 
@@ -36,18 +37,34 @@ A repository template that gives AI coding agents **persistent memory**, **anti-
 .github/
 ├── copilot-instructions.md           # Master system prompt (auto-loaded by Copilot)
 ├── agents/
-│   ├── architect.agent.md            # System design (DEEP_MODE)
+│   ├── accessibility.agent.md        # WCAG compliance and UI accessibility
+│   ├── api-design.agent.md           # API contracts, OpenAPI specs, endpoint design
+│   ├── architect.agent.md            # System design
+│   ├── cleanup.agent.md              # Dead code and stale file removal
 │   ├── code-quality.agent.md         # Code quality, duplication, smells audit
-│   ├── critic.agent.md               # Architecture review (DEEP_MODE)
+│   ├── compliance.agent.md           # License, privacy, regulatory compliance
+│   ├── critic.agent.md               # Architecture review
+│   ├── database.agent.md             # Schema design, migrations, queries
+│   ├── debug.agent.md                # Bug diagnosis and fixing
+│   ├── dependency.agent.md           # Dependency audit and license check
 │   ├── discovery.agent.md            # Analyzes new data/codebases
 │   ├── doc-updater.agent.md          # Updates all documentation
+│   ├── error-handling.agent.md       # Error recovery patterns, silent catch audit
+│   ├── git-release.agent.md          # Changelogs, semantic versioning, releases
 │   ├── innovator.agent.md            # Creative alternatives & outside-the-box ideas
+│   ├── integration-tester.agent.md   # E2E and integration tests
+│   ├── migration.agent.md            # Framework upgrades, API version bumps
+│   ├── monitoring.agent.md           # Audits observability, reports gaps
+│   ├── performance.agent.md          # Profiling and optimization
 │   ├── planner.agent.md              # Creates plans and todos
+│   ├── refactor.agent.md             # Code restructuring without behavior change
 │   ├── research.agent.md             # Investigates questions
+│   ├── retrospective.agent.md        # Reviews decisions, improves Playbook
 │   ├── reviewer.agent.md             # Reviews changes
 │   ├── scaffolder.agent.md           # Creates file stubs
 │   ├── security.agent.md             # Security vulnerability audit
 │   ├── test-writer.agent.md          # Writes thorough tests
+│   ├── type-safety.agent.md          # Type coverage, schema validation, strict typing
 │   └── worker.agent.md               # Implements functions
 ├── prompts/
 │   ├── plan-feature.prompt.md        # /plan-feature slash command
@@ -73,6 +90,8 @@ docs/
 ├── CODE_INVENTORY.md                 # Living registry of all code symbols
 ├── PLAYBOOK.md                       # Architecture decisions & patterns
 ├── QUALITY_REPORT.md                 # Persistent code quality audit trail
+├── RETROSPECTIVE_REPORT.md           # Agent decision audit & improvement log
+├── REVIEW_REPORT.md                  # Persistent code review trail
 └── SECURITY_REPORT.md                # Persistent security audit trail
 
 src/                                  # Application source code
@@ -110,23 +129,27 @@ The **Orchestrator** (the main AI agent) is a pure dispatcher — it never write
 flowchart TD
     U([User Request]) --> O{Orchestrator}
     O -->|new data?| D[Discovery Agent]
-    D -->|summary → docs/discoveries/| P
-    O -->|no new data| P[Planning Agent]
-    P -->|plan + todos → .ai/| UA{User Approval}
-    UA -->|rejected / revise| P
-    UA -->|approved| A[Architect Agent]
+    D -->|summary → docs/discoveries/| RE
+    O -->|no new data| RE[Research Agent]
+    RE -->|research brief + deps| DEP[Install Dependencies]
+    DEP --> A[Architect Agent]
     A --> IN[Innovator Agent]
     IN -->|creative alternatives| A
-    A <-->|adversarial loop ≤5 rounds| C[Critic Agent]
-    C --> S[Scaffolder Agent]
+    A <-->|adversarial loop ≤10 rounds| C[Critic Agent]
+    C --> P[Planning Agent]
+    P -->|plan + todos → .ai/| UA{User Approval}
+    UA -->|rejected| RE
+    UA -->|approved → suggest new session| S[Scaffolder Agent]
     S -->|file stubs| TW[Test Writer Agent]
     TW -->|failing tests| W[Worker Agent]
-    W -->|red → green loop| R[Reviewer Agent]
+    W -->|red → green loop| IT[Integration Tester Agent]
+    IT -->|E2E tests pass| R[Reviewer Agent]
     R -->|pass| SEC[Security Agent]
     R -->|fail| W
     SEC -->|audit + report| CQ[Code Quality Agent]
     CQ -->|quality report| DU[Doc Updater Agent]
-    DU -->|docs + commit| Done([Done])
+    DU -->|docs + commit| RT[Retrospective Agent]
+    RT -->|review decisions + update Playbook| Done([Done])
 
     style O fill:#4a90d9,color:#fff
     style U fill:#6c757d,color:#fff
@@ -162,8 +185,23 @@ flowchart LR
     U([User Request]) --> O{Orchestrator}
     O -->|question| RS[Research Agent]
     O -->|small fix| W[Worker Agent]
+    O -->|bug| DB[Debug Agent]
+    O -->|refactor| RF[Refactor Agent]
     O -->|docs only| DU[Doc Updater Agent]
     O -->|review code| RV[Reviewer Agent]
+    O -->|performance| PF[Performance Agent]
+    O -->|cleanup| CL[Cleanup Agent]
+    O -->|deps audit| DP[Dependency Agent]
+    O -->|security audit| SEC[Security Agent]
+    O -->|database| DBA[Database Agent]
+    O -->|monitoring| MN[Monitoring Agent]
+    O -->|accessibility| AC[Accessibility Agent]
+    O -->|compliance| CM[Compliance Agent]
+    O -->|migration| MG[Migration Agent]
+    O -->|API design| AD[API Design Agent]
+    O -->|error patterns| EH[Error Handling Agent]
+    O -->|type audit| TS[Type Safety Agent]
+    O -->|release| GR[Git / Release Agent]
 
     style O fill:#4a90d9,color:#fff
     style U fill:#6c757d,color:#fff
@@ -186,13 +224,13 @@ sequenceDiagram
     IN-->>O: Innovator report (3+ ideas)
     O->>A: Incorporate Innovator's best ideas
     A-->>O: Architecture plan v2
-    loop Up to 5 rounds
+    loop Up to 10 rounds
         O->>C: Critique the plan
         C-->>O: Verdict + issues
         O->>A: Fix issues from Critic
         A-->>O: Revised plan
     end
-    Note over O: Proceed to Planning →<br/>Scaffolder → Test Writer → Worker
+    Note over O: Proceed to Planning →<br/>Scaffolder → Test Writer →<br/>Worker → Integration Tester
 ```
 
 ---
@@ -201,11 +239,11 @@ sequenceDiagram
 
 | Command              | What it does                                                                         |
 |----------------------|--------------------------------------------------------------------------------------|
-| `/plan-feature`      | Analyze a feature request and produce a step-by-step plan                            |
-| `/implement-plan`    | Execute a plan file step-by-step with sub-agent delegation                           |
-| `/review-session`    | Review changes, check quality, write session summary                                 |
-| `/update-inventory`  | Re-scan `src/` and regenerate the code inventory                                     |
-| `/deep-implement`    | Full DEEP_MODE pipeline: architect → critic → plan → scaffold → test → implement     |
+| `/plan-feature`      | Full planning pipeline: Research → Architect → Innovator → Critic → Plan → User Approval  |
+| `/implement-plan`    | Execute a plan: Scaffolder → Test Writer → Worker → Integration Tester → Reviewer → Quality gates |
+| `/review-session`    | Review changes, run Security + Code Quality audits, write session summary               |
+| `/update-inventory`  | Re-scan `src/` and regenerate the code inventory + per-file docs                        |
+| `/deep-implement`    | Full 19-step pipeline: plan + implement + audit + retrospective                         |
 
 ---
 
@@ -216,13 +254,16 @@ sequenceDiagram
 | `docs/CODE_INVENTORY.md` | Registry of every function, class, const | Agent, after every code change |
 | `docs/PLAYBOOK.md` | Architecture decisions & patterns | Agent, after design decisions |
 | `docs/discoveries/*.md` | Summaries of analyzed data/codebases | Discovery Agent |
-| `docs/API_DOCUMENTATION.md` | Exposed & consumed API registry | Worker / Doc Updater Agent |
+| `docs/files/*.md` | Per-file documentation (purpose, API, deps) | Doc Updater Agent |
+| `docs/API_DOCUMENTATION.md` | Exposed & consumed API registry | Doc Updater Agent |
 | `.ai/PREFERENCES.md` | User's coding style preferences | Agent, when learning new preferences |
 | `.ai/sessions/*.md` | Conversation summaries | Doc Updater Agent, at end of session |
 | `.ai/plans/*.plan.md` | Implementation plans | Planning Agent, before implementation |
 | `.ai/todos/*.todo.md` | Persisted task tracking | Planning Agent / Orchestrator |
 | `docs/SECURITY_REPORT.md` | Persistent security audit trail | Security Agent, end of each cycle |
 | `docs/QUALITY_REPORT.md` | Persistent code quality audit trail | Code Quality Agent, end of each cycle |
+| `docs/REVIEW_REPORT.md` | Persistent code review trail | Reviewer Agent, end of each cycle |
+| `docs/RETROSPECTIVE_REPORT.md` | Agent decision audit & improvement log | Retrospective Agent, end of each cycle |
 
 ---
 

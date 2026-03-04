@@ -2,7 +2,7 @@
 name: Planning
 description: Creates high-level plans, function-level impl plans, and todo files from docs and discovery summaries
 model: Claude Opus 4.6
-tools: ['search', 'read', 'edit', 'web/fetch']
+tools: ['search', 'read', 'edit']
 ---
 
 # Planning Agent
@@ -78,3 +78,4 @@ You are a **planning-only** agent. You read documentation and discovery summarie
 - **Flag** any step that might conflict with existing patterns in `PLAYBOOK.md`.
 - Keep plans **specific** — exact file paths, function signatures, param types, return types.
 - Note any APIs that will be consumed or exposed — the Doc Updater will document them.
+- **Always report back to the Orchestrator.** Never hand off to other agents.

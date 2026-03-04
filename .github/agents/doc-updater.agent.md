@@ -26,15 +26,15 @@ You are a **documentation updater** agent. After any coding task completes, you 
    - **`.gitignore`** — MANDATORY update after major changes (new frameworks, build tools, caches, new directories). We do NOT use `.gitkeep` — all folder tracking is in `.gitignore`.
    - **Git hooks** (`scripts/hooks/`) — update when adding a new language, framework, linter, or formatter. Re-run `scripts/setup.ps1` (Windows) or `scripts/setup.sh` (Unix) after modifying.
    - **`.ai/PREFERENCES.md`** — append any newly learned user preferences.
-   - **`.ai/todos/{YYYY-MM-DD}_{topic}.todo.md`** — mark the todo file as ✅ Complete.
+   - **`.ai/todos/{YYYY-MM-DD}_{topic}.todo.md`** — mark your doc-update task as ✅ done and append to the Progress Log. If you encounter unresolvable issues, mark the task as ❌ blocked and note the error in the Blockers section. Do NOT mark the overall todo status as Complete — the Retrospective Agent (final pipeline step) handles that.
    - **`.ai/sessions/{YYYY-MM-DD}_{topic}.md`** — write a concise session summary (≤30 lines).
    - **`.ai/TEMPLATE_SYNC.md`** — if any instruction or preference file was changed, append an entry with the date, file, and what changed.
 
 2. **Check for errors and warnings** in all modified files. Fix all before committing.
 
-3. **Git commit** with a conventional message: `type(scope): description`
+3. **Prepare commit message** — include a conventional message in your report: `type(scope): description`
    - Types: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `style`
-   - Commit logical chunks — don't bundle unrelated changes.
+   - Group logical chunks — don't bundle unrelated changes.
 
 ## Rules
 

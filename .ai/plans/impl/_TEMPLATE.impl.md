@@ -2,7 +2,7 @@
 
 > Save as: `.ai/plans/impl/{plan-name}_phase-{N}.impl.md`
 > This is the **detailed execution contract** for a single phase.
-> The implementer reads it top-to-bottom and spawns a sub-agent for every
+> The Orchestrator reads it top-to-bottom and spawns a sub-agent for every
 > `[delegatable]` line. Check off `[x]` as each function is implemented.
 
 ---
@@ -21,7 +21,7 @@
   RULES:
   - Every function, class, method, constant, and type gets its own checkbox line.
   - Each line has: name, full signature, one-liner, and [delegatable] or [inline].
-  - The implementer spawns one sub-agent per [delegatable] line.
+  - The Orchestrator spawns one sub-agent per [delegatable] line.
   - Sub-agents receive: this line + the file path + relevant inventory/playbook context.
   - Check off [x] immediately after each item is done.
 -->

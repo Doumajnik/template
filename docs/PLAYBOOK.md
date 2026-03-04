@@ -94,9 +94,12 @@ Before writing or modifying code, always ask: **does this belong here?**
 ## Error Handling Strategy
 
 <!-- How errors are handled across the project. -->
-<!-- Example: "Use custom AppError class with error codes. Never catch and swallow silently." -->
 
-*Not yet decided.*
+- **Never catch and swallow silently.** Every catch block must log, re-throw, or return a meaningful error.
+- **Use typed/custom errors** when the language supports it (e.g., custom `AppError` class with error codes).
+- **Fail fast in config/startup.** Missing environment variables or invalid config should crash immediately with a clear message.
+- **Graceful degradation in runtime.** Non-critical failures (e.g., optional cache miss) should degrade gracefully, not crash.
+- **Always include context in error messages.** Include what was attempted, what failed, and any relevant IDs/values.
 
 ---
 
@@ -113,9 +116,13 @@ Before writing or modifying code, always ask: **does this belong here?**
 ## Naming Conventions
 
 <!-- Project-wide naming rules beyond what's in PREFERENCES.md. -->
-<!-- Example: "API routes: /api/v1/{resource}/{action}" -->
 
-*Not yet decided. See `.ai/PREFERENCES.md` for user-specific style preferences.*
+- **Files:** `kebab-case` for filenames (e.g., `user-service.ts`, `date_utils.py`). Match the language's convention.
+- **Functions/methods:** descriptive verbs (e.g., `calculateTotal`, `validate_input`, `fetchUserById`).
+- **Constants:** `UPPER_SNAKE_CASE` (e.g., `MAX_RETRIES`, `DEFAULT_TIMEOUT`).
+- **Types/classes:** `PascalCase` (e.g., `UserProfile`, `HttpClient`).
+- **Boolean variables:** prefix with `is`, `has`, `should`, `can` (e.g., `isActive`, `hasPermission`).
+- See `.ai/PREFERENCES.md` for user-specific style overrides.
 
 ---
 
@@ -136,7 +143,11 @@ Before writing or modifying code, always ask: **does this belong here?**
 
 <!-- How we test. What tools. What coverage expectations. -->
 
-*Not yet decided.*
+- **Test-first (red-green loop).** Tests are written before implementation. Test Writer Agent writes 15+ failing tests, Worker Agent implements until they pass.
+- **15+ tests per public function.** Covering: happy path (multiple inputs), edge cases, boundary values, empty/null/missing inputs, invalid types, large inputs, error conditions, negative logic, idempotency, combination inputs, regression cases.
+- **Unit tests mirror `src/` structure.** `src/services/user-service.ts` → `tests/services/user-service.test.ts`.
+- **Integration tests** for multi-module flows, written by Integration Tester Agent.
+- **Run tests automatically.** Agents never pause to ask permission to run tests.
 
 ---
 

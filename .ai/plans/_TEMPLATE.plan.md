@@ -67,7 +67,7 @@
 - [ ] `.ai/sessions/{YYYY-MM-DD}_{topic}.md` summary written
 - [ ] Git commit with conventional message
 
-## Critique Log (DEEP_MODE only)
+## Critique Log
 
 <!-- Filled by the Architect and Critic agents during their review loop -->
 <!-- Architecture plan: .ai/plans/{YYYY-MM-DD}_{topic}.architecture.md -->

@@ -52,7 +52,9 @@ flowchart TD
     O -->|no new data| P[Planning Agent]
     P -->|plan + todos| UA{User Approval}
     UA -->|rejected| P
-    UA -->|approved| A[Architect Agent]
+    UA -->|approved| RE[Research Agent]
+    RE -->|research brief + deps| DEP[Install Dependencies]
+    DEP --> A[Architect Agent]
     A --> IN[Innovator Agent]
     IN -->|creative alternatives| A
     A <-->|adversarial loop| C[Critic Agent]
