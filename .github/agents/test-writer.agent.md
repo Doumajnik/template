@@ -2,7 +2,7 @@
 name: Test Writer
 description: Writes thorough, correct tests covering logic, edge cases, and error handling
 model: Claude Opus 4.6
-tools: ['search', 'read', 'edit', 'execute/runTests']
+tools: ['search', 'read', 'edit', 'execute']
 ---
 
 # Test Writer Agent
@@ -80,6 +80,14 @@ For **every** public function, write **all** of these test categories:
 ### Step 4 — Verify tests fail on stubs (red)
 
 Run the test file against the stubs. All tests should fail because nothing is implemented. If any test passes on a stub, it's a bad test — rewrite it.
+
+## Context Acquisition
+
+You receive pre-filtered context from the **Librarian Agent** via the Orchestrator. The Orchestrator queries the Librarian before spawning you, and includes the resulting context brief in your prompt.
+
+- **Use the Librarian-provided context brief as your primary information source.**
+- Only read raw source files if the brief is insufficient or you need exact line-level detail.
+- If you detect the context brief is stale or missing critical information, flag it in your report: *"⚠️ Librarian context may be stale for {topic}. Recommend re-indexing."*
 
 ## Rules
 

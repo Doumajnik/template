@@ -58,6 +58,14 @@ You receive:
    - **Doc updates needed** (list new/renamed/removed symbols, files changed)
    - Any manual follow-ups or breaking changes downstream consumers must address
 
+## Context Acquisition
+
+You receive pre-filtered context from the **Librarian Agent** via the Orchestrator. The Orchestrator queries the Librarian before spawning you, and includes the resulting context brief in your prompt.
+
+- **Use the Librarian-provided context brief as your primary information source.**
+- Only read raw source files if the brief is insufficient or you need exact line-level detail.
+- If you detect the context brief is stale or missing critical information, flag it in your report: *"⚠️ Librarian context may be stale for {topic}. Recommend re-indexing."*
+
 ## Rules
 
 - **Migration intentionally changes behavior** to match new APIs — this is NOT a refactor.

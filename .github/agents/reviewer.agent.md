@@ -49,6 +49,14 @@ You are a **review-only** agent. You examine recent changes, check for duplicati
 
 7. **Update the todo file** — mark your review task as ✅ done and append to the Progress Log. If the review finds critical blocking issues, mark the task as ❌ blocked and note the issues in the Blockers section.
 
+## Context Acquisition
+
+You receive pre-filtered context from the **Librarian Agent** via the Orchestrator. The Orchestrator queries the Librarian before spawning you, and includes the resulting context brief in your prompt.
+
+- **Use the Librarian-provided context brief as your primary information source.**
+- Only read raw source files if the brief is insufficient or you need exact line-level detail.
+- If you detect the context brief is stale or missing critical information, flag it in your report: *"⚠️ Librarian context may be stale for {topic}. Recommend re-indexing."*
+
 ## Output Format
 
 Write your review to `docs/REVIEW_REPORT.md` in this format:

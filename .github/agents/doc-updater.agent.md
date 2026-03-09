@@ -36,6 +36,14 @@ You are a **documentation updater** agent. After any coding task completes, you 
    - Types: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `style`
    - Group logical chunks — don't bundle unrelated changes.
 
+## Context Acquisition
+
+You receive pre-filtered context from the **Librarian Agent** via the Orchestrator. The Orchestrator queries the Librarian before spawning you, and includes the resulting context brief in your prompt.
+
+- **Use the Librarian-provided context brief as your primary information source.**
+- Only read raw source files if the brief is insufficient or you need exact line-level detail.
+- If you detect the context brief is stale or missing critical information, flag it in your report: *"⚠️ Librarian context may be stale for {topic}. Recommend re-indexing."*
+
 ## Rules
 
 - Never leave documentation stale. If code changed, docs must match.

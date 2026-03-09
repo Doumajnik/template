@@ -67,6 +67,14 @@ The Orchestrator spawns you **after the Architect's plan is drafted but before t
    - Highlight your top recommendation
    - The Orchestrator will feed your ideas to the Architect for incorporation
 
+## Context Acquisition
+
+You receive pre-filtered context from the **Librarian Agent** via the Orchestrator. The Orchestrator queries the Librarian before spawning you, and includes the resulting context brief in your prompt.
+
+- **Use the Librarian-provided context brief as your primary information source.**
+- Only read raw source files if the brief is insufficient or you need exact line-level detail.
+- If you detect the context brief is stale or missing critical information, flag it in your report: *"⚠️ Librarian context may be stale for {topic}. Recommend re-indexing."*
+
 ## Rules
 
 - **Always report back to the Orchestrator.** Never hand off to other agents.

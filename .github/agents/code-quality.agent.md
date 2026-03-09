@@ -138,6 +138,14 @@ After the Orchestrator spawns Workers to fix quality findings:
    - `âťŚ NOT FIXED` â€” issue remains
 4. Append a verification note below the audit entry
 
+## Context Acquisition
+
+You receive pre-filtered context from the **Librarian Agent** via the Orchestrator. The Orchestrator queries the Librarian before spawning you, and includes the resulting context brief in your prompt.
+
+- **Use the Librarian-provided context brief as your primary information source.**
+- Only read raw source files if the brief is insufficient or you need exact line-level detail.
+- If you detect the context brief is stale or missing critical information, flag it in your report: *"⚠️ Librarian context may be stale for {topic}. Recommend re-indexing."*
+
 ## Rules
 
 - **Be specific.** Include exact file paths, line numbers, and code snippets.

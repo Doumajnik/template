@@ -50,6 +50,9 @@ Your job: understand intent → read docs → decide which sub-agents to spawn �
 | **Error Handling** | Audits error handling for silent catches, missing context. Reports findings — Workers fix | `.github/agents/error-handling.agent.md` |
 | **Type Safety** | Audits type coverage, finds unsafe casts, validates schema consistency. Reports findings — Workers fix | `.github/agents/type-safety.agent.md` |
 | **Git / Release** | Manages changelogs, semantic versioning, release notes, tag creation | `.github/agents/git-release.agent.md` |
+| **Librarian** | Maintains knowledge index, serves context briefs to all agents (query + index modes) | `.github/agents/librarian.agent.md` |
+| **Prompt Engineer** | Deeply analyzes feature requests, produces enriched specs for the pipeline | `.github/agents/prompt-engineer.agent.md` |
+| **UI Preview** | Generates HTML/CSS preview mockups from plans for user approval before scaffolding | `.github/agents/ui-preview.agent.md` |
 
 When spawning a sub-agent, read its `.agent.md` file and include the relevant instructions in the prompt.
 
@@ -64,6 +67,8 @@ The standard pipeline for all tasks. DEEP_MODE is always ON — every task goes 
 ```mermaid
 flowchart TD
     U([User Request]) --> O{Orchestrator}
+    O -->|analyze request| PE[Prompt Engineer Agent]
+    PE -->|enriched spec| O
     O -->|new data?| D[Discovery Agent]
     D -->|summary → docs/discoveries/| RE
     O -->|no new data| RE[Research Agent]
@@ -73,8 +78,11 @@ flowchart TD
     IN -->|creative alternatives| A
     A <-->|adversarial loop ≤10 rounds| C[Critic Agent]
     C --> P[Planning Agent]
-    P -->|plan + todos → .ai/| UA{User Approval}
-    UA -->|rejected| RE
+    P -->|plan + todos → .ai/| UP{UI needed?}
+    UP -->|yes| UIPreview[UI Preview Agent]
+    UIPreview -->|preview + component map| UA{User Approval}
+    UP -->|no| UA
+    UA -->|rejected| PE
     UA -->|approved → suggest new session| S[Scaffolder Agent]
     
     S -->|file stubs| TW[Test Writer Agent]
@@ -92,6 +100,8 @@ flowchart TD
     style U fill:#6c757d,color:#fff
     style Done fill:#6c757d,color:#fff
     style UA fill:#e8a838,color:#fff
+    style PE fill:#8e44ad,color:#fff
+    style UIPreview fill:#e67e22,color:#fff
 ```
 
 ### Discovery Workflow
@@ -122,6 +132,8 @@ Not every request needs the full pipeline. The orchestrator skips to the relevan
 ```mermaid
 flowchart LR
     U([User Request]) --> O{Orchestrator}
+    O -->|get context| LIB[Librarian Agent]
+    LIB -->|context brief| O
     O -->|question| RS[Research Agent]
     O -->|small fix| W[Worker Agent]
     O -->|bug| DB[Debug Agent]
@@ -144,6 +156,7 @@ flowchart LR
 
     style O fill:#4a90d9,color:#fff
     style U fill:#6c757d,color:#fff
+    style LIB fill:#27ae60,color:#fff
 ```
 
 ### Architect–Innovator–Critic Loop
@@ -174,6 +187,28 @@ sequenceDiagram
 
 ---
 
+## Context Gateway Protocol (MANDATORY)
+
+The Librarian Agent is the **single context gateway** for all other agents. Before spawning ANY working agent, the Orchestrator MUST:
+
+1. **Query the Librarian** — spawn Librarian in query mode: *"What context does {agent} need to {task}?"*
+2. **Receive the context brief** — the Librarian returns a focused brief with only relevant information.
+3. **Pass the brief to the target agent** — include the Librarian's brief in the agent's spawn prompt instead of having the agent read raw files.
+
+**Why:** This keeps every agent's context window minimal — they receive only what they need, not entire files or docs.
+
+**Exceptions:**
+- The **Librarian itself** does not query itself — it reads docs/source directly.
+- The **Discovery Agent** reads raw new data directly (that's its purpose).
+- At **session start**, the Orchestrator reads startup docs directly (PREFERENCES, PLAYBOOK, etc.) before the Librarian is available.
+
+**When to refresh the index:**
+- After any code-changing agent completes (Worker, Refactor, Debug, Scaffolder).
+- At session start if the codebase has changed.
+- Spawn Librarian in **index mode**: *"Refresh the knowledge base."*
+
+---
+
 ## Session Startup
 
 1. `.ai/PREFERENCES.md` — coding style, TURBO_MODE, DEEP_MODE settings.
@@ -183,6 +218,7 @@ sequenceDiagram
 5. Latest `.ai/sessions/` — recent context.
 6. Check `.ai/plans/` for in-progress plans (status 🟢). Ask user if they want to resume.
 7. **Create a dispatch log** — copy `.ai/DISPATCH_LOG_TEMPLATE.md` to `.ai/sessions/{YYYY-MM-DD}_{topic}.dispatch.md`. Fill in the session date and topic. All sub-agent calls during this session are logged here.
+8. **Refresh knowledge index** — spawn Librarian in index mode if source code has changed since last session.
 
 ---
 
@@ -199,24 +235,26 @@ When the user presents new data (new codebase, files, library, API, specs):
 
 ## Planning Sequence (non-trivial tasks)
 
-1. **Discovery Agent** — if new data involved (ask first).
-2. **Research Agent** — researches the topic on the web (best practices, libraries, patterns, pitfalls). Produces a research brief with recommended approach and dependency list. Passes findings to the Architect.
-3. **Dependency mapping & install** — based on the Research Agent's findings, map out all required dependencies and install them upfront before any coding begins.
-4. **Architect** — designs architecture plan, using the Research Agent's brief as input.
-5. **Innovator** — reviews the plan and proposes creative alternatives and outside-the-box ideas. Reports back to Orchestrator.
-6. **Architect (revision)** — Orchestrator feeds Innovator's best ideas back to the Architect to consider incorporating.
-7. **Critic** — reviews for flaws, duplication, over-engineering. Orchestrator mediates Architect↔Critic loop (max 10 rounds). All agents report back to Orchestrator — no direct handoffs.
-8. **Planning Agent** — reads docs, creates plan + todo file. The todo file (`.ai/todos/{YYYY-MM-DD}_{topic}.todo.md`) is the **living tracker** — every subsequent agent reads it, marks their task(s) 🔵 in-progress before starting and ✅ done when complete, and appends to its Progress Log.
-9. **User approval (MANDATORY GATE)** — present the full plan and ask for explicit approval. Suggest opening a new chat session for implementation to keep context clean. **If user does not approve**, restart the entire pipeline from step 1 to ensure no dependencies or context are missed in the revision.
-10. **Scaffolder** — creates file stubs. Marks scaffolding tasks ✅ in todo.
-11. **Test Writer** — writes 15+ failing tests per function (one instance per function). Marks test tasks ✅ in todo.
-12. **Worker** — implements code, red-green loop until tests pass (one instance per function). Marks each function ✅ in todo as it passes.
-13. **Integration Tester** — writes and runs E2E/integration tests. Marks ✅ in todo.
-14. **Reviewer** — validates result. Checks todo for skipped/incomplete tasks. Marks review ✅ in todo.
-15. **Security Agent** — audits all code for vulnerabilities, appends to `docs/SECURITY_REPORT.md`. Marks ✅ in todo. If CRITICAL/HIGH → Workers fix → re-verify.
-16. **Code Quality Agent** — scans for duplication/smells, appends to `docs/QUALITY_REPORT.md`. Marks ✅ in todo. If CRITICAL/HIGH → Workers fix → re-verify.
-17. **Doc Updater** — updates all docs, writes session summary, commits. Marks doc tasks ✅ in todo.
-18. **Retrospective Agent** — reviews all decisions, updates `docs/PLAYBOOK.md`, appends to `docs/RETROSPECTIVE_REPORT.md`. Marks ✅ and sets todo status to ✅ Complete.
+1. **Prompt Engineer Agent** — analyzes the raw user request. Produces an enriched spec in `.ai/specs/` covering functional requirements, edge cases, data needs, security, UI, and acceptance criteria. Surfaces `[ASK USER]` questions. Orchestrator presents questions to user before proceeding.
+2. **Discovery Agent** — if new data involved (ask first).
+3. **Research Agent** — researches the topic on the web (best practices, libraries, patterns, pitfalls). Uses the enriched spec as input. Produces a research brief with recommended approach and dependency list. Passes findings to the Architect.
+4. **Dependency mapping & install** — based on the Research Agent's findings, map out all required dependencies and install them upfront before any coding begins.
+5. **Architect** — designs architecture plan, using both the enriched spec and the Research Agent's brief as input.
+6. **Innovator** — reviews the plan and proposes creative alternatives and outside-the-box ideas. Reports back to Orchestrator.
+7. **Architect (revision)** — Orchestrator feeds Innovator's best ideas back to the Architect to consider incorporating.
+8. **Critic** — reviews for flaws, duplication, over-engineering. Orchestrator mediates Architect↔Critic loop (max 10 rounds). All agents report back to Orchestrator — no direct handoffs.
+9. **Planning Agent** — reads docs, creates plan + todo file. The todo file (`.ai/todos/{YYYY-MM-DD}_{topic}.todo.md`) is the **living tracker** — every subsequent agent reads it, marks their task(s) 🔵 in-progress before starting and ✅ done when complete, and appends to its Progress Log.
+10. **UI Preview Agent** — if the task involves UI/frontend work, generates an interactive HTML/CSS preview in `.ai/previews/` with a component decomposition map. Skipped for backend-only tasks.
+11. **User approval (MANDATORY GATE)** — present the full plan (and UI preview if applicable) and ask for explicit approval. Suggest opening a new chat session for implementation to keep context clean. **If user does not approve**, restart the entire pipeline from step 1 to ensure no dependencies or context are missed in the revision.
+12. **Scaffolder** — creates file stubs. Uses the UI Preview's component decomposition (if available) to create accurate frontend stubs. Marks scaffolding tasks ✅ in todo.
+13. **Test Writer** — writes 15+ failing tests per function (one instance per function). Marks test tasks ✅ in todo.
+14. **Worker** — implements code, red-green loop until tests pass (one instance per function). Marks each function ✅ in todo as it passes.
+15. **Integration Tester** — writes and runs E2E/integration tests. Marks ✅ in todo.
+16. **Reviewer** — validates result. Checks todo for skipped/incomplete tasks. Marks review ✅ in todo.
+17. **Security Agent** — audits all code for vulnerabilities, appends to `docs/SECURITY_REPORT.md`. Marks ✅ in todo. If CRITICAL/HIGH → Workers fix → re-verify.
+18. **Code Quality Agent** — scans for duplication/smells, appends to `docs/QUALITY_REPORT.md`. Marks ✅ in todo. If CRITICAL/HIGH → Workers fix → re-verify.
+19. **Doc Updater** — updates all docs, writes session summary, commits. Marks doc tasks ✅ in todo.
+20. **Retrospective Agent** — reviews all decisions, updates `docs/PLAYBOOK.md`, appends to `docs/RETROSPECTIVE_REPORT.md`. Marks ✅ and sets todo status to ✅ Complete.
 
 Skip the full sequence for trivial tasks — spawn only needed agent(s).
 
@@ -311,6 +349,7 @@ The user can stop the pipeline at any time by saying "abort", "stop", or "cancel
 - Tracing rules: see `.ai/TRACE_TEMPLATE.md`.
 - Dispatch logging rules: see `.ai/DISPATCH_LOG_TEMPLATE.md`.
 - **Decision justification.** When making a non-trivial decision (choosing one approach over another, adding a dependency, changing architecture), document WHY in your output. The Retrospective Agent reviews these justifications to improve the Playbook.
+- **Context Gateway.** All agents receive context through the Librarian Agent. Use the Librarian-provided context brief as your primary information source. Only read raw source files if the brief is insufficient or the Librarian flags stale docs.
 
 ---
 

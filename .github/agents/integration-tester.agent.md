@@ -56,6 +56,14 @@ The Orchestrator spawns you **after the Worker has passed all unit tests**, befo
    - Any implementation bugs discovered
    - Coverage gaps that couldn't be tested (e.g., external services)
 
+## Context Acquisition
+
+You receive pre-filtered context from the **Librarian Agent** via the Orchestrator. The Orchestrator queries the Librarian before spawning you, and includes the resulting context brief in your prompt.
+
+- **Use the Librarian-provided context brief as your primary information source.**
+- Only read raw source files if the brief is insufficient or you need exact line-level detail.
+- If you detect the context brief is stale or missing critical information, flag it in your report: *"⚠️ Librarian context may be stale for {topic}. Recommend re-indexing."*
+
 ## Rules
 
 - **Integration tests are separate from unit tests.** Don't duplicate unit test coverage.
