@@ -72,9 +72,11 @@ You receive pre-filtered context from the **Librarian Agent** via the Orchestrat
 
 ## Output
 
-When done, report back:
+When done, report back with **proof of completion**:
 1. What file(s) you modified
 2. What symbols (functions, classes, constants) you implemented
-3. Test results: ✅ all passing / ❌ N failing (with details)
+3. Test results: ✅ all passing / ❌ N failing (with details) — **include actual test output**
 4. Number of red-green iterations it took
 5. Any concerns or questions
+
+Never mark a task complete without demonstrating tests pass. A staff engineer must be able to verify from your report alone.

@@ -215,10 +215,11 @@ The Librarian Agent is the **single context gateway** for all other agents. Befo
 2. `docs/PLAYBOOK.md` — architecture decisions, patterns, and code rules.
 3. `docs/CODE_INVENTORY.md` — what already exists.
 4. `docs/discoveries/` — summaries of previously analyzed data.
-5. Latest `.ai/sessions/` — recent context.
-6. Check `.ai/plans/` for in-progress plans (status 🟢). Ask user if they want to resume.
-7. **Create a dispatch log** — copy `.ai/DISPATCH_LOG_TEMPLATE.md` to `.ai/sessions/{YYYY-MM-DD}_{topic}.dispatch.md`. Fill in the session date and topic. All sub-agent calls during this session are logged here.
-8. **Refresh knowledge index** — spawn Librarian in index mode if source code has changed since last session.
+5. `.ai/lessons.md` — lessons learned from past corrections. Review for patterns relevant to the current task.
+6. Latest `.ai/sessions/` — recent context.
+7. Check `.ai/plans/` for in-progress plans (status 🟢). Ask user if they want to resume.
+8. **Create a dispatch log** — copy `.ai/DISPATCH_LOG_TEMPLATE.md` to `.ai/sessions/{YYYY-MM-DD}_{topic}.dispatch.md`. Fill in the session date and topic. All sub-agent calls during this session are logged here.
+9. **Refresh knowledge index** — spawn Librarian in index mode if source code has changed since last session.
 
 ---
 
@@ -311,6 +312,41 @@ When a sub-agent fails or produces unusable output:
 3. **Report to user** if two retries fail. Present what was attempted, what failed, and ask for guidance.
 4. **Never silently skip.** A failed step must be explicitly resolved (retried, delegated, or user-approved to skip) before proceeding.
 
+## Circuit Breaker
+
+When things go sideways — STOP and re-plan. Don't keep pushing.
+
+Trigger conditions:
+- A Worker fails **2+ functions** in a row (not just retries on one function).
+- The Reviewer **rejects** the implementation.
+- The user **corrects direction** mid-pipeline ("that's not what I meant").
+- Accumulating complexity — the fix is getting hacky or the approach feels wrong.
+
+When triggered:
+1. **Immediately halt** the current pipeline.
+2. **Record the failure pattern** in `.ai/lessons.md` — what went wrong and why.
+3. **Re-plan from Prompt Engineer** (step 1) with the new information. Don't patch — start fresh.
+4. **Report to user:** "Circuit breaker triggered: {reason}. Re-planning from scratch."
+
+## Self-Improvement Loop
+
+After ANY correction from the user (not just errors — style feedback, direction changes, wrong assumptions):
+
+1. **Immediately** append a lesson to `.ai/lessons.md` with: trigger, pattern, rule, and which agents it applies to.
+2. The rule must be **specific and actionable** — not vague advice.
+3. Review `.ai/lessons.md` at the start of every session for relevant patterns.
+4. If the same mistake happens twice despite a lesson existing, **escalate the rule** — make it stricter or add it to Core Rules.
+
+## Autonomous Bug Fixing
+
+When the user reports a bug: **just fix it.** Don't ask for hand-holding.
+
+1. Spawn the Debug Agent immediately — no clarification needed.
+2. The Debug Agent reads logs, errors, stack traces, and failing tests autonomously.
+3. Zero context switching required from the user.
+4. Fix failing CI/CD tests without being told how.
+5. Only ask the user if the root cause is genuinely ambiguous after investigation.
+
 ## Conflict Resolution
 
 When agents produce contradictory recommendations (e.g., Security vs. Code Quality vs. Performance):
@@ -350,6 +386,8 @@ The user can stop the pipeline at any time by saying "abort", "stop", or "cancel
 - Dispatch logging rules: see `.ai/DISPATCH_LOG_TEMPLATE.md`.
 - **Decision justification.** When making a non-trivial decision (choosing one approach over another, adding a dependency, changing architecture), document WHY in your output. The Retrospective Agent reviews these justifications to improve the Playbook.
 - **Context Gateway.** All agents receive context through the Librarian Agent. Use the Librarian-provided context brief as your primary information source. Only read raw source files if the brief is insufficient or the Librarian flags stale docs.
+- **Proof of completion.** Never mark a task complete without evidence. Every agent must include proof in their report: test output, diff summary, verification results, or concrete output. Ask yourself: "Would a staff engineer approve this?"
+- **Demand elegance (balanced).** For non-trivial changes, pause and ask "is there a more elegant way?" If a fix feels hacky, implement the clean solution. Skip this for simple, obvious fixes — don't over-engineer.
 
 ---
 

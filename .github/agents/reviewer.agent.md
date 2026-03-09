@@ -36,18 +36,14 @@ You are a **review-only** agent. You examine recent changes, check for duplicati
    - List any **preference mismatches** (naming style, code style deviations)
    - List any **missing documentation** (functions without doc comments, unexported utilities)
 
-5. **Verify documentation was updated:**
-   - Was `docs/CODE_INVENTORY.md` updated with all new symbols?
-   - Was `docs/PLAYBOOK.md` updated with any new decisions?
-   - Was `README.md` updated if structure changed?
-   - Was `.gitignore` updated if new tooling was introduced?
+5. **Elegance check** (non-trivial changes only):
+   - Pause and ask: "Would a staff engineer approve this code?"
+   - Is there a cleaner, more elegant approach that was missed?
+   - Are there hacky workarounds that should be proper solutions?
+   - Skip this for simple, obvious fixes — don't over-engineer
+   - If you find a significantly better approach, flag it as a recommendation
 
-6. **Write review report:**
-   - Write your review findings to `docs/REVIEW_REPORT.md` using the Output Format below
-   - If the file already exists, **append** a new audit entry (do NOT overwrite previous reviews)
-   - The **Doc Updater** agent handles session summaries and documentation updates — do NOT write session summaries yourself
-
-7. **Update the todo file** — mark your review task as ✅ done and append to the Progress Log. If the review finds critical blocking issues, mark the task as ❌ blocked and note the issues in the Blockers section.
+6. **Verify documentation was updated:**\n   - Was `docs/CODE_INVENTORY.md` updated with all new symbols?\n   - Was `docs/PLAYBOOK.md` updated with any new decisions?\n   - Was `README.md` updated if structure changed?\n   - Was `.gitignore` updated if new tooling was introduced?\n\n7. **Write review report:**\n   - Write your review findings to `docs/REVIEW_REPORT.md` using the Output Format below\n   - If the file already exists, **append** a new audit entry (do NOT overwrite previous reviews)\n   - The **Doc Updater** agent handles session summaries and documentation updates — do NOT write session summaries yourself\n\n8. **Update the todo file** — mark your review task as ✅ done and append to the Progress Log. If the review finds critical blocking issues, mark the task as ❌ blocked and note the issues in the Blockers section.
 
 ## Context Acquisition
 
@@ -80,6 +76,9 @@ Write your review to `docs/REVIEW_REPORT.md` in this format:
 
 ### Recommendations
 - {any suggested improvements}
+
+### Elegance Assessment
+- [PASS/WARN] {Would a staff engineer approve? Any cleaner approaches?}
 ```
 
 Also report a brief summary back to the Orchestrator so it can decide next steps.
