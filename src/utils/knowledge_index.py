@@ -100,7 +100,7 @@ def save_index(index: dict, index_path: str) -> None:
     """Persist an index to disk atomically with updated timestamps."""
     index["built_at"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
     index["chunk_count"] = len(index["chunks"])
-    payload = json.dumps(index, indent=2)
+    payload = json.dumps(index, separators=(",", ":"))
     _atomic_write(payload, index_path)
 
 
