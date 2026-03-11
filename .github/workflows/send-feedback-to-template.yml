@@ -1,0 +1,71 @@
+# Sends retrospective and playbook updates back to the template repo.
+#
+# SETUP: Run scripts/setup-feedback.ps1 (Windows) or scripts/setup-feedback.sh (Unix).
+# That script handles the PAT, secret, and repo variable automatically.
+#
+# Triggers: manual dispatch, or when retrospective/playbook files change on main.
+
+name: Send Feedback to Template
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/RETROSPECTIVE_REPORT.md'
+      - 'docs/PLAYBOOK.md'
+      - 'docs/QUALITY_REPORT.md'
+      - 'docs/SECURITY_REPORT.md'
+      - '.ai/lessons.md'
+
+jobs:
+  send-feedback:
+    runs-on: ubuntu-latest
+    # Skip if feedback is not configured (setup-feedback script sets this)
+    if: ${{ vars.TEMPLATE_FEEDBACK_ENABLED == 'true' }}
+
+    steps:
+      - name: Checkout project repo
+        uses: actions/checkout@v4
+
+      - name: Collect feedback files
+        id: collect
+        run: |
+          feedback=""
+
+          for file in \
+            docs/RETROSPECTIVE_REPORT.md \
+            docs/PLAYBOOK.md \
+            docs/QUALITY_REPORT.md \
+            docs/SECURITY_REPORT.md \
+            .ai/lessons.md; do
+            if [ -f "$file" ]; then
+              content=$(cat "$file" | head -500)
+              feedback="${feedback}--- FILE: ${file} ---\n${content}\n\n"
+            fi
+          done
+
+          # Escape for JSON
+          feedback_escaped=$(echo "$feedback" | jq -Rsa .)
+
+          echo "feedback=${feedback_escaped}" >> "$GITHUB_OUTPUT"
+
+      - name: Dispatch to template repo
+        env:
+          GH_TOKEN: ${{ secrets.TEMPLATE_FEEDBACK_TOKEN }}
+          TEMPLATE_REPO: ${{ vars.TEMPLATE_REPO }}
+        run: |
+          if [ -z "$TEMPLATE_REPO" ]; then
+            echo "::error::TEMPLATE_REPO variable not set. Run scripts/setup-feedback to configure."
+            exit 1
+          fi
+
+          gh api \
+            --method POST \
+            "/repos/${TEMPLATE_REPO}/dispatches" \
+            -f "event_type=project-feedback" \
+            -f "client_payload[project_name]=${GITHUB_REPOSITORY}" \
+            -f "client_payload[project_url]=https://github.com/${GITHUB_REPOSITORY}" \
+            -f "client_payload[sha]=${GITHUB_SHA}" \
+            -f "client_payload[timestamp]=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            -f "client_payload[feedback]=${{ steps.collect.outputs.feedback }}"

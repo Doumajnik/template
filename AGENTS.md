@@ -67,6 +67,7 @@ The standard pipeline for all tasks. DEEP_MODE is always ON — every task goes 
 ```mermaid
 flowchart TD
     U([User Request]) --> O{Orchestrator}
+    O <-.->|context brief before EVERY agent spawn| LIB[Librarian Agent]
     O -->|analyze request| PE[Prompt Engineer Agent]
     PE -->|enriched spec| O
     O -->|new data?| D[Discovery Agent]
@@ -102,6 +103,7 @@ flowchart TD
     style UA fill:#e8a838,color:#fff
     style PE fill:#8e44ad,color:#fff
     style UIPreview fill:#e67e22,color:#fff
+    style LIB fill:#27ae60,color:#fff
 ```
 
 ### Discovery Workflow
@@ -112,16 +114,20 @@ Triggered when the user introduces new data (codebase, API, library, specs).
 sequenceDiagram
     participant U as User
     participant O as Orchestrator
+    participant LIB as Librarian
     participant D as Discovery Agent
     participant Docs as docs/discoveries/
 
     U->>O: Presents new data
     O->>U: "New data detected. Run Discovery?"
     U->>O: Confirms
-    O->>D: Spawn with raw data reference
+    O->>LIB: Context brief for existing project state
+    LIB-->>O: Brief (existing context only)
+    O->>D: Spawn with raw data reference + existing context brief
     D->>D: Read & analyze systematically
     D->>Docs: Write structured summary
     D->>O: Report complete
+    O->>LIB: Refresh index (new discovery added)
     Note over O,Docs: All other agents read<br/>only the summary — never raw data
 ```
 
@@ -166,18 +172,26 @@ Every task goes through adversarial refinement before implementation. The Orches
 ```mermaid
 sequenceDiagram
     participant O as Orchestrator
+    participant LIB as Librarian
     participant A as Architect
     participant IN as Innovator
     participant C as Critic
 
-    O->>A: Design architecture
+    Note over O,LIB: Librarian queried before EVERY agent spawn
+    O->>LIB: Context for Architect?
+    LIB-->>O: Context brief
+    O->>A: Design architecture + brief
     A-->>O: Architecture plan v1
-    O->>IN: Review plan, propose alternatives
+    O->>LIB: Context for Innovator?
+    LIB-->>O: Context brief
+    O->>IN: Review plan + brief, propose alternatives
     IN-->>O: Innovator report (3+ ideas)
     O->>A: Incorporate Innovator's best ideas
     A-->>O: Architecture plan v2
     loop Up to 10 rounds
-        O->>C: Critique the plan
+        O->>LIB: Context for Critic?
+        LIB-->>O: Context brief
+        O->>C: Critique the plan + brief
         C-->>O: Verdict + issues
         O->>A: Fix issues from Critic
         A-->>O: Revised plan
@@ -187,25 +201,31 @@ sequenceDiagram
 
 ---
 
-## Context Gateway Protocol (MANDATORY)
+## Context Gateway Protocol (MANDATORY — NO EXCEPTIONS)
 
-The Librarian Agent is the **single context gateway** for all other agents. Before spawning ANY working agent, the Orchestrator MUST:
+The Librarian Agent is the **single context gateway** for all other agents. **EVERY agent spawn MUST be preceded by a Librarian query.** No agent receives raw files — only Librarian-curated briefs.
 
-1. **Query the Librarian** — spawn Librarian in query mode: *"What context does {agent} need to {task}?"*
+Before spawning ANY working agent, the Orchestrator MUST:
+
+1. **Query the Librarian FIRST** — spawn Librarian in query mode: *"What context does {agent} need to {task}?"*
 2. **Receive the context brief** — the Librarian returns a focused brief with only relevant information.
 3. **Pass the brief to the target agent** — include the Librarian's brief in the agent's spawn prompt instead of having the agent read raw files.
+4. **NEVER skip this step.** Even for trivial tasks, ad-hoc agents, or quick fixes — always query the Librarian first.
 
-**Why:** This keeps every agent's context window minimal — they receive only what they need, not entire files or docs.
+**Why:** This keeps every agent's context window minimal — they receive only what they need, not entire files or docs. It also ensures agents always have the latest project state.
 
-**Exceptions:**
+**Only two exceptions exist (no others):**
 - The **Librarian itself** does not query itself — it reads docs/source directly.
-- The **Discovery Agent** reads raw new data directly (that's its purpose).
-- At **session start**, the Orchestrator reads startup docs directly (PREFERENCES, PLAYBOOK, etc.) before the Librarian is available.
+- The **Discovery Agent** reads raw new data directly (that's its purpose), but still receives a Librarian brief for existing project context.
+
+**At session start**, the Orchestrator reads startup docs directly (PREFERENCES, PLAYBOOK, etc.) to bootstrap, then immediately spawns the Librarian to refresh the index before any other agent.
 
 **When to refresh the index:**
 - After any code-changing agent completes (Worker, Refactor, Debug, Scaffolder).
-- At session start if the codebase has changed.
+- At session start — ALWAYS.
 - Spawn Librarian in **index mode**: *"Refresh the knowledge base."*
+
+**Violation = invalid pipeline.** If an agent is spawned without a Librarian brief, the output is suspect and the step should be re-done.
 
 ---
 
@@ -257,11 +277,11 @@ When the user presents new data (new codebase, files, library, API, specs):
 19. **Doc Updater** — updates all docs, writes session summary, commits. Marks doc tasks ✅ in todo.
 20. **Retrospective Agent** — reviews all decisions, updates `docs/PLAYBOOK.md`, appends to `docs/RETROSPECTIVE_REPORT.md`. Marks ✅ and sets todo status to ✅ Complete.
 
-Skip the full sequence for trivial tasks — spawn only needed agent(s).
+Skip the full sequence for trivial tasks — spawn only needed agent(s). **Even for trivial tasks, ALWAYS query the Librarian first** to get context before spawning any agent.
 
 ### Ad-Hoc Agents (spawned as needed)
 
-These agents are NOT part of the sequential pipeline. The Orchestrator spawns them on-demand based on user requests or specific needs:
+These agents are NOT part of the sequential pipeline. The Orchestrator spawns them on-demand based on user requests or specific needs. **The Librarian MUST still be queried before spawning any ad-hoc agent** — no exceptions:
 
 - **Refactor** — restructures existing code without changing behavior.
 - **Debug** — diagnoses bugs from error logs, stack traces, and failing tests.
@@ -388,6 +408,7 @@ The user can stop the pipeline at any time by saying "abort", "stop", or "cancel
 - **Context Gateway.** All agents receive context through the Librarian Agent. Use the Librarian-provided context brief as your primary information source. Only read raw source files if the brief is insufficient or the Librarian flags stale docs.
 - **Proof of completion.** Never mark a task complete without evidence. Every agent must include proof in their report: test output, diff summary, verification results, or concrete output. Ask yourself: "Would a staff engineer approve this?"
 - **Demand elegance (balanced).** For non-trivial changes, pause and ask "is there a more elegant way?" If a fix feels hacky, implement the clean solution. Skip this for simple, obvious fixes — don't over-engineer.
+- **Tool path discovery.** When running or checking for an external tool/executable, if it is installed but NOT on the system PATH, record the tool name and its full path in `.ai/TOOL_PATHS.md`. All sub-agents MUST read `.ai/TOOL_PATHS.md` at startup and use the full paths listed there when invoking tools. Never assume a tool is on PATH — check `.ai/TOOL_PATHS.md` first.
 
 ---
 
