@@ -136,6 +136,17 @@ temp/
 TEMP/
 
 # ===========================
+# Branch-specific: playbook_infrastructure
+# Remove this block before merging to main
+# ===========================
+.ai/plans/
+.ai/todos/
+.ai/sessions/
+.ai/specs/
+.ai/previews/
+.ai/trace.md
+
+# ===========================
 # Empty project directories
 # (keep these entries so git tracks the folders)
 # Agents: ADD new folders here when you create them

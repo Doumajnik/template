@@ -81,9 +81,21 @@ When spawned in **query mode**, you search the knowledge base and return a focus
    - On start: `O->>LIB: Query: {topic}`
    - On finish: `LIB-->>O: Context brief ready`
 
-1. **Parse the query** — what agent needs context? For what task? What scope?
+1. **Parse the query** — what agent needs context? For what task? What scope? Determine the target agent type and relevant technology.
 
-2. **Search the knowledge base** (read only what's relevant):
+2. **Stage 1: RAG Retrieval** — retrieve relevant playbook knowledge from the knowledge index:
+   - Shell out to the query script:
+
+     ```bash
+     python3 scripts/query-knowledge-index.py --query "{parsed query}" --agent {agent} --tech {tech} --top-k 10
+     ```
+
+   - Capture stdout as RAG chunks (ranked playbook knowledge)
+   - If the script fails or returns no results, continue to Stage 2 (graceful degradation)
+
+   > **Graceful degradation:** If the query script fails, the index is missing, or the `GH_MODELS_TOKEN` is not set, Stage 1 is skipped and the Librarian continues with Stage 2 only. RAG retrieval is additive — never blocking.
+
+3. **Stage 2: Documentation Search** (read only what's relevant):
    - `docs/CODE_INVENTORY.md` — find related symbols
    - `docs/files/` — find related file summaries
    - `docs/BUSINESS_LOGIC.md` — find related business logic
@@ -91,9 +103,12 @@ When spawned in **query mode**, you search the knowledge base and return a focus
    - `docs/PLAYBOOK.md` — find relevant patterns and rules
    - `docs/discoveries/` — find relevant external data summaries
 
-3. **Assemble a focused context brief** — include ONLY information relevant to the query. Omit everything else.
+4. **Stage 3: Assemble Context Brief**:
+   - Merge RAG chunks into a "### Relevant Playbook Rules (RAG)" section
+   - Merge documentation search results (existing sections)
+   - Include ONLY information relevant to the query. Omit everything else.
 
-4. **Return the brief** to the Orchestrator, who passes it to the target agent.
+5. **Return the brief** to the Orchestrator, who passes it to the target agent.
 
 ### Context Brief Format
 
@@ -111,6 +126,16 @@ When spawned in **query mode**, you search the knowledge base and return a focus
 ### Related Business Logic
 
 {relevant excerpt from BUSINESS_LOGIC.md — only the parts that matter}
+
+### Relevant Playbook Rules (RAG)
+
+<!-- Top-K chunks from the knowledge index, ranked by relevance -->
+
+**[Score: 0.89]** Anti-Duplication Rules (`shared/anti-duplication`)
+> Before creating anything new, search CODE_INVENTORY.md...
+
+**[Score: 0.85]** Python Testing Conventions (`technologies/python`)
+> Use pytest. Minimum 15 tests per function...
 
 ### Relevant Patterns
 

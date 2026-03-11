@@ -151,10 +151,50 @@ Before writing or modifying code, always ask: **does this belong here?**
 
 ---
 
+## Playbook Chunk Format
+
+Playbook knowledge is stored as individual chunk files in `docs/playbooks/`. Each file uses `+++` TOML frontmatter delimiters and contains a single rule, pattern, or convention.
+
+- **Location:** `docs/playbooks/{shared,agents,technologies}/`
+- **One file per chunk** — each file is a self-contained unit of knowledge
+- **Required TOML frontmatter fields:** `id`, `title`, `agents`, `technologies`, `category`, `tags`, `version`
+- **Valid categories:** `pattern`, `anti-pattern`, `rule`, `convention`, `decision`, `strategy`
+- **Body:** Markdown content below the closing `+++` delimiter — the actual rule or pattern text
+
+Example structure:
+
+```toml
++++
+id = "anti-duplication-001"
+title = "Anti-Duplication Rules"
+agents = ["worker", "scaffolder", "refactor"]
+technologies = ["all"]
+category = "rule"
+tags = ["duplication", "DRY", "extraction"]
+version = 1
++++
+```
+
+---
+
+## Knowledge Index
+
+The knowledge index enables RAG (Retrieval-Augmented Generation) for the Librarian Agent, providing semantically relevant playbook rules to all agents on demand.
+
+- **Build script:** `scripts/build-knowledge-index.py` — incrementally builds the index using content-hash-based diffing (only re-embeds changed chunks)
+- **Query script:** `scripts/query-knowledge-index.py` — searches the index and outputs ranked results in markdown or JSON format
+- **Index location:** `.ai/knowledge-index.json` (committed to git)
+- **CI integration:** Rebuild is triggered on `docs/playbooks/**` changes pushed to `main`
+- **Embedding model:** GitHub Models text-embedding-3-small (1536 dimensions)
+- **Graceful degradation:** If the index is missing or `GH_MODELS_TOKEN` is not set, the Librarian falls back to documentation-only search
+
+---
+
 ## Changelog
 
 <!-- Brief log of when this playbook was updated and what changed. -->
 
 | Date           | Change                                        |
 |----------------|-----------------------------------------------|
+| 2026-03-11     | Added Playbook Chunk Format and Knowledge Index sections |
 | *(template)*   | Initial playbook created with empty sections  |
