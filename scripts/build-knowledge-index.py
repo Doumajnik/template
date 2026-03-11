@@ -7,9 +7,9 @@ import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "src" / "utils"))
 
-import embedding_client  # noqa: E402
-import knowledge_index  # noqa: E402
-import playbook_parser  # noqa: E402
+import embedding_client  # noqa: E402  # type: ignore[import-not-found]
+import knowledge_index  # noqa: E402  # type: ignore[import-not-found]
+import playbook_parser  # noqa: E402  # type: ignore[import-not-found]
 
 
 def parse_args() -> argparse.Namespace:
