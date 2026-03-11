@@ -1,0 +1,295 @@
+# Processes feedback submitted as GitHub Issues (from forks/external users).
+# Runs Claude Opus 4 to review and creates a PR with improvements.
+#
+# Triggers when an issue is opened or labeled with "feedback".
+# Also supports the "feedback" label being added to existing issues.
+#
+# SETUP: Same as receive-project-feedback.yml — needs GH_MODELS_TOKEN secret.
+
+name: Process Feedback Issue
+
+on:
+  issues:
+    types: [opened, labeled]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  process-feedback:
+    runs-on: ubuntu-latest
+    # Only run on issues with the "feedback" label
+    if: contains(github.event.issue.labels.*.name, 'feedback')
+
+    steps:
+      - name: Checkout template repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Acknowledge issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue comment ${{ github.event.issue.number }} \
+            --body "Thanks for the feedback! Claude is reviewing this now. A PR will be created if improvements are identified."
+
+      - name: Extract feedback from issue
+        id: feedback
+        run: |
+          mkdir -p feedback
+
+          # Extract project info from issue body
+          issue_body='${{ github.event.issue.body }}'
+
+          project_name=$(echo "$issue_body" | grep -oP '(?<=\*\*Project:\*\* ).*' | head -1 || echo "unknown")
+          project_safe=$(echo "$project_name" | tr '/' '_' | tr ' ' '_')
+          date_str=$(date -u +%Y-%m-%d)
+          filename="feedback/${date_str}_issue_${project_safe}.md"
+
+          # Save the full issue body as feedback
+          cat > "$filename" << EOF
+          # Feedback from Issue #${{ github.event.issue.number }}
+
+          - **Title:** ${{ github.event.issue.title }}
+          - **Author:** @${{ github.event.issue.user.login }}
+          - **Received:** $(date -u +%Y-%m-%dT%H:%M:%SZ)
+          - **Issue:** #${{ github.event.issue.number }}
+
+          ---
+
+          EOF
+
+          echo '${{ github.event.issue.body }}' >> "$filename"
+
+          echo "filename=${filename}" >> "$GITHUB_OUTPUT"
+          echo "project_safe=${project_safe}" >> "$GITHUB_OUTPUT"
+
+      - name: Collect current template files
+        id: context
+        run: |
+          context_file=$(mktemp)
+
+          for file in \
+            AGENTS.md \
+            .github/copilot-instructions.md \
+            docs/PLAYBOOK.md \
+            docs/CODE_INVENTORY.md \
+            docs/BUSINESS_LOGIC.md \
+            .ai/PREFERENCES.md \
+            .ai/lessons.md; do
+            if [ -f "$file" ]; then
+              echo "=== FILE: $file ===" >> "$context_file"
+              cat "$file" >> "$context_file"
+              echo -e "\n\n" >> "$context_file"
+            fi
+          done
+
+          for file in .github/agents/*.agent.md; do
+            if [ -f "$file" ]; then
+              echo "=== FILE: $file ===" >> "$context_file"
+              cat "$file" >> "$context_file"
+              echo -e "\n\n" >> "$context_file"
+            fi
+          done
+
+          echo "context_file=${context_file}" >> "$GITHUB_OUTPUT"
+
+      - name: Claude Opus 4 via GitHub Models — review and propose improvements
+        id: claude
+        env:
+          GH_MODELS_TOKEN: ${{ secrets.GH_MODELS_TOKEN }}
+        run: |
+          template_context=$(cat "${{ steps.context.outputs.context_file }}")
+          feedback_content=$(cat "${{ steps.feedback.outputs.filename }}")
+
+          prompt=$(jq -n \
+            --arg ctx "$template_context" \
+            --arg fb "$feedback_content" \
+            '{
+              "model": "anthropic/claude-opus-4",
+              "max_tokens": 16000,
+              "temperature": 0,
+              "messages": [
+                {
+                  "role": "system",
+                  "content": "You are a senior engineering consultant reviewing field feedback from projects that use an agentic AI project template. You analyze retrospectives, lessons learned, playbook updates, and quality/security reports to identify improvements that should be applied back to the template.\n\nThis feedback came from a COMMUNITY CONTRIBUTOR (fork or external user). Apply extra scrutiny:\n- Verify suggestions are genuinely universal, not project-specific preferences.\n- Be extra conservative with changes to core rules or agent instructions.\n- Flag any suggestions that could weaken security or stability.\n- Prefer additive changes (new rules, clarifications) over modifications to existing rules.\n\nRules:\n- Only propose GENERAL improvements that benefit all projects — never project-specific changes.\n- Never remove existing working rules — only refine, add, or clarify.\n- Keep the same formatting style as existing files.\n- Be conservative — only propose changes you are confident improve the template.\n- If nothing actionable is found, say so explicitly.\n\nOutput format — return ONLY a JSON array of edits, no other text:\n```json\n[\n  {\n    \"file\": \"relative/path/to/file.md\",\n    \"action\": \"append | replace\",\n    \"search\": \"exact text to find (only for replace action)\",\n    \"content\": \"new content to append or replace with\",\n    \"reasoning\": \"why this change improves the template\"\n  }\n]\n```\n\nIf no changes are warranted, return:\n```json\n[]\n```"
+                },
+                {
+                  "role": "user",
+                  "content": ("--- CURRENT TEMPLATE FILES ---\n" + $ctx + "\n\n--- COMMUNITY FEEDBACK ---\n" + $fb)
+                }
+              ]
+            }')
+
+          response=$(curl -s -w "\n%{http_code}" \
+            "https://models.inference.ai.azure.com/chat/completions" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${GH_MODELS_TOKEN}" \
+            -d "$prompt")
+
+          http_code=$(echo "$response" | tail -1)
+          body=$(echo "$response" | sed '$d')
+
+          if [ "$http_code" != "200" ]; then
+            echo "::error::GitHub Models API returned HTTP $http_code"
+            echo "$body" | jq '.' 2>/dev/null || echo "$body"
+            exit 1
+          fi
+
+          claude_output=$(echo "$body" | jq -r '.choices[0].message.content')
+          echo "$claude_output" > /tmp/claude_review.txt
+
+          edits_json=$(echo "$claude_output" | sed -n '/^```json$/,/^```$/p' | sed '1d;$d')
+
+          if [ -z "$edits_json" ]; then
+            edits_json="$claude_output"
+          fi
+
+          echo "$edits_json" > /tmp/edits.json
+
+          if ! jq '.' /tmp/edits.json > /dev/null 2>&1; then
+            echo "::warning::Claude output was not valid JSON. Saving raw review only."
+            echo "has_edits=false" >> "$GITHUB_OUTPUT"
+          else
+            edit_count=$(jq 'length' /tmp/edits.json)
+            echo "Claude proposed ${edit_count} edit(s)."
+            echo "has_edits=true" >> "$GITHUB_OUTPUT"
+            echo "edit_count=${edit_count}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Apply Claude's proposed edits
+        if: steps.claude.outputs.has_edits == 'true' && steps.claude.outputs.edit_count != '0'
+        run: |
+          edit_count=$(jq 'length' /tmp/edits.json)
+
+          for i in $(seq 0 $(( edit_count - 1 ))); do
+            file=$(jq -r ".[$i].file" /tmp/edits.json)
+            action=$(jq -r ".[$i].action" /tmp/edits.json)
+            content=$(jq -r ".[$i].content" /tmp/edits.json)
+            reasoning=$(jq -r ".[$i].reasoning" /tmp/edits.json)
+
+            echo "--- Edit $((i+1)): $action on $file ---"
+            echo "Reason: $reasoning"
+
+            case "$file" in
+              AGENTS.md|.github/copilot-instructions.md|docs/*.md|.ai/*.md|.github/agents/*.agent.md)
+                ;;
+              *)
+                echo "::warning::Skipping edit to unexpected file: $file"
+                continue
+                ;;
+            esac
+
+            if [ ! -f "$file" ] && [ "$action" = "replace" ]; then
+              echo "::warning::File $file does not exist, skipping replace."
+              continue
+            fi
+
+            if [ "$action" = "append" ]; then
+              mkdir -p "$(dirname "$file")"
+              printf "\n%s" "$content" >> "$file"
+              echo "Appended to $file"
+
+            elif [ "$action" = "replace" ]; then
+              search=$(jq -r ".[$i].search" /tmp/edits.json)
+
+              if grep -qF "$search" "$file"; then
+                python3 - "$i" << 'PYEOF'
+import json, sys
+
+idx = int(sys.argv[1])
+with open('/tmp/edits.json') as f:
+    edits = json.load(f)
+
+edit = edits[idx]
+filepath = edit['file']
+search_text = edit['search']
+replacement = edit['content']
+
+with open(filepath, 'r') as f:
+    text = f.read()
+
+text = text.replace(search_text, replacement, 1)
+
+with open(filepath, 'w') as f:
+    f.write(text)
+
+print(f"Replaced text in {filepath}")
+PYEOF
+              else
+                echo "::warning::Search text not found in $file, skipping."
+              fi
+            fi
+          done
+
+      - name: Save Claude's full review
+        run: |
+          mkdir -p feedback
+          cp /tmp/claude_review.txt "feedback/${{ steps.feedback.outputs.project_safe }}_claude_review.md"
+
+      - name: Build PR body
+        run: |
+          {
+            echo "## Community Feedback Review"
+            echo ""
+            echo "**Source Issue:** #${{ github.event.issue.number }}"
+            echo "**Author:** @${{ github.event.issue.user.login }}"
+            echo "**Reviewed by:** Claude Opus 4 (GitHub Models)"
+            echo ""
+
+            if [ "${{ steps.claude.outputs.has_edits }}" = "true" ] && [ "${{ steps.claude.outputs.edit_count }}" != "0" ]; then
+              echo "### Claude proposed ${{ steps.claude.outputs.edit_count }} improvement(s)"
+              echo ""
+              echo "> **Community contribution — review with extra care.**"
+              echo ""
+              echo "The proposed changes have been applied to the template files in this PR."
+              echo "Review each change carefully before merging."
+              echo ""
+
+              edit_count=$(jq 'length' /tmp/edits.json)
+              for i in $(seq 0 $(( edit_count - 1 ))); do
+                file=$(jq -r ".[$i].file" /tmp/edits.json)
+                action=$(jq -r ".[$i].action" /tmp/edits.json)
+                reasoning=$(jq -r ".[$i].reasoning" /tmp/edits.json)
+                echo "- **\`$file\`** ($action): $reasoning"
+              done
+            else
+              echo "### No actionable improvements found"
+              echo ""
+              echo "Claude reviewed the community feedback and determined no template changes are warranted."
+              echo "The raw feedback is still saved in \`feedback/\` for reference."
+            fi
+
+            echo ""
+            echo "---"
+            echo "*See \`feedback/\` for the raw feedback and Claude's full review.*"
+            echo ""
+            echo "Closes #${{ github.event.issue.number }}"
+          } > /tmp/pr_body.md
+
+      - name: Create Pull Request
+        id: pr
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "feedback(community): AI-reviewed improvements from issue #${{ github.event.issue.number }}"
+          branch: "feedback/issue-${{ github.event.issue.number }}"
+          title: "[Community Feedback] ${{ github.event.issue.title }}"
+          body-path: /tmp/pr_body.md
+          labels: feedback,template-improvement,ai-reviewed,community
+          delete-branch: true
+
+      - name: Comment on issue with result
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "${{ steps.claude.outputs.has_edits }}" = "true" ] && [ "${{ steps.claude.outputs.edit_count }}" != "0" ]; then
+            gh issue comment ${{ github.event.issue.number }} \
+              --body "Claude reviewed your feedback and proposed **${{ steps.claude.outputs.edit_count }} improvement(s)**. A PR has been created for the maintainer to review. Thanks for contributing!"
+          else
+            gh issue comment ${{ github.event.issue.number }} \
+              --body "Claude reviewed your feedback but didn't identify actionable template improvements at this time. The feedback has been saved for future reference. Thanks for contributing!"
+          fi

@@ -1,0 +1,77 @@
+# Sends feedback to the template repo via GitHub Issues.
+# Safe for forks and external contributors — only requires issue-creation permission.
+#
+# SETUP: Run scripts/setup-feedback.ps1 or scripts/setup-feedback.sh.
+# Choose "issue" mode when prompted (default for forks).
+#
+# The template repo has a workflow that picks up the issue, reviews it with
+# Claude, and creates a PR with improvements.
+
+name: Send Feedback via Issue
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/RETROSPECTIVE_REPORT.md'
+      - 'docs/PLAYBOOK.md'
+      - 'docs/QUALITY_REPORT.md'
+      - 'docs/SECURITY_REPORT.md'
+      - '.ai/lessons.md'
+
+jobs:
+  send-feedback:
+    runs-on: ubuntu-latest
+    if: ${{ vars.TEMPLATE_FEEDBACK_ENABLED == 'true' && vars.TEMPLATE_FEEDBACK_MODE == 'issue' }}
+
+    steps:
+      - name: Checkout project repo
+        uses: actions/checkout@v4
+
+      - name: Collect feedback files
+        id: collect
+        run: |
+          body=""
+
+          for file in \
+            docs/RETROSPECTIVE_REPORT.md \
+            docs/PLAYBOOK.md \
+            docs/QUALITY_REPORT.md \
+            docs/SECURITY_REPORT.md \
+            .ai/lessons.md; do
+            if [ -f "$file" ]; then
+              content=$(head -500 "$file")
+              body="${body}<details><summary>${file}</summary>\n\n\`\`\`markdown\n${content}\n\`\`\`\n\n</details>\n\n"
+            fi
+          done
+
+          # Save to file to avoid shell escaping issues
+          {
+            echo "## Project Feedback"
+            echo ""
+            echo "- **Project:** ${GITHUB_REPOSITORY}"
+            echo "- **URL:** https://github.com/${GITHUB_REPOSITORY}"
+            echo "- **Commit:** \`${GITHUB_SHA}\`"
+            echo "- **Submitted:** $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo ""
+            echo "---"
+            echo ""
+            echo -e "$body"
+          } > /tmp/issue_body.md
+
+      - name: Create issue on template repo
+        env:
+          GH_TOKEN: ${{ secrets.TEMPLATE_FEEDBACK_TOKEN }}
+          TEMPLATE_REPO: ${{ vars.TEMPLATE_REPO }}
+        run: |
+          if [ -z "$TEMPLATE_REPO" ]; then
+            echo "::error::TEMPLATE_REPO variable not set. Run scripts/setup-feedback to configure."
+            exit 1
+          fi
+
+          gh issue create \
+            --repo "$TEMPLATE_REPO" \
+            --title "Feedback from ${GITHUB_REPOSITORY}" \
+            --body-file /tmp/issue_body.md \
+            --label "feedback"
