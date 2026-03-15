@@ -9,7 +9,7 @@
 
 <!-- Describe what this system does at a high level. What problem does it solve? Who uses it? -->
 
-*Not yet documented. Update this when the first feature is implemented.*
+RAG-Powered Playbook Infrastructure. Playbook rules are stored as individual markdown files with TOML frontmatter in `docs/playbooks/`. The `playbook_parser` module parses these files into structured chunk dicts for downstream consumption. The full RAG pipeline (embedding, indexing, semantic search) is designed but only the parser module is currently implemented.
 
 ---
 
@@ -24,10 +24,6 @@
 | `src/services/` | Business logic and service layer |
 | `src/utils/` | Shared helper functions and utilities |
 | `src/utils/playbook_parser.py` | Parses `.playbook.md` files with TOML frontmatter into structured chunk dicts |
-| `src/utils/embedding_client.py` | Thin wrapper around the GitHub Models embedding API |
-| `src/utils/knowledge_index.py` | Knowledge index I/O, diffing, merging, and similarity search |
-| `scripts/build-knowledge-index.py` | CLI script to incrementally build the knowledge index |
-| `scripts/query-knowledge-index.py` | CLI script to query the knowledge index and output ranked results |
 
 ---
 
@@ -37,21 +33,17 @@
 
 ### RAG Pipeline
 
+> **⚠️ Planned — not yet implemented.** Only the playbook parser (step 1) exists on disk. The embedding client, knowledge index, CLI scripts, and CI workflow are designed but not yet built.
+
 The RAG (Retrieval-Augmented Generation) pipeline provides semantically relevant playbook knowledge to agents via the Librarian.
 
-**Index Build Flow:**
+**Intended Flow (designed, not implemented):**
 
-1. **Playbook Chunks** (`docs/playbooks/**/*.playbook.md`) → parsed by `playbook_parser.py` into structured dicts (metadata + body)
-2. **Parser Output** → fed to `build-knowledge-index.py`, which diffs against the existing index by content hash
-3. **New/Changed Chunks** → embedded via `embedding_client.py` (GitHub Models API, text-embedding-3-small)
-4. **Embeddings** → merged into the **Knowledge Index** (`.ai/knowledge-index.json`) by `knowledge_index.py`
-
-**Query Flow:**
-
-1. **Librarian Query** (agent type + technology + free-text) → `query-knowledge-index.py`
-2. **Query Text** → embedded via `embedding_client.py` into a vector
-3. **Similarity Search** → `knowledge_index.py` filters by agent/tech metadata, ranks by cosine similarity
-4. **Ranked Results** → returned as markdown or JSON to the Librarian for inclusion in context briefs
+1. **Playbook Chunks** (`docs/playbooks/**/*.playbook.md`) → parsed by `playbook_parser.py` into structured dicts (metadata + body) ✔️ *Implemented*
+2. **Parser Output** → fed to `build-knowledge-index.py`, which diffs against the existing index by content hash ❌ *Not yet implemented*
+3. **New/Changed Chunks** → embedded via `embedding_client.py` (GitHub Models API, text-embedding-3-small) ❌ *Not yet implemented*
+4. **Embeddings** → merged into the **Knowledge Index** (`.ai/knowledge-index.json`) by `knowledge_index.py` ❌ *Not yet implemented*
+5. **Librarian Query** → query text embedded, similarity search, ranked results returned ❌ *Not yet implemented*
 
 **Fallback:** When the knowledge index is missing or `GH_MODELS_TOKEN` is not set, the Librarian falls back to metadata-only filtering (no embeddings) or skips RAG entirely and uses documentation search only.
 
@@ -77,6 +69,6 @@ The RAG (Retrieval-Augmented Generation) pipeline provides semantically relevant
 
 <!-- List external systems, APIs, databases, or services this system depends on. -->
 
-| Dependency | Purpose | Auth |
-|------------|---------|------|
-| GitHub Models API (`https://models.github.ai/inference`) | Text embedding via `text-embedding-3-small` | `GH_MODELS_TOKEN` env var |
+| Dependency | Purpose | Auth | Status |
+|------------|---------|------|--------|
+| GitHub Models API (`https://models.github.ai/inference`) | Text embedding via `text-embedding-3-small` | `GH_MODELS_TOKEN` env var | ⏸️ *Planned — not yet implemented* |

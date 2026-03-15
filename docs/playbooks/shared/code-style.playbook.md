@@ -5,7 +5,7 @@ agents = ["all"]
 technologies = ["all"]
 category = "convention"
 tags = ["style", "readability", "formatting"]
-version = 3
+version = 5
 +++
 
 ### Code Style
@@ -33,3 +33,16 @@ version = 3
 - Use consistent spacing around operators and after commas — enforce with formatter
 - Prefer named function expressions over anonymous functions for better stack traces and debugging
 - Keep conditional expressions simple — complex conditions should be extracted into named boolean variables
+- Never use mutable objects (lists, dicts, sets) as default parameter values — use `None` and assign inside the function body (Google Python Style Guide, §2.12)
+- Minimize the amount of code inside `try`/`except` blocks — the larger the try body, the more likely an unexpected exception gets caught (Google Python Style Guide, §2.4)
+- Use implicit boolean evaluation for collections: `if not users:` instead of `if len(users) == 0:` — empty containers are falsy in Python (Google Python Style Guide, §2.14)
+- Don't vertically align tokens (=, #, :) on consecutive lines — it creates maintenance burden when names change length (Google Python Style Guide, §3.6)
+- Use context managers (`with` statement) for all file handles, sockets, database connections, and similar stateful resources — never rely on garbage collection for cleanup (Google Python Style Guide, §3.11)
+- Comprehensions must be simple: no multiple `for` clauses or complex filter expressions — use a regular loop if the comprehension doesn't fit on one conceptual line (Google Python Style Guide, §2.7)
+- Add type annotations to all public API function signatures — type hints improve readability, enable static analysis, and catch bugs before runtime (Google Python Style Guide, §2.21)
+- Maximum line length is 80 characters — exceptions allowed for long import statements, URLs in comments, and lint-disable directives; use implicit line joining inside parentheses instead of backslash continuations (Google Python Style Guide, §3.2)
+- Detect and break import cycles: if module A imports module B and module B imports module A, refactor to eliminate the circular dependency — use dependency inversion, extract a shared interface module, or defer imports inside functions (Google Python Style Guide, §3.19.14)
+- Avoid mutable global state — module-level mutable variables make code hard to test and can introduce subtle concurrency bugs; if global state is unavoidable, make it internal (`_prefixed`) and access through functions (Google Python Style Guide, §2.5)
+- Use default iterators and operators for types that support them: prefer `for key in adict:` over `for key in adict.keys():` and `if obj in alist:` over manual index searching (Google Python Style Guide, §2.8)
+- Avoid power features (metaclasses, dynamic inheritance, bytecode manipulation, `__del__` methods, import hacks) unless absolutely necessary — they make code harder to understand, debug, and maintain (Google Python Style Guide, §2.19)
+- Use %-formatting or lazy evaluation in logging calls instead of f-strings — logging frameworks skip string interpolation when the log level is disabled, improving performance: `logger.info('User %s logged in', username)` not `logger.info(f'User {username} logged in')` (Google Python Style Guide, §3.10.1)

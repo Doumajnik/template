@@ -1,7 +1,7 @@
 # Sends retrospective and playbook updates back to the template repo.
 #
-# SETUP: Run scripts/setup-feedback.ps1 (Windows) or scripts/setup-feedback.sh (Unix).
-# That script handles the PAT, secret, and repo variable automatically.
+# Requires repo variables: TEMPLATE_REPO, TEMPLATE_FEEDBACK_ENABLED
+# Requires repo secret: TEMPLATE_FEEDBACK_TOKEN
 #
 # Triggers: manual dispatch, or when retrospective/playbook files change on main.
 
@@ -21,7 +21,7 @@ on:
 jobs:
   send-feedback:
     runs-on: ubuntu-latest
-    # Skip if feedback is not configured (setup-feedback script sets this)
+    # Skip if feedback is not configured
     if: ${{ vars.TEMPLATE_FEEDBACK_ENABLED == 'true' }}
 
     steps:
@@ -56,7 +56,7 @@ jobs:
           TEMPLATE_REPO: ${{ vars.TEMPLATE_REPO }}
         run: |
           if [ -z "$TEMPLATE_REPO" ]; then
-            echo "::error::TEMPLATE_REPO variable not set. Run scripts/setup-feedback to configure."
+            echo "::error::TEMPLATE_REPO variable not set."
             exit 1
           fi
 

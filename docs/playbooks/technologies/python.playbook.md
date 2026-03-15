@@ -5,7 +5,7 @@ agents = []
 technologies = ["python"]
 category = "convention"
 tags = ["python", "stdlib", "typing"]
-version = 3
+version = 5
 +++
 
 ### Python Conventions
@@ -41,3 +41,18 @@ version = 3
 - Use `argparse` for CLI tools — never `sys.argv` parsing
 - Prefer `json.loads`/`json.dumps` with explicit `encoding='utf-8'` for file operations
 - Use `unittest.mock.patch` as a decorator or context manager — never monkeypatch globals directly
+- Use `match`/`case` (3.10+) for structural pattern matching on types, enums, and data shapes — avoid long if/elif chains when matching against known structures
+- Use the `@override` decorator (3.12+, or `typing_extensions`) on methods that override a base class method to catch rename errors at type-check time
+- Never use mutable objects (lists, dicts, sets) as default argument values. Use `None` as the default and initialize inside the function body
+- Avoid `staticmethod` — use module-level functions instead. Use `classmethod` only for alternative constructors (factory methods)
+- Use `asyncio.TaskGroup` (3.11+) for structured concurrency — ensures all spawned tasks are awaited and exceptions propagate cleanly. Avoid bare `asyncio.gather` with swallowed exceptions
+- Use `queue.Queue` for thread communication instead of shared mutable state. Prefer `threading.Condition` over low-level locks for producer/consumer patterns
+- Use `LiteralString` type (3.11+) for function parameters that will be used in SQL queries, shell commands, or template rendering to prevent injection at the type level
+- Use `from __future__ import annotations` (PEP 563) in modules targeting Python 3.7–3.9 to enable modern annotation syntax (`X | Y`, forward references) without runtime cost. Omit it in Python 3.10+ where `X | Y` works natively in type annotations
+- Use `raise ... from err` inside `except` blocks to preserve the exception chain, or `raise ... from None` to explicitly suppress it. Never use bare `raise SomeException(...)` inside an except block without `from` — it hides the original cause and makes debugging harder
+- Pass `strict=True` to `zip()` when the input iterables must have equal length — silently truncating mismatched inputs hides bugs. Only omit `strict` when intentionally zipping iterables of different lengths
+- Use `sys.exit()` for program termination — never `exit()`, `quit()`, or `raise SystemExit`. `exit()` and `quit()` are REPL conveniences not available in all environments and not intended for scripts
+- Never use `assert` statements for runtime validation or input checking — assertions are stripped when running with `python -O`. Use explicit `if`/`raise` with appropriate exception types for all checks that must execute in production
+- Never call blocking I/O functions (`open()`, `time.sleep()`, `subprocess.run()`, `requests.get()`) inside `async` functions — use their async equivalents (`aiofiles.open()`, `asyncio.sleep()`, `asyncio.create_subprocess_exec()`, `httpx.AsyncClient`). Blocking calls inside async functions stall the entire event loop
+- Use `field(default_factory=list)` (or `dict`, `set`, etc.) for mutable defaults in `dataclass` fields — never assign a mutable literal directly as a dataclass field default. Use `dataclass(frozen=True)` for value-like types that should be immutable after creation
+- In Python 3.12+, prefer the PEP 695 `type` statement syntax (`type Alias = int | str`) and type parameter syntax (`def f[T: Base](x: T) -> T`) for cleaner generics. Use `TypeVar` with `bound=` parameter to constrain generic type variables in older Python versions

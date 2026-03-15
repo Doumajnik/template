@@ -3,7 +3,7 @@
 > **This is a living document.** AI agents MUST update it after creating or modifying any source file.
 > Agents MUST search this file before creating new functions, classes, or utilities to prevent duplication.
 
-**Last updated:** *(not yet — no source files exist)*
+**Last updated:** 2026-03-15
 
 ---
 
@@ -59,29 +59,4 @@ After creating or modifying a source file:
 | `discover_playbook_files` | function | `(base_dir: str) -> list[str]` | Recursively find *.playbook.md files |
 | `parse_all_playbooks` | function | `(base_dir: str) -> list[dict]` | Discover, parse, and validate all playbooks |
 
-### `src/utils/embedding_client.py`
 
-**Purpose:** Thin wrapper around the GitHub Models embedding API.
-
-| Symbol | Type | Signature / Value | Description |
-|--------|------|-------------------|-------------|
-| `API_URL` | const | `str` | GitHub Models embedding API endpoint |
-| `MODEL` | const | `str` | Embedding model name |
-| `DIMENSIONS` | const | `int` | Embedding vector dimensions (1536) |
-| `embed_texts` | function | `(texts: list[str], token: str) -> list[list[float]]` | Batch embed texts via GitHub Models API |
-| `embed_single` | function | `(text: str, token: str) -> list[float]` | Embed a single text |
-
-### `src/utils/knowledge_index.py`
-
-**Purpose:** Manages the knowledge index — loading, saving, diffing, merging, and searching.
-
-| Symbol | Type | Signature / Value | Description |
-|--------|------|-------------------|-------------|
-| `INDEX_VERSION` | const | `int` | Current index schema version |
-| `MODEL_NAME` | const | `str` | Embedding model identifier |
-| `DIMENSIONS` | const | `int` | Embedding vector dimensions |
-| `load_index` | function | `(index_path: str) -> dict` | Load and validate knowledge index from JSON |
-| `save_index` | function | `(index: dict, index_path: str) -> None` | Atomically write index to disk |
-| `diff_chunks` | function | `(current_chunks, existing_index) -> tuple` | Incremental diff by content hash |
-| `merge_embeddings` | function | `(existing, new_chunks, embeddings, removed_ids) -> dict` | Merge new embeddings into index |
-| `search_chunks` | function | `(index, query_embedding, agent, tech, top_k) -> list[dict]` | Filter and rank chunks by similarity |

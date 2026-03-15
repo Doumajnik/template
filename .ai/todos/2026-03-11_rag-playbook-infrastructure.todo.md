@@ -10,31 +10,31 @@
 
 ### Phase 0 — Playbook Format, Template & Stubs
 
-- [ ] ⬜ **P0-1:** Create playbook template `docs/playbooks/_TEMPLATE.playbook.md` → *Scaffolder*
-- [ ] ⬜ **P0-2:** Create `.gitattributes` entry for `.ai/knowledge-index.json` → *Scaffolder*
-- [ ] ⬜ **P0-3:** Create shared playbook stubs (8 files in `docs/playbooks/shared/`) → *Scaffolder*
-- [ ] ⬜ **P0-4:** Create agent playbook stubs (32 files in `docs/playbooks/agents/`) → *Scaffolder*
-- [ ] ⬜ **P0-5:** Create technology playbook stubs (4 files in `docs/playbooks/technologies/`) → *Scaffolder*
+- [x] ✅ **P0-1:** Create playbook template `docs/playbooks/_TEMPLATE.playbook.md` → *Scaffolder*
+- [x] ✅ **P0-2:** Create `.gitattributes` entry for `.ai/knowledge-index.json` → *Scaffolder*
+- [x] ✅ **P0-3:** Create shared playbook stubs (8 files in `docs/playbooks/shared/`) → *Scaffolder*
+- [x] ✅ **P0-4:** Create agent playbook stubs (32 files in `docs/playbooks/agents/`) → *Scaffolder*
+- [x] ✅ **P0-5:** Create technology playbook stubs (4 files in `docs/playbooks/technologies/`) → *Scaffolder*
 
 ### Phase 1 — Parser & Embedding Client (Layer 1)
 
 **Scaffolding:**
 
-- [ ] ⬜ **P1-S1:** Scaffold `src/utils/playbook_parser.py` (8 functions) → *Scaffolder*
+- [x] ✅ **P1-S1:** Scaffold `src/utils/playbook_parser.py` (8 functions) → *Scaffolder*
 - [ ] ⬜ **P1-S2:** Scaffold `src/utils/embedding_client.py` (7 functions) → *Scaffolder*
-- [ ] ⬜ **P1-S3:** Scaffold `tests/utils/test_playbook_parser.py` → *Scaffolder*
+- [x] ✅ **P1-S3:** Scaffold `tests/utils/test_playbook_parser.py` → *Scaffolder*
 - [ ] ⬜ **P1-S4:** Scaffold `tests/utils/test_embedding_client.py` → *Scaffolder*
 
 **Tests (TDD red phase — write BEFORE implementation):**
 
-- [ ] ⬜ **P1-T1:** Write tests for `_extract_frontmatter` → *Test Writer*
-- [ ] ⬜ **P1-T2:** Write tests for `_validate_frontmatter` → *Test Writer*
-- [ ] ⬜ **P1-T3:** Write tests for `_validate_content` → *Test Writer*
-- [ ] ⬜ **P1-T4:** Write tests for `_compute_content_hash` → *Test Writer*
-- [ ] ⬜ **P1-T5:** Write tests for `_validate_unique_ids` → *Test Writer*
-- [ ] ⬜ **P1-T6:** Write tests for `parse_playbook_file` → *Test Writer*
-- [ ] ⬜ **P1-T7:** Write tests for `discover_playbook_files` → *Test Writer*
-- [ ] ⬜ **P1-T8:** Write tests for `parse_all_playbooks` → *Test Writer*
+- [x] ✅ **P1-T1:** Write tests for `_extract_frontmatter` → *Test Writer*
+- [x] ✅ **P1-T2:** Write tests for `_validate_frontmatter` → *Test Writer*
+- [x] ✅ **P1-T3:** Write tests for `_validate_content` → *Test Writer*
+- [x] ✅ **P1-T4:** Write tests for `_compute_content_hash` → *Test Writer*
+- [x] ✅ **P1-T5:** Write tests for `_validate_unique_ids` → *Test Writer*
+- [x] ✅ **P1-T6:** Write tests for `parse_playbook_file` → *Test Writer*
+- [x] ✅ **P1-T7:** Write tests for `discover_playbook_files` → *Test Writer*
+- [x] ✅ **P1-T8:** Write tests for `parse_all_playbooks` → *Test Writer*
 - [ ] ⬜ **P1-T9:** Write tests for `_estimate_tokens` → *Test Writer*
 - [ ] ⬜ **P1-T10:** Write tests for `_create_batches` → *Test Writer*
 - [ ] ⬜ **P1-T11:** Write tests for `_call_embedding_api` → *Test Writer*
@@ -45,14 +45,14 @@
 
 **Implementation (TDD green phase):**
 
-- [ ] ⬜ **P1-W1:** Implement `_extract_frontmatter` → *Worker*
-- [ ] ⬜ **P1-W2:** Implement `_validate_frontmatter` → *Worker*
-- [ ] ⬜ **P1-W3:** Implement `_validate_content` → *Worker*
-- [ ] ⬜ **P1-W4:** Implement `_compute_content_hash` → *Worker*
-- [ ] ⬜ **P1-W5:** Implement `_validate_unique_ids` → *Worker*
-- [ ] ⬜ **P1-W6:** Implement `parse_playbook_file` → *Worker*
-- [ ] ⬜ **P1-W7:** Implement `discover_playbook_files` → *Worker*
-- [ ] ⬜ **P1-W8:** Implement `parse_all_playbooks` → *Worker*
+- [x] ✅ **P1-W1:** Implement `_extract_frontmatter` → *Worker*
+- [x] ✅ **P1-W2:** Implement `_validate_frontmatter` → *Worker*
+- [x] ✅ **P1-W3:** Implement `_validate_content` → *Worker*
+- [x] ✅ **P1-W4:** Implement `_compute_content_hash` → *Worker*
+- [x] ✅ **P1-W5:** Implement `_validate_unique_ids` → *Worker*
+- [x] ✅ **P1-W6:** Implement `parse_playbook_file` → *Worker*
+- [x] ✅ **P1-W7:** Implement `discover_playbook_files` → *Worker*
+- [x] ✅ **P1-W8:** Implement `parse_all_playbooks` → *Worker*
 - [ ] ⬜ **P1-W9:** Implement `_estimate_tokens` → *Worker*
 - [ ] ⬜ **P1-W10:** Implement `_create_batches` → *Worker*
 - [ ] ⬜ **P1-W11:** Implement `_call_embedding_api` → *Worker*
@@ -138,7 +138,7 @@
 - [ ] ⬜ **POST-2:** Security audit of all code → *Security*
 - [ ] ⬜ **POST-3:** Code quality scan → *Code Quality*
 - [ ] ⬜ **POST-4:** Write session summary → *Doc Updater*
-- [ ] ⬜ **POST-5:** Retrospective review and PLAYBOOK update → *Retrospective*
+- [x] ✅ **POST-5:** Retrospective review and PLAYBOOK update → *Retrospective*
 
 ---
 
@@ -147,6 +147,8 @@
 | Time | Agent | Update |
 | --- | --- | --- |
 | 2026-03-11 | Planning Agent | Created plan, impl plans (phases 0-4), and todo file |
+| 2026-03-15 | Cleanup Agent | Marked completed tasks to match on-disk reality: P0-1–P0-5 (playbook stubs exist), P1-S1/P1-S3 (parser + test scaffolded), P1-T1–P1-T8 (74 tests written), P1-W1–P1-W8 (8 parser functions implemented). Fixed phantom references across all docs. |
+| 2026-03-15 | Retrospective Agent | Completed retrospective review. Updated PLAYBOOK.md (2 patterns, 3 anti-patterns), lessons.md (5 lessons), RETROSPECTIVE_REPORT.md (first entry). Flagged critical discrepancies: 6 files referenced in reports don't exist on disk, 0/~90 tasks completed, dispatch log incomplete. |
 
 ---
 

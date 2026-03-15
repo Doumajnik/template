@@ -1,8 +1,8 @@
 # Sends feedback to the template repo via GitHub Issues.
 # Safe for forks and external contributors — only requires issue-creation permission.
 #
-# SETUP: Run scripts/setup-feedback.ps1 or scripts/setup-feedback.sh.
-# Choose "issue" mode when prompted (default for forks).
+# Requires repo variables: TEMPLATE_REPO, TEMPLATE_FEEDBACK_ENABLED, TEMPLATE_FEEDBACK_MODE
+# Requires repo secret: TEMPLATE_FEEDBACK_TOKEN
 #
 # The template repo has a workflow that picks up the issue, reviews it with
 # Claude, and creates a PR with improvements.
@@ -66,7 +66,7 @@ jobs:
           TEMPLATE_REPO: ${{ vars.TEMPLATE_REPO }}
         run: |
           if [ -z "$TEMPLATE_REPO" ]; then
-            echo "::error::TEMPLATE_REPO variable not set. Run scripts/setup-feedback to configure."
+            echo "::error::TEMPLATE_REPO variable not set."
             exit 1
           fi
 

@@ -5,7 +5,7 @@ agents = []
 technologies = ["typescript"]
 category = "convention"
 tags = ["typescript", "types", "eslint"]
-version = 3
+version = 5
 +++
 
 ### TypeScript Conventions
@@ -40,3 +40,17 @@ version = 3
 - Use `import type { ... }` for type-only imports — enforced by `verbatimModuleSyntax` in tsconfig
 - Use `URL` constructor for URL manipulation — never string concatenation for query parameters
 - Prefer `crypto.randomUUID()` for generating unique IDs — never `Math.random().toString(36)`
+- Never use `@ts-ignore`, `@ts-expect-error`, or `@ts-nocheck` directives. Fix the underlying type issue instead of suppressing it
+- Use `as` syntax for type assertions (`value as Type`). Never use angle-bracket syntax (`<Type>value`) — it conflicts with JSX and is inconsistent
+- Do not use the `namespace` keyword. Use ES modules with `import`/`export` for all code organization
+- Only throw `Error` objects (or subclasses). Never throw strings, numbers, or plain objects — non-Error values lack stack traces
+- Never use `eval()`, `new Function(...string)`, or any dynamic code evaluation. They create injection risks and prevent static analysis
+- Do not use ECMAScript `#private` fields. Use TypeScript’s `private` modifier which provides compile-time enforcement and is stripped at runtime
+- Prefer `Number()` over `parseInt()`/`parseFloat()` for string-to-number conversion. If you must use `parseInt()`, always specify the radix explicitly
+- Always handle or explicitly discard Promise return values — never let Promises float unhandled. Either `await` the promise, `return` it, assign it, or prefix with `void` if deliberately ignoring the result. Unhandled rejections crash Node.js processes and silently swallow errors in browsers
+- Do not rely on JavaScript truthiness coercion in boolean positions (conditionals, `&&`, `||`). Explicitly compare with `!== null`, `!== undefined`, `!== 0`, `.length > 0`, etc. instead of using implicit coercion, which mishandles `0`, `""`, and `NaN`
+- Use `T[]` syntax for simple array types and `Array<T>` only when the element type is complex (union, intersection, or conditional). Be consistent within a codebase. Use `readonly T[]` over `ReadonlyArray<T>` for the same reason
+- Always `return await` inside `try`/`catch`/`finally` blocks so that exceptions from the awaited promise are caught by the local error handler. Outside try/catch, return the promise directly without `await` to avoid unnecessary microtask overhead
+- When switching on a discriminated union type, handle all variants explicitly. Add an exhaustiveness check using `default: { const _exhaustive: never = value; throw new Error("Unhandled case"); }` to get a compile-time error when new variants are added
+- Always provide a comparison function to `Array.prototype.sort()` and `Array.prototype.toSorted()` — the default sort converts elements to strings, producing incorrect results for numbers (`[10, 2, 1].sort()` → `[1, 10, 2]`) and unexpected ordering for most types
+- Do not pass `async` functions where a `void`-returning callback is expected (e.g., `forEach`, `addEventListener`, event emitter handlers). The returned Promise will be silently ignored and rejections will be swallowed. Wrap in a synchronous function that explicitly handles the error

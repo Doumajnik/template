@@ -5,7 +5,7 @@ agents = []
 technologies = ["dotnet"]
 category = "convention"
 tags = ["dotnet", "csharp", "aspnet"]
-version = 3
+version = 5
 +++
 
 ### .NET Conventions
@@ -38,3 +38,17 @@ version = 3
 - Use `FrozenDictionary<K,V>` and `FrozenSet<T>` (NET 8+) for read-only lookup collections
 - Use `Polly` library for retry policies, circuit breakers, and timeout policies on external calls
 - Use `MediatR` or in-process messaging for decoupled command/query handling — avoid injecting services into services
+- Use primary constructors (C# 12) for classes and structs that capture dependencies or parameters — eliminates boilerplate field assignments. Use camelCase for class/struct primary constructor parameters, PascalCase for record primary constructor parameters
+- Use collection expressions (`[1, 2, 3]`) for initializing arrays, lists, spans, and other collection types. Use the spread element (`..`) to merge collections
+- Use file-scoped namespace declarations (`namespace MyApp;`) — never block-scoped namespaces. This reduces nesting by one level across the entire file
+- Use `using` alias directive to alias any type (C# 12) including tuples, arrays, and generic types — e.g., `using Point = (int X, int Y);` for domain-specific type clarity
+- Place `using` directives outside namespace declarations to avoid ambiguous name resolution when other namespaces share a common prefix
+- Use raw string literals (`"""..."""`) for multi-line strings containing special characters, JSON, or XML — avoid escape sequences or verbatim strings for complex embedded content
+- Use `required` properties (C# 11+) to enforce initialization of property values at construction — prefer over constructor parameters when the type has many optional properties
+- Use `StringComparison` explicitly in all string comparison methods (`Equals`, `Compare`, `IndexOf`, `StartsWith`, `EndsWith`) — never use overloads without it. Use `StringComparison.Ordinal` for internal/technical comparisons and `StringComparison.OrdinalIgnoreCase` for case-insensitive lookups. Use culture-aware comparisons only for user-facing text (CA1307/CA1310)
+- Use `decimal` for monetary values and financial calculations — never `double` or `float`. Floating-point types have inherent rounding errors that are unacceptable for currency. Reserve `double` for scientific or graphics computation where approximate results are acceptable
+- Centralize project-wide imports in a single `GlobalUsings.cs` file using `global using` directives (C# 10+). Keep commonly referenced namespaces (e.g., `System.Collections.Generic`, `Microsoft.Extensions.Logging`) there to reduce repetitive `using` statements across files
+- Use `AsSpan()` instead of `Substring()` for read-only string slicing operations — parsing, comparison, and searching within a portion of a string. `AsSpan()` avoids heap allocation of a new string (CA1831)
+- Use `throw;` to rethrow exceptions — never `throw ex;`. The latter resets the stack trace and loses the original callsite information, making debugging significantly harder (CA2200)
+- Enable the recommended set of .NET code analyzers by setting `<AnalysisMode>Recommended</AnalysisMode>` in `.csproj`. Escalate analyzer warnings to errors in CI builds with `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>` for zero-warning enforcement
+- Avoid capturing variables in lambdas passed to hot-path methods (`Where`, `Select`, logging interpolation) — captured variables cause closure heap allocations on every invocation. Extract captured values into local variables or pass them as method parameters to avoid allocation pressure

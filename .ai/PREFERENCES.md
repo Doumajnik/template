@@ -37,6 +37,7 @@
 
 - **Always create an isolated environment first.** At the start of any project or session, create the appropriate isolated/virtual environment for the language being used (e.g., `python -m venv .venv`, `node_modules` via `npm install`, `cargo` workspace, `dotnet` project, Go modules, etc.) and activate it before installing dependencies or running code. Never install packages globally.
 - **Research and install all dependencies upfront.** Before any coding begins, the Research Agent identifies all required libraries/packages. The Orchestrator installs them all at once in the project's isolated environment. No mid-implementation dependency hunting.
+- **Always use the latest versions.** When adding any dependency, library, tool, or framework, the Research Agent MUST check the web for the current latest stable version. Never assume a version — always verify. Pin to the specific latest version found.
 
 ---
 

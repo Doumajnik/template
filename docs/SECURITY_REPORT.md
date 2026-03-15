@@ -16,8 +16,9 @@
 | 🔴 Critical open | 0 |
 | 🟠 High open | 0 |
 | 🟡 Medium open | 0 |
-| 🟢 Low open | 2 |
-| ℹ️ Info | 2 |
+| 🟢 Low open | 0 |
+| ℹ️ Info open | 0 |
+| ⏸️ N/A | 4 |
 | ✅ Fixed (all time) | 0 |
 
 ---
@@ -39,7 +40,7 @@
 - Finding #1: ✅ FIXED — password moved to .env
 -->
 
-*No audits yet.*
+> ⚠️ **PHANTOM AUDIT:** The files referenced in this entry either do not exist on disk or were never persisted (verified 2026-03-15). Findings are not actionable until the files are re-implemented. See Retrospective Report 2026-03-15 for details.
 
 ### Audit — 2026-03-11 — RAG Playbook Infrastructure (Initial Full Audit)
 
@@ -47,10 +48,10 @@
 
 | # | Severity | Category | File | Line(s) | Finding | Recommendation | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | 🟢 LOW | A03 Supply Chain | .github/workflows/build-knowledge-index.yml | 22-26 | GitHub Actions pinned to major version tags (`@v4`, `@v5`) rather than SHA digests. Tags can be force-moved, introducing a supply-chain risk if upstream is compromised. | Pin to full SHA: e.g. `actions/checkout@<sha>`. Or accept current risk for official actions. | 🔧 OPEN |
-| 2 | 🟢 LOW | A02 Misconfiguration | .github/workflows/build-knowledge-index.yml | 37 | `git pull --rebase \|\| true` silently swallows rebase failures. A failed rebase could leave the working tree in a bad state before the push. | Replace with explicit error handling or remove `\|\| true` and let the job fail visibly on conflicts. | 🔧 OPEN |
-| 3 | ℹ️ INFO | A05 Injection | src/utils/embedding_client.py | 96-99 | `Retry-After` header parsed as `float()` without upper-bound validation. A malicious or misconfigured upstream could return an extremely large value causing indefinite sleep. Risk is negligible since the API URL is hardcoded to `models.github.ai`. | Add a cap (e.g. `min(float(retry_after), 120)`). Optional — no real attack vector exists because the URL is not user-controllable. | 🔧 OPEN |
-| 4 | ℹ️ INFO | — Best Practice | scripts/build-knowledge-index.py, scripts/query-knowledge-index.py | 8 | `sys.path.insert(0, ...)` modifies the Python import path at runtime. Standard for repo scripts but could mask shadowed stdlib modules if a malicious file is placed in the utils directory. | Acceptable for this use case. Consider a proper package install (`pip install -e .`) for production projects. | 🔧 OPEN |
+| 1 | 🟢 LOW | A03 Supply Chain | .github/workflows/build-knowledge-index.yml | 22-26 | GitHub Actions pinned to major version tags (`@v4`, `@v5`) rather than SHA digests. Tags can be force-moved, introducing a supply-chain risk if upstream is compromised. | Pin to full SHA: e.g. `actions/checkout@<sha>`. Or accept current risk for official actions. | ⏸️ N/A — file does not exist |
+| 2 | 🟢 LOW | A02 Misconfiguration | .github/workflows/build-knowledge-index.yml | 37 | `git pull --rebase \|\| true` silently swallows rebase failures. A failed rebase could leave the working tree in a bad state before the push. | Replace with explicit error handling or remove `\|\| true` and let the job fail visibly on conflicts. | ⏸️ N/A — file does not exist |
+| 3 | ℹ️ INFO | A05 Injection | src/utils/embedding_client.py | 96-99 | `Retry-After` header parsed as `float()` without upper-bound validation. A malicious or misconfigured upstream could return an extremely large value causing indefinite sleep. Risk is negligible since the API URL is hardcoded to `models.github.ai`. | Add a cap (e.g. `min(float(retry_after), 120)`). Optional — no real attack vector exists because the URL is not user-controllable. | ⏸️ N/A — file does not exist |
+| 4 | ℹ️ INFO | — Best Practice | scripts/build-knowledge-index.py, scripts/query-knowledge-index.py | 8 | `sys.path.insert(0, ...)` modifies the Python import path at runtime. Standard for repo scripts but could mask shadowed stdlib modules if a malicious file is placed in the utils directory. | Acceptable for this use case. Consider a proper package install (`pip install -e .`) for production projects. | ⏸️ N/A — file does not exist |
 
 **Summary:** 4 findings — 0 critical, 0 high, 0 medium, 2 low, 2 info
 

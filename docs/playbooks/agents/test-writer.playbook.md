@@ -5,7 +5,7 @@ agents = ["test-writer"]
 technologies = ["all"]
 category = "rule"
 tags = ["test-writer"]
-version = 2
+version = 4
 +++
 
 ### Test Writer Guidelines
@@ -24,3 +24,16 @@ version = 2
 - Verify idempotency where relevant — calling the function twice with the same input should produce the same result
 - Test that functions don't mutate their input arguments when they shouldn't
 - Mark test-writing tasks as ✅ complete in the todo file after creation
+- Follow the Arrange-Act-Assert (AAA) pattern in every test — clearly separate setup, execution, and verification into distinct blocks (source: Martin Fowler, "Practical Test Pyramid")
+- Test observable behavior, not implementation details — if refactoring internal code without changing behavior breaks your tests, the tests are too tightly coupled to the implementation (source: Martin Fowler, "Practical Test Pyramid")
+- Prefer sociable unit tests (using real collaborators) over solitary tests (all mocks) when collaborators are fast and deterministic — mock only slow, non-deterministic, or external dependencies (source: Martin Fowler, "Practical Test Pyramid")
+- Write contract tests for every external service integration — verify that your mocks and stubs match the real service's API contract so fakes don't drift from reality (source: Martin Fowler, "Practical Test Pyramid")
+- Avoid test duplication across pyramid levels — if a behavior is fully covered by unit tests, don't re-test the same logic in integration tests. Push tests as far down the pyramid as possible (source: Martin Fowler, "Practical Test Pyramid")
+- Never test trivial code (simple getters, setters, direct pass-throughs with no logic) — focus testing effort on code with conditional logic and business rules (source: Martin Fowler, "Practical Test Pyramid")
+- Test code is production-quality code — apply the same readability, naming, and structure standards. "This is only test code" is never a valid excuse for sloppy code (source: Martin Fowler, "Practical Test Pyramid")
+- Place shared fixtures in `conftest.py` at the appropriate directory level — never duplicate fixture definitions across test files; pytest discovers `conftest.py` fixtures automatically without requiring imports (source: pytest docs, "How to use fixtures")
+- Choose the correct fixture scope (`function`, `class`, `module`, `session`) based on setup cost — use broader scopes only for expensive, stateless, or read-only resources; default to `function` scope for anything that mutates state (source: pytest docs, "Fixture scopes")
+- Use `yield` fixtures for teardown — place cleanup code after the `yield` statement to guarantee it runs even when tests fail, replacing manual try/finally blocks (source: pytest docs, "Teardown/Cleanup")
+- Use factory fixtures (fixtures that return a function) when a single test needs multiple distinct instances of test data — this avoids parametrize overhead and gives the test explicit control over creation (source: pytest docs, "Factories as fixtures")
+- Avoid `autouse=True` fixtures unless the fixture genuinely applies to ALL tests in its scope — implicit setup hides test dependencies and makes individual tests harder to understand in isolation (source: pytest docs, "Autouse fixtures")
+- Keep fixtures minimal and composable — each fixture should perform exactly one setup step; build complex test scenarios by composing small fixtures rather than creating monolithic setup functions (source: pytest docs, "Safe fixture structure")

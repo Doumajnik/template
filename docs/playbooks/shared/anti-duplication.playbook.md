@@ -5,7 +5,7 @@ agents = ["all"]
 technologies = ["all"]
 category = "rule"
 tags = ["duplication", "dedup", "code-reuse"]
-version = 3
+version = 5
 +++
 
 ### Anti-Duplication
@@ -30,3 +30,17 @@ version = 3
 - When two services need the same data transformation, extract it into a pure function in `src/utils/`
 - Avoid duplicating validation logic between frontend and backend — share schemas or generate from a single source
 - If a regex pattern is used in more than one file, extract it into a named constant in a shared patterns module
+- Apply the Rule of Three: tolerate minor duplication for two occurrences, but always extract on the third — premature abstraction is as harmful as duplication (Martin Fowler, Rule of Three)
+- Watch for Data Clumps: if the same group of 3+ parameters appears together in multiple function signatures, extract them into a dataclass or typed dict (Refactoring Guru, Data Clumps smell)
+- Detect Shotgun Surgery: if a single logical change requires edits across 3+ files, consolidate the scattered logic into a single module or service (Refactoring Guru, Shotgun Surgery smell)
+- Avoid parallel inheritance hierarchies: if adding a subclass in one hierarchy always requires a matching subclass in another, merge the hierarchies or use composition (Refactoring Guru, Parallel Inheritance Hierarchies)
+- Use the Template Method pattern when two functions share the same algorithm structure but differ in 1-2 steps — extract the skeleton, parameterize the varying steps
+- Avoid duplicating error handling patterns (retry logic, logging wrappers, auth checks) — extract into decorators, middleware, or shared higher-order functions
+- When two modules independently define the same data transformation, introduce a shared transformation pipeline in `src/utils/` rather than letting both evolve separately
+- Detect the Middle Man anti-pattern: if a class exists only to delegate every call to another class without adding logic, remove it and let callers use the target directly — unnecessary delegation layers duplicate call paths (Refactoring Guru, Middle Man smell)
+- Watch for cross-module enum/constant duplication: if two modules define the same set of string or numeric constants independently, consolidate them into a single shared enum or constants module in `src/models/` or `src/utils/`
+- Detect duplicated conditional logic: if the same `if/elif/else` branching structure appears in multiple places with different actions, extract the branching into a strategy pattern, dispatch table, or polymorphic handler
+- Avoid duplicated type definitions across API boundaries: if client and server code both define the same type/interface independently, generate types from a single schema source (OpenAPI, Protobuf, JSON Schema) to prevent drift
+- When two classes implement the same interface with near-identical method bodies, extract a shared base class or mixin — duplicated interface implementations are a common source of divergent bugs
+- Detect Incomplete Library Class smell: if you find yourself writing utility wrappers around a third-party library in multiple places, create a single adapter module in `src/utils/` that encapsulates all interactions with that library (Refactoring Guru, Incomplete Library Class)
+- Avoid duplicating service initialization logic (connection setup, authentication, configuration parsing) across multiple entry points — extract a shared factory function or initializer module

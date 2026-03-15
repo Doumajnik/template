@@ -83,17 +83,12 @@ When spawned in **query mode**, you search the knowledge base and return a focus
 
 1. **Parse the query** — what agent needs context? For what task? What scope? Determine the target agent type and relevant technology.
 
-2. **Stage 1: RAG Retrieval** — retrieve relevant playbook knowledge from the knowledge index:
-   - Shell out to the query script:
-
-     ```bash
-     python3 scripts/query-knowledge-index.py --query "{parsed query}" --agent {agent} --tech {tech} --top-k 10
-     ```
-
-   - Capture stdout as RAG chunks (ranked playbook knowledge)
-   - If the script fails or returns no results, continue to Stage 2 (graceful degradation)
-
-   > **Graceful degradation:** If the query script fails, the index is missing, or the `GH_MODELS_TOKEN` is not set, Stage 1 is skipped and the Librarian continues with Stage 2 only. RAG retrieval is additive — never blocking.
+2. **Stage 1: Playbook Search** — read relevant playbook files from `docs/playbooks/`:
+   - `docs/playbooks/shared/` — rules that apply to all agents (anti-duplication, code-style, naming, etc.). Always include the shared rules most relevant to the task.
+   - `docs/playbooks/agents/{agent}.playbook.md` — agent-specific rules for the target agent. **Always include the full content** of the target agent's playbook.
+   - `docs/playbooks/technologies/{tech}.playbook.md` — technology-specific conventions if the task involves a specific language/framework. Include the full content if applicable.
+   - Read only the playbooks relevant to the query — don't dump all playbooks
+   - **Security Agent special rule:** When the target agent is Security, also include the full `docs/SECURITY_CHECKLIST.md` in the brief. The Security Agent needs every checklist item to audit against.
 
 3. **Stage 2: Documentation Search** (read only what's relevant):
    - `docs/CODE_INVENTORY.md` — find related symbols
@@ -104,7 +99,7 @@ When spawned in **query mode**, you search the knowledge base and return a focus
    - `docs/discoveries/` — find relevant external data summaries
 
 4. **Stage 3: Assemble Context Brief**:
-   - Merge RAG chunks into a "### Relevant Playbook Rules (RAG)" section
+   - Merge relevant playbook rules into a "### Relevant Playbook Rules" section
    - Merge documentation search results (existing sections)
    - Include ONLY information relevant to the query. Omit everything else.
 
@@ -127,14 +122,12 @@ When spawned in **query mode**, you search the knowledge base and return a focus
 
 {relevant excerpt from BUSINESS_LOGIC.md — only the parts that matter}
 
-### Relevant Playbook Rules (RAG)
+### Relevant Playbook Rules
 
-<!-- Top-K chunks from the knowledge index, ranked by relevance -->
-
-**[Score: 0.89]** Anti-Duplication Rules (`shared/anti-duplication`)
+**Anti-Duplication Rules** (`shared/anti-duplication`)
 > Before creating anything new, search CODE_INVENTORY.md...
 
-**[Score: 0.85]** Python Testing Conventions (`technologies/python`)
+**Python Testing Conventions** (`technologies/python`)
 > Use pytest. Minimum 15 tests per function...
 
 ### Relevant Patterns

@@ -5,7 +5,7 @@ agents = []
 technologies = ["go"]
 category = "convention"
 tags = ["go", "golang", "modules"]
-version = 3
+version = 5
 +++
 
 ### Go Conventions
@@ -39,3 +39,17 @@ version = 3
 - Use `testify/assert` and `testify/require` for cleaner test assertions — `require` for must-pass preconditions, `assert` for checks
 - Use `build tags` (`//go:build integration`) to separate unit and integration tests
 - Always close response bodies: `defer resp.Body.Close()` after checking for error
+- Use `crypto/rand` (not `math/rand` or `math/rand/v2`) for generating keys, tokens, and any security-sensitive random values. Use `crypto/rand.Text` for random strings
+- Declare empty slices with `var t []string` (nil slice) — not `t := []string{}` — unless JSON encoding requires a non-nil empty array (`[]` vs `null`)
+- Error strings should not be capitalized (unless starting with a proper noun) and should not end with punctuation — they are usually printed following other context like `log.Printf("reading %s: %v", file, err)`
+- Prefer synchronous functions that return results directly over asynchronous ones. Let callers add concurrency by calling from a separate goroutine — never force concurrency on the caller
+- Define interfaces in the consumer package, not the implementation package. Do not define interfaces on the implementor side "for mocking" — return concrete types from constructors and let consumers define the interfaces they need
+- Use `goimports` (superset of `gofmt`) to format code and manage import grouping automatically. Group imports: stdlib, then blank line, then third-party
+- Document goroutine lifetimes explicitly — make it clear when and whether goroutines exit. Never leave goroutines in-flight when they are no longer needed; they leak even if their channels are unreachable
+- Use a one or two letter abbreviation of the receiver's type name as the method receiver name (e.g., `c` for `Client`, `s` for `Server`). Never use `this`, `self`, or `me`. Be consistent — use the same receiver name across all methods of a type. Do not mix receiver types (pointer vs value) on the same type without good reason
+- Never use `panic` for normal error handling — only for truly unrecoverable programmer errors (impossible state, violated invariants). Library code must never panic; always return errors. Use `recover()` only at goroutine boundaries (e.g., HTTP middleware) to prevent a single goroutine crash from taking down the entire program
+- Indent error handling, not the happy path — check errors first, return early, and keep the normal code flow at minimal indentation. Write `if err != nil { return err }` followed by the success path, never `if err != nil { ... } else { ... }`
+- Don't pass pointers as function arguments just to save a few bytes. If a function only dereferences the pointer (`*x`), pass the value directly. Strings, interface values, and small structs are cheap to copy — reserve pointer parameters for large structs or when mutation/nil-signaling is needed
+- Use `sync.Pool` to reuse frequently allocated temporary objects (byte buffers, structs) in hot paths — it significantly reduces GC pressure. Always reset pooled objects before returning them to the pool with `Put()`. Type-assert safely when retrieving with `Get()`
+- Avoid named result parameters unless they materially improve godoc clarity (e.g., disambiguating multiple return values of the same type like `lat, long float64`). Never use naked returns in functions longer than a few lines — they harm readability and make the return values ambiguous
+- Prefer returning concrete types from constructors and exported functions — only accept interfaces as parameters. This follows the "accept interfaces, return structs" principle and allows adding new methods to implementations without breaking consumers
