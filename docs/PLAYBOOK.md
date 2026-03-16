@@ -3,7 +3,7 @@
 > **This is a living document.** AI agents append to it after making architecture decisions or discovering patterns.
 > Agents read this at the start of every session to maintain consistency across the project.
 
-**Last updated:** *(template created — no decisions yet)*
+**Last updated:** 2026-03-15
 
 ---
 
@@ -16,7 +16,20 @@
 <!-- **Decision:** What was chosen -->
 <!-- **Alternatives considered:** What was rejected and why -->
 
-*No architecture decisions yet.*
+### Playbook Chunk Format (TOML Frontmatter)
+
+**Date:** 2026-03-11
+**Context:** Needed a structured, machine-parseable format for playbook rules that agents can query.
+**Decision:** Use `+++` TOML frontmatter delimiters in `.playbook.md` files. Required fields: `id`, `title`, `agents`, `technologies`, `category`, `tags`, `version`. Valid categories: `pattern`, `anti-pattern`, `rule`, `convention`, `decision`, `strategy`.
+**Alternatives considered:** YAML frontmatter (rejected — ambiguous with markdown), JSON sidecar files (rejected — extra file management).
+
+### RAG Knowledge Index Architecture
+
+**Date:** 2026-03-11
+**Context:** Needed semantic search over playbook rules for the Librarian Agent.
+**Decision:** Content-hash-based incremental indexing with GitHub Models text-embedding-3-small (1536 dimensions). Index stored as committed JSON (`.ai/knowledge-index.json`). Graceful degradation when index or token is unavailable.
+**Alternatives considered:** Full vector DB (rejected — overkill for ~50 chunks), no embeddings / keyword only (rejected — insufficient for semantic matching).
+**Status:** Only the parser module is implemented. Embedding client, knowledge index, CLI scripts, and CI workflow are designed but not yet built.
 
 ---
 
@@ -25,7 +38,17 @@
 <!-- Document recurring code patterns that should be followed consistently. -->
 <!-- Example: "All API handlers follow the try/catch → mapError → respond pattern" -->
 
-*No patterns established yet.*
+### Pre-Report File Verification
+
+**Date:** 2026-03-15
+**Context:** Review/Security/Quality reports referenced 6 files that did not exist on disk, creating phantom audit records. Agents generated detailed audits for code that existed only in the chat context window but was never persisted to disk. This creates false confidence that code has been reviewed and is secure — downstream agents trust these reports, and when files don't actually exist, the project has audit records for nothing.
+**Pattern:** Before generating any audit report, the agent MUST verify every file it references actually exists on disk by reading the file or listing the directory. If a file does not exist, flag it as missing in the report — never audit code from a context window without on-disk confirmation. Always verify file existence before auditing.
+
+### Adversarial Architecture Review
+
+**Date:** 2026-03-15
+**Context:** The Architect↔Critic loop caught 3 critical contradictions and 6 additional issues in the RAG pipeline architecture, improving the design substantially before any code was written.
+**Pattern:** Every non-trivial architecture goes through at least one Architect→Innovator→Critic cycle. The Critic's rejection is a feature — it catches contradictions, missing edge cases, and over-engineering before implementation begins. Expect 1-2 rounds. Maximum 10.
 
 ---
 
@@ -34,7 +57,19 @@
 <!-- Document anti-patterns or approaches we've explicitly decided against. -->
 <!-- Example: "Don't use default exports — always use named exports for better refactoring" -->
 
-*No anti-patterns documented yet.*
+### Abandoned Dispatch Logs
+
+**Date:** 2026-03-15
+**Problem:** The dispatch log covered only the planning phase (9 entries). All implementation dispatches were unlogged, making it impossible to reconstruct the implementation timeline or audit agent decisions.
+**Why it's bad:** The retrospective agent cannot audit decisions that were never recorded. Pipeline failures are invisible. Accountability is lost.
+**Instead:** Every sub-agent spawn gets a dispatch log entry — no exceptions. When continuing across sessions, chain dispatch logs with cross-references.
+
+### Stale Todo Trackers
+
+**Date:** 2026-03-15
+**Problem:** All ~90 todo tasks remained ⬜ unchecked despite partial implementation existing on disk. The todo became useless as a progress indicator.
+**Why it's bad:** Other agents checking the todo see no progress and may redo work. The Orchestrator cannot determine project state. Session continuity breaks.
+**Instead:** Agents mark tasks 🔵 before starting and ✅ on completion. The Orchestrator verifies todo updates after each agent reports back.
 
 ---
 
@@ -151,10 +186,54 @@ Before writing or modifying code, always ask: **does this belong here?**
 
 ---
 
+## Playbook Chunk Format
+
+Playbook knowledge is stored as individual chunk files in `docs/playbooks/`. Each file uses `+++` TOML frontmatter delimiters and contains a single rule, pattern, or convention.
+
+- **Location:** `docs/playbooks/{shared,agents,technologies}/`
+- **One file per chunk** — each file is a self-contained unit of knowledge
+- **Required TOML frontmatter fields:** `id`, `title`, `agents`, `technologies`, `category`, `tags`, `version`
+- **Valid categories:** `pattern`, `anti-pattern`, `rule`, `convention`, `decision`, `strategy`
+- **Body:** Markdown content below the closing `+++` delimiter — the actual rule or pattern text
+
+Example structure:
+
+```toml
++++
+id = "anti-duplication-001"
+title = "Anti-Duplication Rules"
+agents = ["worker", "scaffolder", "refactor"]
+technologies = ["all"]
+category = "rule"
+tags = ["duplication", "DRY", "extraction"]
+version = 1
++++
+```
+
+---
+
+## Knowledge Index
+
+The knowledge index enables RAG (Retrieval-Augmented Generation) for the Librarian Agent, providing semantically relevant playbook rules to all agents on demand.
+
+> **⚠️ Status:** Only the parser module (`src/utils/playbook_parser.py`) is currently implemented. The build script, query script, embedding client, knowledge index module, and CI workflow are designed but not yet built. See the plan in `.ai/plans/2026-03-11_rag-playbook-infrastructure.plan.md`.
+
+- **Build script (planned):** `scripts/build-knowledge-index.py` — incrementally builds the index using content-hash-based diffing
+- **Query script (planned):** `scripts/query-knowledge-index.py` — searches the index and outputs ranked results
+- **Index location:** `.ai/knowledge-index.json` (committed to git)
+- **CI integration (planned):** Rebuild triggered on `docs/playbooks/**` changes pushed to `main`
+- **Embedding model (planned):** GitHub Models text-embedding-3-small (1536 dimensions)
+- **Graceful degradation:** If the index is missing or `GH_MODELS_TOKEN` is not set, the Librarian falls back to documentation-only search
+
+---
+
 ## Changelog
 
 <!-- Brief log of when this playbook was updated and what changed. -->
 
 | Date           | Change                                        |
 |----------------|-----------------------------------------------|
+| 2026-03-15     | Cleanup: Removed phantom file entries, consolidated pattern/anti-pattern, updated architecture decisions, marked planned components |
+| 2026-03-15     | Retrospective: Added Pre-Report File Verification and Adversarial Architecture Review patterns. Added 3 anti-patterns (Phantom File Audits, Abandoned Dispatch Logs, Stale Todo Trackers). |
+| 2026-03-11     | Added Playbook Chunk Format and Knowledge Index sections |
 | *(template)*   | Initial playbook created with empty sections  |

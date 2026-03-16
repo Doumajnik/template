@@ -13,11 +13,6 @@ Desktop.ini
 # ===========================
 # Editor / IDE files
 # ===========================
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
 .idea/
 *.swp
 *.swo
@@ -134,6 +129,17 @@ tmp/
 temp/
 .cache/
 TEMP/
+
+# ===========================
+# Branch-specific: playbook_infrastructure
+# Remove this block before merging to main
+# ===========================
+.ai/plans/
+.ai/todos/
+.ai/sessions/
+.ai/specs/
+.ai/previews/
+.ai/trace.md
 
 # ===========================
 # Empty project directories

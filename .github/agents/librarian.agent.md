@@ -81,9 +81,16 @@ When spawned in **query mode**, you search the knowledge base and return a focus
    - On start: `O->>LIB: Query: {topic}`
    - On finish: `LIB-->>O: Context brief ready`
 
-1. **Parse the query** — what agent needs context? For what task? What scope?
+1. **Parse the query** — what agent needs context? For what task? What scope? Determine the target agent type and relevant technology.
 
-2. **Search the knowledge base** (read only what's relevant):
+2. **Stage 1: Playbook Search** — read relevant playbook files from `docs/playbooks/`:
+   - `docs/playbooks/shared/` — rules that apply to all agents (anti-duplication, code-style, naming, etc.). Always include the shared rules most relevant to the task.
+   - `docs/playbooks/agents/{agent}.playbook.md` — agent-specific rules for the target agent. **Always include the full content** of the target agent's playbook.
+   - `docs/playbooks/technologies/{tech}.playbook.md` — technology-specific conventions if the task involves a specific language/framework. Include the full content if applicable.
+   - Read only the playbooks relevant to the query — don't dump all playbooks
+   - **Security Agent special rule:** When the target agent is Security, also include the full `docs/SECURITY_CHECKLIST.md` in the brief. The Security Agent needs every checklist item to audit against.
+
+3. **Stage 2: Documentation Search** (read only what's relevant):
    - `docs/CODE_INVENTORY.md` — find related symbols
    - `docs/files/` — find related file summaries
    - `docs/BUSINESS_LOGIC.md` — find related business logic
@@ -91,9 +98,12 @@ When spawned in **query mode**, you search the knowledge base and return a focus
    - `docs/PLAYBOOK.md` — find relevant patterns and rules
    - `docs/discoveries/` — find relevant external data summaries
 
-3. **Assemble a focused context brief** — include ONLY information relevant to the query. Omit everything else.
+4. **Stage 3: Assemble Context Brief**:
+   - Merge relevant playbook rules into a "### Relevant Playbook Rules" section
+   - Merge documentation search results (existing sections)
+   - Include ONLY information relevant to the query. Omit everything else.
 
-4. **Return the brief** to the Orchestrator, who passes it to the target agent.
+5. **Return the brief** to the Orchestrator, who passes it to the target agent.
 
 ### Context Brief Format
 
@@ -111,6 +121,14 @@ When spawned in **query mode**, you search the knowledge base and return a focus
 ### Related Business Logic
 
 {relevant excerpt from BUSINESS_LOGIC.md — only the parts that matter}
+
+### Relevant Playbook Rules
+
+**Anti-Duplication Rules** (`shared/anti-duplication`)
+> Before creating anything new, search CODE_INVENTORY.md...
+
+**Python Testing Conventions** (`technologies/python`)
+> Use pytest. Minimum 15 tests per function...
 
 ### Relevant Patterns
 

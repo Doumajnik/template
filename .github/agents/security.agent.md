@@ -28,16 +28,62 @@ The Orchestrator spawns you **after the Reviewer passes** (end of each cycle) an
    - On finish: `Note over SEC: {N} findings` then `SEC-->>O: Audit complete`
 
 1. **Read context files:**
-   - `docs/CODE_INVENTORY.md` â€” know what exists
-   - `docs/PLAYBOOK.md` â€” understand patterns and architecture decisions
-   - `docs/SECURITY_REPORT.md` â€” read existing findings (to avoid duplicates and check unresolved items)
-   - `.ai/PREFERENCES.md` â€” user preferences
+   - `docs/SECURITY_CHECKLIST.md` — the **authoritative checklist**. Every item must be checked against every source file.
+   - `docs/CODE_INVENTORY.md` — know what exists
+   - `docs/PLAYBOOK.md` — understand patterns and architecture decisions
+   - `docs/SECURITY_REPORT.md` — read existing findings (to avoid duplicates and check unresolved items)
+   - `.ai/PREFERENCES.md` — user preferences
+   - Your **agent-specific playbook** from the Librarian's brief — follow all rules listed there
 
-2. **Scan the entire `src/` directory** (or scoped files if provided). For each file, check the full OWASP-based checklist below.
+2. **Batch audit the entire project.** Process ALL source files in `src/` in batches of 3-5 files at a time. For each batch:
+   - Read each file in the batch completely
+   - Check EVERY item in `docs/SECURITY_CHECKLIST.md` against each file
+   - Record findings AND passes — the report must address every checklist section for every file
+   - Move to the next batch until all files are covered
 
-3. **Append findings** to `docs/SECURITY_REPORT.md` under a new audit entry.
+3. **Also audit these non-source files:**
+   - Configuration files (`.env`, `.env.example`, config files)
+   - CI/CD workflows (`.github/workflows/`)
+   - Scripts (`scripts/`)
+   - Package manifests (`requirements.txt`, `package.json`, `pyproject.toml`, etc.)
+   - Docker files (`Dockerfile`, `docker-compose.yml`)
+   - `.gitignore` (verify sensitive files are excluded)
 
-4. **Report back** to the Orchestrator with a summary and fix recommendations.
+4. **Produce a comprehensive report** in `docs/SECURITY_REPORT.md` that:
+   - Lists every finding with severity, file, line number, and recommendation
+   - Includes a **file-by-file coverage matrix** showing which checklist sections were checked for each file
+   - Addresses every checklist category — even if the result is "PASS: no issues found"
+   - Groups findings by OWASP category
+
+5. **Report back** to the Orchestrator with a summary and fix recommendations.
+
+## Batch Processing Rules
+
+- **Never skip files.** Every file in `src/`, `scripts/`, and config must be audited.
+- **Never skip checklist items.** Every section of `docs/SECURITY_CHECKLIST.md` must be checked.
+- **Process in batches of 3-5 files** to stay focused and thorough. Read each file completely before checking.
+- **Track progress.** After each batch, note which files have been audited and which remain.
+- **Cross-file checks.** After all individual files are done, check for project-wide concerns: dependency vulnerabilities, configuration consistency, secrets exposure across the codebase.
+
+## Report Must Include
+
+### Per-File Coverage Table
+
+For each source file, the report must include which checklist categories were checked:
+
+```markdown
+#### File Coverage: `src/utils/example.py`
+
+| Checklist Section | Status | Notes |
+| --- | --- | --- |
+| A01 Broken Access Control | ✅ PASS | No access control logic in this utility |
+| A02 Cryptographic Failures | ✅ PASS | No crypto operations |
+| A03 Injection | ✅ PASS | No user input handling |
+| A04 Insecure Design | ✅ PASS | — |
+| A05 Security Misconfiguration | ✅ PASS | — |
+| Code-Level: Hardcoded Secrets | ✅ PASS | No secrets found |
+| Code-Level: Dangerous Functions | ⚠️ FINDING #3 | Uses `eval()` on line 45 |
+```
 
 ## Security Audit Checklist (OWASP Top 10:2025 + Code-Level Checks)
 

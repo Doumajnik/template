@@ -3,7 +3,7 @@
 > **This is a living document.** AI agents MUST update it after creating or modifying any source file.
 > Agents MUST search this file before creating new functions, classes, or utilities to prevent duplication.
 
-**Last updated:** *(not yet — no source files exist)*
+**Last updated:** 2026-03-15
 
 ---
 
@@ -47,4 +47,16 @@ After creating or modifying a source file:
   Remove entries when files are deleted.
 -->
 
-*No source files yet. The inventory will be populated as the project grows.*
+### `src/utils/playbook_parser.py`
+
+**Purpose:** Parses `.playbook.md` files with TOML frontmatter into structured chunk dicts.
+
+| Symbol | Type | Signature / Value | Description |
+|--------|------|-------------------|-------------|
+| `VALID_CATEGORIES` | const | `frozenset` | Valid playbook category values |
+| `REQUIRED_FIELDS` | const | `tuple` | Required TOML frontmatter fields |
+| `parse_playbook_file` | function | `(file_path: str) -> dict` | Parse a single .playbook.md file |
+| `discover_playbook_files` | function | `(base_dir: str) -> list[str]` | Recursively find *.playbook.md files |
+| `parse_all_playbooks` | function | `(base_dir: str) -> list[dict]` | Discover, parse, and validate all playbooks |
+
+

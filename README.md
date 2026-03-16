@@ -8,6 +8,40 @@
 2. Copy `.env.example` to `.env` and fill in any required values.
 3. Install your language's dependencies as usual.
 
+## RAG Playbook System
+
+The project includes a RAG-powered knowledge system that delivers relevant coding rules and patterns to AI agents.
+
+### Playbook Rules
+
+Playbook rules live in `docs/playbooks/` organized by scope:
+
+- `shared/` — cross-cutting rules (anti-duplication, naming, error handling)
+- `agents/` — agent-specific instructions
+- `technologies/` — language/framework conventions
+
+Each `.playbook.md` file has `+++` TOML frontmatter (id, title, agents, technologies, category, tags, version) followed by markdown body.
+
+### Adding a New Rule
+
+1. Create a new `.playbook.md` file in the appropriate subdirectory
+2. Fill in the TOML frontmatter fields
+3. Write the rule content in markdown below the closing `+++`
+4. Rebuild the index: `python scripts/build-knowledge-index.py`
+
+### Building the Knowledge Index
+
+```bash
+export GH_MODELS_TOKEN="your-token"
+python scripts/build-knowledge-index.py
+```
+
+The index is stored at `.ai/knowledge-index.json` and uses incremental content-hash diffing to only re-embed changed chunks.
+
+### How It Works
+
+The Librarian Agent queries the index before assembling context briefs for other agents. Relevant playbook rules are retrieved via semantic similarity search and included in the brief. If the index or token is unavailable, the Librarian falls back to documentation-only search.
+
 ## Usage
 
 *TODO: Add usage instructions as the project develops.*

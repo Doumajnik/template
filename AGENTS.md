@@ -209,8 +209,13 @@ Before spawning ANY working agent, the Orchestrator MUST:
 
 1. **Query the Librarian FIRST** — spawn Librarian in query mode: *"What context does {agent} need to {task}?"*
 2. **Receive the context brief** — the Librarian returns a focused brief with only relevant information.
-3. **Pass the brief to the target agent** — include the Librarian's brief in the agent's spawn prompt instead of having the agent read raw files.
+3. **Pass the brief to the target agent** — include the Librarian's brief in the agent's spawn prompt. The brief MUST include:
+   - **Agent-specific playbook rules** from `docs/playbooks/agents/{agent}.playbook.md`
+   - **Shared playbook rules** from `docs/playbooks/shared/` (relevant to the task)
+   - **Technology-specific playbook rules** from `docs/playbooks/technologies/{tech}.playbook.md` (if applicable)
+   - Relevant code inventory, business logic, and file summaries
 4. **NEVER skip this step.** Even for trivial tasks, ad-hoc agents, or quick fixes — always query the Librarian first.
+5. **Security Agent special rule:** When spawning the Security Agent, the Librarian MUST include the full `docs/SECURITY_CHECKLIST.md` in the brief. The Security Agent checks every item in the checklist against every source file.
 
 **Why:** This keeps every agent's context window minimal — they receive only what they need, not entire files or docs. It also ensures agents always have the latest project state.
 

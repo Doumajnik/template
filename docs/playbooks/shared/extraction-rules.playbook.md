@@ -1,0 +1,46 @@
++++
+id = "shared/extraction-rules"
+title = "Extraction Rules"
+agents = ["all"]
+technologies = ["all"]
+category = "strategy"
+tags = ["extraction", "refactoring", "shared-code"]
+version = 5
++++
+
+### Extraction Rules
+
+- If the same 3+ lines appear in two places, extract into a shared function
+- Magic numbers must be extracted into named constants with descriptive names
+- String literals used in comparisons must be constants or enums
+- Complex regular expressions must be named constants with a comment explaining the pattern
+- Configuration values (URLs, timeouts, limits) must be extracted into config, not inline
+- If a lambda exceeds one line or 60 characters, convert it to a named function
+- SQL queries longer than 2 lines should be stored as named constants or template strings
+- Nested function calls deeper than 2 levels should use intermediate variables
+- Extract validation logic into dedicated validator functions rather than inline checks
+- File paths should be constructed using pathlib, never string concatenation
+- HTTP headers, status codes, and content types used in multiple places must be constants
+- Error messages displayed to users must be in a centralized i18n/messages module — never inline
+- Date/time formatting patterns must be constants — never inline format strings
+- API endpoint paths must be defined as constants — never scattered as inline strings
+- Environment variable names must be defined as constants with documentation of expected values
+- Default values for configuration must be defined alongside the config constant, not at the usage site
+- Common validation patterns (email regex, phone regex, URL pattern) must be shared constants
+- Retry counts, timeout durations, and backoff multipliers must be named constants, not inline numbers
+- If a function signature has more than 2 boolean parameters, extract into an options/config object
+- Database table and column names referenced in code must be constants — never inline strings
+- Replace Temp with Query: if a temporary variable holds a computed expression that is used in multiple places, extract it into a method and call the method instead — eliminates coupling to local variable scope (Refactoring Guru, Replace Temp with Query)
+- Split Temporary Variable: if a local variable is assigned values for different purposes at different points in a function, use a separate named variable for each purpose — one variable, one responsibility (Refactoring Guru, Split Temporary Variable)
+- Never reassign function parameters inside the function body — use a new local variable instead to preserve the original input for debugging and clarity (Refactoring Guru, Remove Assignments to Parameters)
+- Introduce Parameter Object: when 3+ parameters consistently travel together across multiple function signatures, extract them into a dataclass, typed dict, or config object (Refactoring Guru, Introduce Parameter Object)
+- When a method uses more fields/methods from another class than its own, move it to that class — the method belongs where its data lives (Refactoring Guru, Move Method)
+- When a class has two distinct clusters of fields and methods that don’t interact, extract one cluster into a new class — this is the Extract Class refactoring (Refactoring Guru, Extract Class)
+- Hide Delegate: if client code navigates through an object to reach a collaborator (`a.get_b().do_thing()`), add a forwarding method on the outer object to encapsulate the navigation and reduce coupling (Refactoring Guru, Hide Delegate)
+- Replace Method with Method Object: when a long method has local variables so intertwined that Extract Method is impossible, transform the method into a dedicated class where local variables become fields — then decompose the method into smaller methods within that class (Refactoring Guru, Replace Method with Method Object)
+- Substitute Algorithm: when an existing algorithm can be replaced with a clearer or more efficient one, replace the entire method body rather than patching incrementally — ensure the new algorithm passes all existing tests before removing the old one (Refactoring Guru, Substitute Algorithm)
+- Inline Method: when a method body is just as clear as its name (trivial one-liner delegation), replace the method call with the method's content and remove the method — avoid unnecessary indirection layers (Refactoring Guru, Inline Method)
+- Split Loop: when a single loop performs multiple unrelated tasks (e.g., computing a sum AND finding a maximum), split it into separate loops each doing one thing — the performance cost is negligible and readability improves dramatically (Martin Fowler, Split Loop)
+- Slide Statements: move related code lines next to each other before extracting a method — grouping declarations and usages together makes the extraction boundary clearer and the resulting functions more cohesive (Martin Fowler, Slide Statements)
+- Extract Variable for complex expressions: when a boolean condition, arithmetic expression, or method chain is hard to read, assign intermediate results to well-named local variables that document the intent of each sub-expression (Refactoring Guru, Extract Variable)
+- Inline Temp: when a temporary variable is assigned once from a simple expression and used only to pass it along, replace references with the expression itself — this eliminates unnecessary local variables that add no semantic value (Refactoring Guru, Inline Temp)
