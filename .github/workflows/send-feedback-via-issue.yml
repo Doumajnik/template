@@ -1,35 +1,64 @@
-# Sends feedback to the template repo via GitHub Issues.
-# Safe for forks and external contributors — only requires issue-creation permission.
+# Sends feedback to the template repo via GitHub Issues on every push to main.
+# Only runs in the template repo itself — forks do not have the required
+# variables/secrets so the job is skipped automatically.
 #
-# Requires repo variables: TEMPLATE_REPO, TEMPLATE_FEEDBACK_ENABLED, TEMPLATE_FEEDBACK_MODE
+# Guard step skips the dispatch if no tracked files have meaningful content.
+# Supports an optional push note: edit feedback/PUSH_NOTE.md before pushing.
+# The note is included in the issue and auto-cleared after send.
+# Prefix the first line with DRAFT to hold the note without sending.
+# Deduplicates via LAST_FEEDBACK_SHA repo variable.
+#
+# Requires repo variables: TEMPLATE_REPO, TEMPLATE_FEEDBACK_ENABLED
 # Requires repo secret: TEMPLATE_FEEDBACK_TOKEN
-#
-# The template repo has a workflow that picks up the issue, reviews it with
-# Claude, and creates a PR with improvements.
 
 name: Send Feedback via Issue
 
 on:
   workflow_dispatch:
   push:
-    branches: [main]
-    paths:
-      - 'docs/RETROSPECTIVE_REPORT.md'
-      - 'docs/PLAYBOOK.md'
-      - 'docs/QUALITY_REPORT.md'
-      - 'docs/SECURITY_REPORT.md'
-      - '.ai/lessons.md'
 
 jobs:
   send-feedback:
     runs-on: ubuntu-latest
-    if: ${{ vars.TEMPLATE_FEEDBACK_ENABLED == 'true' && vars.TEMPLATE_FEEDBACK_MODE == 'issue' }}
+    if: ${{ vars.TEMPLATE_FEEDBACK_ENABLED == 'true' }}
 
     steps:
       - name: Checkout project repo
         uses: actions/checkout@v4
 
+      - name: Check if feedback files have content
+        id: check
+        run: |
+          has_content=false
+          for file in \
+            docs/RETROSPECTIVE_REPORT.md \
+            docs/PLAYBOOK.md \
+            docs/QUALITY_REPORT.md \
+            docs/SECURITY_REPORT.md \
+            .ai/lessons.md \
+            feedback/PUSH_NOTE.md; do
+            if [ -f "$file" ] && [ -s "$file" ]; then
+              if [ "$file" = "feedback/PUSH_NOTE.md" ]; then
+                if head -1 "$file" | grep -qi 'draft'; then
+                  continue
+                fi
+                meaningful=$(grep -v '^\s*$' "$file" \
+                  | grep -v '^\s*<!--' \
+                  | grep -v '^#' \
+                  | grep -v '_Add your feedback here_' \
+                  | wc -l)
+                if [ "$meaningful" -lt 1 ]; then
+                  continue
+                fi
+              fi
+              has_content=true
+              break
+            fi
+          done
+          echo "has_content=${has_content}" >> "$GITHUB_OUTPUT"
+
       - name: Collect feedback files
+        if: steps.check.outputs.has_content == 'true'
         id: collect
         run: |
           body=""
@@ -40,13 +69,27 @@ jobs:
             docs/QUALITY_REPORT.md \
             docs/SECURITY_REPORT.md \
             .ai/lessons.md; do
-            if [ -f "$file" ]; then
+            if [ -f "$file" ] && [ -s "$file" ]; then
               content=$(head -500 "$file")
               body="${body}<details><summary>${file}</summary>\n\n\`\`\`markdown\n${content}\n\`\`\`\n\n</details>\n\n"
             fi
           done
 
-          # Save to file to avoid shell escaping issues
+          # Collect optional push note
+          push_note=""
+          if [ -f "feedback/PUSH_NOTE.md" ] && [ -s "feedback/PUSH_NOTE.md" ]; then
+            if ! head -1 "feedback/PUSH_NOTE.md" | grep -qi 'draft'; then
+              meaningful=$(grep -v '^\s*$' feedback/PUSH_NOTE.md \
+                | grep -v '^\s*<!--' \
+                | grep -v '^#' \
+                | grep -v '_Add your feedback here_' \
+                | wc -l)
+              if [ "$meaningful" -ge 1 ]; then
+                push_note=$(cat feedback/PUSH_NOTE.md)
+              fi
+            fi
+          fi
+
           {
             echo "## Project Feedback"
             echo ""
@@ -58,9 +101,32 @@ jobs:
             echo "---"
             echo ""
             echo -e "$body"
+            if [ -n "$push_note" ]; then
+              echo "## User Note"
+              echo ""
+              echo "$push_note"
+              echo ""
+            fi
           } > /tmp/issue_body.md
 
+      - name: Check for duplicate payload
+        if: steps.check.outputs.has_content == 'true'
+        id: dedup
+        env:
+          GH_TOKEN: ${{ secrets.TEMPLATE_FEEDBACK_TOKEN }}
+        run: |
+          current_sha=$(sha256sum /tmp/issue_body.md | cut -d ' ' -f 1)
+          last_sha="${{ vars.LAST_FEEDBACK_SHA }}"
+          if [ "$current_sha" = "$last_sha" ]; then
+            echo "Payload unchanged since last send — skipping."
+            echo "is_duplicate=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_duplicate=false" >> "$GITHUB_OUTPUT"
+            echo "current_sha=${current_sha}" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Create issue on template repo
+        if: steps.check.outputs.has_content == 'true' && steps.dedup.outputs.is_duplicate != 'true'
         env:
           GH_TOKEN: ${{ secrets.TEMPLATE_FEEDBACK_TOKEN }}
           TEMPLATE_REPO: ${{ vars.TEMPLATE_REPO }}
@@ -72,6 +138,30 @@ jobs:
 
           gh issue create \
             --repo "$TEMPLATE_REPO" \
-            --title "Feedback from ${GITHUB_REPOSITORY}" \
+            --title "Feedback from ${GITHUB_REPOSITORY} ($(date -u +%Y-%m-%d))" \
             --body-file /tmp/issue_body.md \
             --label "feedback"
+
+      - name: Store payload hash for deduplication
+        if: steps.check.outputs.has_content == 'true' && steps.dedup.outputs.is_duplicate != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.TEMPLATE_FEEDBACK_TOKEN }}
+        run: |
+          gh variable set LAST_FEEDBACK_SHA \
+            --body "${{ steps.dedup.outputs.current_sha }}" \
+            2>/dev/null || echo "::warning::Could not update LAST_FEEDBACK_SHA variable."
+
+      - name: Clear push note after sending
+        if: steps.check.outputs.has_content == 'true' && steps.dedup.outputs.is_duplicate != 'true'
+        run: |
+          if [ -f "feedback/PUSH_NOTE.md" ]; then
+            if ! head -1 "feedback/PUSH_NOTE.md" | grep -qi 'draft'; then
+              printf '# Push Note\n\n<!-- Add your feedback here before pushing. This file is cleared after each send. -->\n' \
+                > feedback/PUSH_NOTE.md
+              git config user.name "github-actions[bot]"
+              git config user.email "github-actions[bot]@users.noreply.github.com"
+              git add feedback/PUSH_NOTE.md
+              git commit -m "chore: clear push note after feedback send [skip ci]" || true
+              git push || true
+            fi
+          fi

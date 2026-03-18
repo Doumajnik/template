@@ -44,7 +44,7 @@ Your job: understand intent → read docs → decide which sub-agents to spawn �
 | **Cleanup** | Removes dead code, unused imports, and stale files | `.github/agents/cleanup.agent.md` |
 | **Accessibility** | Reviews UI/frontend code for WCAG compliance | `.github/agents/accessibility.agent.md` |
 | **Compliance** | Audits for license compliance, data privacy, and regulatory requirements | `.github/agents/compliance.agent.md` |
-| **Retrospective** | Reviews agent decisions, identifies improvements, updates Playbook | `.github/agents/retrospective.agent.md` |
+| **Retrospective** | Reviews full session transcript in chunks — every tool call, command, and response. Spawned per-chunk to avoid missing details. Updates Playbook | `.github/agents/retrospective.agent.md` |
 | **Migration** | Handles framework upgrades, API version bumps, language migrations | `.github/agents/migration.agent.md` |
 | **API Design** | Designs API contracts, generates OpenAPI specs, validates endpoints | `.github/agents/api-design.agent.md` |
 | **Error Handling** | Audits error handling for silent catches, missing context. Reports findings — Workers fix | `.github/agents/error-handling.agent.md` |
@@ -94,8 +94,9 @@ flowchart TD
     R -->|fail| W
     SEC -->|audit + report| CQ[Code Quality Agent]
     CQ -->|quality report| DU[Doc Updater Agent]
-    DU -->|docs + commit| RT[Retrospective Agent]
-    RT -->|review decisions + update Playbook| Done([Done])
+    DU -->|docs + commit| RT[Retrospective Agent — chunked]
+    RT -->|per-chunk review + merge pass| CL[Cleanup Agent — dedup reports]
+    CL -->|consolidated reports| Done([Done])
 
     style O fill:#4a90d9,color:#fff
     style U fill:#6c757d,color:#fff
@@ -244,7 +245,8 @@ Before spawning ANY working agent, the Orchestrator MUST:
 6. Latest `.ai/sessions/` — recent context.
 7. Check `.ai/plans/` for in-progress plans (status 🟢). Ask user if they want to resume.
 8. **Create a dispatch log** — copy `.ai/DISPATCH_LOG_TEMPLATE.md` to `.ai/sessions/{YYYY-MM-DD}_{topic}.dispatch.md`. Fill in the session date and topic. All sub-agent calls during this session are logged here.
-9. **Refresh knowledge index** — spawn Librarian in index mode if source code has changed since last session.
+9. **Create a session transcript** — copy `.ai/SESSION_TRANSCRIPT_TEMPLATE.md` to `.ai/sessions/{YYYY-MM-DD}_{topic}.transcript.md`. This is the full audit trail with a live workflow diagram. Updated after every agent spawn.
+10. **Refresh knowledge index** — spawn Librarian in index mode if source code has changed since last session.
 
 ---
 
@@ -280,7 +282,8 @@ When the user presents new data (new codebase, files, library, API, specs):
 17. **Security Agent** — audits all code for vulnerabilities, appends to `docs/SECURITY_REPORT.md`. Marks ✅ in todo. If CRITICAL/HIGH → Workers fix → re-verify.
 18. **Code Quality Agent** — scans for duplication/smells, appends to `docs/QUALITY_REPORT.md`. Marks ✅ in todo. If CRITICAL/HIGH → Workers fix → re-verify.
 19. **Doc Updater** — updates all docs, writes session summary, commits. Marks doc tasks ✅ in todo.
-20. **Retrospective Agent** — reviews all decisions, updates `docs/PLAYBOOK.md`, appends to `docs/RETROSPECTIVE_REPORT.md`. Marks ✅ and sets todo status to ✅ Complete.
+20. **Retrospective Agent (chunked)** — the Orchestrator partitions the session transcript into chunks and spawns one Retrospective instance per chunk. Each reads its transcript slice deeply (every tool call, command, response, decision) and appends findings to `docs/RETROSPECTIVE_REPORT.md` and `docs/PLAYBOOK.md`. A final merge pass writes the session summary and cross-chunk patterns. Marks ✅ and sets todo status to ✅ Complete.
+21. **Cleanup Agent (dedup pass)** — scans `docs/RETROSPECTIVE_REPORT.md`, `docs/PLAYBOOK.md`, and `.ai/lessons.md` for duplicate entries, overlapping rules, and superseded lessons. Consolidates and removes redundancy.
 
 Skip the full sequence for trivial tasks — spawn only needed agent(s). **Even for trivial tasks, ALWAYS query the Librarian first** to get context before spawning any agent.
 
@@ -325,6 +328,7 @@ The orchestrator and Planning Agent NEVER read raw source code. Only Workers and
 - **Everything is delegated.** If it can be described in a prompt, it MUST be a sub-agent.
 - **No agent-to-agent handoffs.** Every agent reports back to the Orchestrator. The Orchestrator decides which agent to spawn next. Agents NEVER spawn or hand off to other agents directly.
 - **Log every dispatch.** Before spawning any sub-agent, append a row to the session's dispatch log (`.ai/sessions/{date}_{topic}.dispatch.md`) with: who is calling, which agent, why, and what it should do. Update the Result column when the agent reports back.
+- **Update the session transcript after every agent spawn.** When a sub-agent completes: (1) append its dispatch block (prompt, response, tool calls, commands, decisions, issues) to the transcript, and (2) insert a new node into the workflow diagram above `%% WORKFLOW_INSERT_HERE` with the agent emoji, name, and task summary. Color the node green (✅), yellow (⚠️), or red (❌) based on outcome.
 
 ---
 

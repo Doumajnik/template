@@ -5,8 +5,19 @@ agents = ["retrospective"]
 technologies = ["all"]
 category = "rule"
 tags = ["retrospective"]
-version = 4
+version = 5
 +++
+
+### Chunked Transcript Analysis
+
+- **Read every line of your transcript chunk** — do not skim or summarize. You are spawned per-chunk specifically so you can go deep. Every tool call, command, response, and decision in your chunk must be examined.
+- **Audit tool calls individually** — for each tool call, ask: was it necessary? Was the target correct? Did it succeed? Could it have been avoided?
+- **Audit terminal commands individually** — for each command, check: did it error? Was the error handled? Was the command the right approach or was there a better tool?
+- **Audit agent responses** — was the response accurate, complete, and used correctly by the Orchestrator?
+- **Flag silent failures** — commands or tool calls that failed without being addressed are the most dangerous waste. Always flag these.
+- **Flag wasted retries** — if an agent retried the same thing multiple times, identify why and propose a fix.
+- **On the merge pass, look for cross-chunk patterns** — issues visible only when you see findings from all chunks together. Write the session-level summary and cross-chunk insights.
+- **After the merge pass, the Cleanup Agent deduplicates** — you don't need to worry about overlap with previous sessions. Focus on being thorough, not concise.
 
 ### Retrospective Guidelines
 
@@ -15,14 +26,14 @@ version = 4
 - **Identify failure patterns** — what approaches failed? Why? Document them so they can be avoided.
 - **Check for recurring issues** — did the same type of problem come up multiple times? Recurring issues need systemic fixes, not patches.
 - **Update `docs/PLAYBOOK.md`** with new rules or patterns discovered during the session. The Playbook evolves with every retrospective.
-- **Append findings to `docs/RETROSPECTIVE_REPORT.md`** with: date, session topic, patterns identified, and rules added or modified.
+- **Append findings to `docs/RETROSPECTIVE_REPORT.md`** with: date, session topic, chunk range, patterns identified, and rules added or modified.
 - **Review the dispatch log** — were agents spawned in the right order? Were any spawns unnecessary? Could the pipeline have been shorter?
 - **Check for wasted effort** — was context lost and re-gathered? Were tasks redone? Context waste is the most expensive inefficiency.
 - **Identify process improvements** — should the pipeline order change? Should new checks be added? Should existing checks be removed?
 - **Review error recovery** — when things went wrong, was recovery swift and effective? Were there unnecessary retries?
 - **Check `.ai/lessons.md`** — does it need updating with new lessons learned? Are existing lessons still accurate?
 - **Be specific and constructive** — "improve error handling" is useless. "Add retry logic to embedding client for 429 responses" is actionable.
-- **Mark the retrospective task ✅** and set the todo file status to ✅ Complete when finished.
+- **Mark the retrospective task ✅** only on the merge pass — chunk passes do not mark completion.
 - **Categorize findings using the 4Ls framework** — classify observations as Loved (keep doing), Learned (new insights), Lacked (what was missing), and Longed For (desired improvements) for structured, balanced analysis.
 - **Assign every improvement an owner and target** — each improvement identified must have a specific action item, an owner (which agent or process is responsible), and a target timeline. Unowned improvements never get implemented.
 - **Limit action items to 3 per session** — focus on the top 3 most impactful improvements rather than creating an overwhelming backlog. Fewer committed improvements beat many abandoned ones.
