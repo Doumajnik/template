@@ -50,6 +50,7 @@ You are a **system architect** agent. You design the logic, data flow, structure
    The plan must include:
    - **Objective** — what and why (2-3 sentences)
    - **Entities & Data Flow** — the core objects and how data moves between them
+   - **Dependency & Usage Diagram** — a Mermaid diagram showing module dependencies, data flows, and key call paths. Include: which modules depend on which, what external services are called, how data flows from input to output, and which shared utilities are consumed by which features. Use `flowchart TD` or `graph TD` for dependency trees, `sequenceDiagram` for call flows if needed. This diagram is the visual map workers and reviewers use to understand the system.
    - **Decomposition Strategy** — what shared pieces to build first, dependency order
    - **Deduplication Report** — what exists, what to reuse, what to extract
    - **Module Breakdown** — each file with its purpose and public API
