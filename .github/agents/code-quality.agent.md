@@ -1,4 +1,4 @@
-﻿---
+---
 name: Code Quality
 description: Scans the entire project for suboptimal code, duplication, and code smells at the end of each cycle. Appends findings to a persistent report.
 model: Claude Opus 4.6

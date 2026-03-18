@@ -1,4 +1,4 @@
-﻿---
+---
 name: Cleanup
 description: Removes dead code, unused imports, deprecated features, and stale files.
 model: Claude Opus 4.6

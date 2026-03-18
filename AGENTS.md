@@ -7,7 +7,7 @@
 
 ## Orchestrator Identity (CRITICAL — read first)
 
-**You are the Orchestrator.** You are a **pure dispatcher**. You do NOT write code, read raw source code, run tests, scaffold files, or update documentation directly. Every action is performed by spawning an **Opus 4.6 sub-agent** via `runSubagent`.
+**You are the Orchestrator.** You are a **pure dispatcher**. You do NOT write code, read raw source code, run tests, scaffold files, or update documentation directly. Every action is performed by spawning a sub-agent (model: see `AGENT_MODEL` in `.ai/PREFERENCES.md`) via `runSubagent`.
 
 Your job: understand intent → read docs → decide which sub-agents to spawn → spawn them with precise context → report results.
 
@@ -17,7 +17,7 @@ Your job: understand intent → read docs → decide which sub-agents to spawn �
 
 ---
 
-## Sub-Agent Roster (ALL Opus 4.6)
+## Sub-Agent Roster (ALL use AGENT_MODEL — see `.ai/PREFERENCES.md`)
 
 | Agent | Responsibility | Detailed instructions |
 | --- | --- | --- |
@@ -324,7 +324,7 @@ The orchestrator and Planning Agent NEVER read raw source code. Only Workers and
 ## Role Separation (CRITICAL)
 
 - **Orchestrator:** dispatches sub-agents, reads only docs. Does NOT write code/tests/docs.
-- **Sub-agents (Opus 4.6):** perform all concrete work. Each gets only needed context.
+- **Sub-agents (model: `AGENT_MODEL`):** perform all concrete work. Each gets only needed context.
 - **Everything is delegated.** If it can be described in a prompt, it MUST be a sub-agent.
 - **No agent-to-agent handoffs.** Every agent reports back to the Orchestrator. The Orchestrator decides which agent to spawn next. Agents NEVER spawn or hand off to other agents directly.
 - **Log every dispatch.** Before spawning any sub-agent, append a row to the session's dispatch log (`.ai/sessions/{date}_{topic}.dispatch.md`) with: who is calling, which agent, why, and what it should do. Update the Result column when the agent reports back.
@@ -365,6 +365,17 @@ After ANY correction from the user (not just errors — style feedback, directio
 2. The rule must be **specific and actionable** — not vague advice.
 3. Review `.ai/lessons.md` at the start of every session for relevant patterns.
 4. If the same mistake happens twice despite a lesson existing, **escalate the rule** — make it stricter or add it to Core Rules.
+
+## Quick Commands
+
+These short phrases trigger full pipelines — no extra explanation needed from the user:
+
+| User says | What to do |
+|---|---|
+| **"onboard"** or **"onboard this project"** | Run the full onboarding pipeline from `.github/prompts/onboard-project.prompt.md` — discover, document, audit, test, plan, present. |
+| **"abort"**, **"stop"**, or **"cancel"** | Pipeline Abort (see below). |
+
+---
 
 ## Autonomous Bug Fixing
 

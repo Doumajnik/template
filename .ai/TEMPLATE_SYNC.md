@@ -35,7 +35,7 @@
 Major changes:
 
 - Main agent is now a **pure Orchestrator** — never writes code, never reads source files
-- All sub-agents use **Opus 4.6** (replaced gpt-5-mini)
+- All sub-agents use model defined by `AGENT_MODEL` in `.ai/PREFERENCES.md` (replaced gpt-5-mini)
 - Added **Discovery Agent** — triggered on new data, creates 3-layer summaries in `docs/discoveries/`
 - Orchestrator must ASK user before running Discovery Agent
 - Added mandatory pipeline: Discovery → Planning → Architect → Critic → Scaffolder → Test Writer → Worker → Reviewer → Doc Updater
@@ -55,7 +55,7 @@ Same changes as above, mirrored for cross-tool compatibility.
 - Three-tier documentation system (added `docs/discoveries/`)
 - Pure orchestrator model (explicit: never writes code)
 - Discovery-first workflow for new data
-- Updated test reference from "Worker sub-agents" to "Test Writer and Worker sub-agents (Opus 4.6)"
+- Updated test reference from "Worker sub-agents" to "Test Writer and Worker sub-agents (AGENT_MODEL)"
 
 ### File: `.ai/TRACE_TEMPLATE.md`
 

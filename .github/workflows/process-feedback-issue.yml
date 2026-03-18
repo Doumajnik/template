@@ -196,29 +196,21 @@ jobs:
             elif [ "$action" = "replace" ]; then
               search=$(jq -r ".[$i].search" /tmp/edits.json)
 
+              # Python is used here instead of sed/awk because the replacement
+              # text comes from Claude's JSON output and can contain arbitrary
+              # characters (quotes, slashes, newlines, regex metacharacters).
+              # Python's str.replace() handles any content safely without escaping.
               if grep -qF "$search" "$file"; then
-                python3 - "$i" << 'PYEOF'
-import json, sys
-
-idx = int(sys.argv[1])
-with open('/tmp/edits.json') as f:
-    edits = json.load(f)
-
-edit = edits[idx]
-filepath = edit['file']
-search_text = edit['search']
-replacement = edit['content']
-
-with open(filepath, 'r') as f:
-    text = f.read()
-
-text = text.replace(search_text, replacement, 1)
-
-with open(filepath, 'w') as f:
-    f.write(text)
-
-print(f"Replaced text in {filepath}")
-PYEOF
+                python3 -c "
+              import json, sys
+              idx = int(sys.argv[1])
+              with open('/tmp/edits.json') as f: edits = json.load(f)
+              edit = edits[idx]
+              with open(edit['file'], 'r') as f: text = f.read()
+              text = text.replace(edit['search'], edit['content'], 1)
+              with open(edit['file'], 'w') as f: f.write(text)
+              print('Replaced text in ' + edit['file'])
+              " "$i"
               else
                 echo "::warning::Search text not found in $file, skipping."
               fi

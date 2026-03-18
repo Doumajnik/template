@@ -1,4 +1,4 @@
-﻿---
+---
 name: Compliance
 description: Audits the project for license compliance, data privacy (GDPR/CCPA), and regulatory requirements.
 model: Claude Opus 4.6

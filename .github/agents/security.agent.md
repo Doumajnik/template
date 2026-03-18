@@ -1,4 +1,4 @@
-﻿---
+---
 name: Security
 description: Audits the entire project for security vulnerabilities at the end of each cycle. Appends findings to a persistent report. Reports fix recommendations to the Orchestrator — Workers apply fixes.
 model: Claude Opus 4.6

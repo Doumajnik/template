@@ -1,4 +1,4 @@
-﻿---
+---
 name: Dependency
 description: Audits dependency trees for outdated packages, vulnerabilities, and license compliance.
 model: Claude Opus 4.6

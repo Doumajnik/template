@@ -1,4 +1,4 @@
-﻿---
+---
 name: Refactor
 description: Restructures existing code (extract, rename, decompose) without changing behavior. Spawned when Code Quality finds issues or on user request.
 model: Claude Opus 4.6
