@@ -37,7 +37,19 @@ The Orchestrator spawns you in two contexts:
    - Check for existing open-source solutions or established patterns
    - Identify which dependencies/packages will be needed
 
-3. **Search the codebase systematically:**
+3. **Verify dependency versions (MANDATORY — never skip):**
+   - For **every** dependency you plan to recommend, you MUST fetch its package registry page to confirm the current latest stable version:
+     - **Python:** `https://pypi.org/project/{package}/`
+     - **Node.js:** `https://www.npmjs.com/package/{package}`
+     - **Rust:** `https://crates.io/crates/{package}`
+     - **Go:** `https://pkg.go.dev/{module}`
+     - **.NET:** `https://www.nuget.org/packages/{package}`
+   - **Never rely on training data for version numbers.** Training data is always stale. Always fetch.
+   - Pin to the exact latest stable version in the research brief (e.g., `4.2.1`, not `^4.2.1` or `latest`)
+   - If a registry page is unreachable, note it explicitly: *"⚠️ Could not verify version for {package} — registry unreachable."*
+   - You are the **sole owner** of version freshness. Other agents (Worker, Dependency, etc.) trust the versions in your brief — they do not re-check.
+
+4. **Search the codebase systematically:**
    - `docs/discoveries/` — for analyzed data summaries
    - `docs/CODE_INVENTORY.md` — for existing symbols
    - `docs/BUSINESS_LOGIC.md` — for system logic and data flows
@@ -45,7 +57,7 @@ The Orchestrator spawns you in two contexts:
    - `docs/API_DOCUMENTATION.md` — for API integrations
    - Source code (`src/`) — when exact code context is needed
 
-4. **Produce a research brief** (for pre-architecture research):
+5. **Produce a research brief** (for pre-architecture research):
 
    Write a structured brief to `docs/discoveries/{YYYY-MM-DD}_{topic}.research.md`:
 
@@ -64,7 +76,7 @@ The Orchestrator spawns you in two contexts:
    ## Libraries & Dependencies
    | Package | Purpose | Version | Notes |
    | --- | --- | --- | --- |
-   | {name} | {what it does} | {version} | {any caveats} |
+   | {name} | {what it does} | {version} | {verified from registry} |
 
    ## Key Findings
    1. {finding with source link}
@@ -83,7 +95,7 @@ The Orchestrator spawns you in two contexts:
    - {URL 2}
    ```
 
-5. **Report back** to the Orchestrator with:
+6. **Report back** to the Orchestrator with:
    - Summary of findings
    - Recommended approach and why
    - List of dependencies that will be needed (for upfront installation)

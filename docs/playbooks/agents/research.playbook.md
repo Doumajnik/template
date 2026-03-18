@@ -5,8 +5,17 @@ agents = ["research"]
 technologies = ["all"]
 category = "rule"
 tags = ["research"]
-version = 4
+version = 5
 +++
+
+### Version Freshness (MANDATORY)
+
+- **You are the sole owner of version checking.** No other agent verifies dependency versions — they all trust your brief.
+- **Fetch the package registry for every dependency** — PyPI, npm, crates.io, pkg.go.dev, NuGet. Never use training data for version numbers.
+- **Pin to exact latest stable versions** — e.g., `4.2.1`, never `^4.2.1`, `~4.2`, or `latest`.
+- **Note the registry column** in the Libraries & Dependencies table — mark each version as `verified from {registry}` or `⚠️ unverified`.
+- **If a registry is unreachable**, say so explicitly. Do not guess the version.
+- **Check for pre-release vs. stable** — recommend stable releases unless the user explicitly wants bleeding-edge.
 
 ### Research Guidelines
 
