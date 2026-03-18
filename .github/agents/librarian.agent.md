@@ -98,7 +98,13 @@ When spawned in **query mode**, you search the knowledge base and return a focus
    - `docs/PLAYBOOK.md` — find relevant patterns and rules
    - `docs/discoveries/` — find relevant external data summaries
 
-4. **Stage 3: Assemble Context Brief**:
+4. **Stage 2b: Tool Restrictions** — read `.ai/TOOL_MANIFEST.md` and extract the restrictions that apply to the target agent:
+   - For each restricted tool category in the manifest, check if the target agent is ALLOWED or DENIED
+   - Include a `### Tool Restrictions` section in the brief listing all denied tools and the reason
+   - If the target agent has no restrictions, include: `### Tool Restrictions\nNo restrictions apply to this agent.`
+   - This ensures every agent knows upfront which tools it must NOT use
+
+5. **Stage 3: Assemble Context Brief**:
    - Merge relevant playbook rules into a "### Relevant Playbook Rules" section
    - Merge documentation search results (existing sections)
    - Include ONLY information relevant to the query. Omit everything else.
@@ -147,6 +153,13 @@ When spawned in **query mode**, you search the knowledge base and return a focus
 ### Key Constraints
 
 {anything the agent needs to be careful about — edge cases, rules, security concerns}
+
+### Tool Restrictions
+
+**DENIED tools for this agent:**
+- `{tool_name}` — {reason from TOOL_MANIFEST.md}
+
+You MUST NOT call any denied tool. The PreToolUse hook will block the call.
 ```
 
 ### Query Examples

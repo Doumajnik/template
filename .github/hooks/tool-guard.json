@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "type": "command",
+        "command": "python scripts/tool-guard.py",
+        "timeout": 5
+      }
+    ]
+  }
+}
