@@ -1,14 +1,9 @@
-+++
-id = "technologies/dotnet"
-title = ".NET Conventions"
-agents = []
-technologies = ["dotnet"]
-category = "convention"
-tags = ["dotnet", "csharp", "aspnet"]
-version = 5
-+++
+---
+description: ".NET and C# coding conventions and best practices. Use when writing, reviewing, or refactoring C# or .NET code."
+applyTo: "**/*.cs,**/*.csproj"
+---
 
-### .NET Conventions
+# .NET Conventions
 
 - Follow Microsoft naming conventions: `PascalCase` for public members, types, and methods. `camelCase` for local variables and parameters. `_camelCase` for private fields
 - Use `async`/`await` for all asynchronous code. Never use `.Result` or `.Wait()` on tasks — they cause deadlocks in synchronization contexts

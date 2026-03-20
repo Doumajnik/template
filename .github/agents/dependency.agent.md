@@ -92,7 +92,6 @@ You receive pre-filtered context from the **Librarian Agent** via the Orchestrat
 
 ## Rules
 
-- **Never auto-update dependencies.** Report findings â€” the Orchestrator decides what to update.
-- **Edit files directly** — never use terminal commands to modify files.
+- **Never auto-update dependencies.** Report findings â€” the Orchestrator decides what to update.- **Scope: individual package licenses.** You audit each dependency's declared license for compatibility with the project license. For project-wide licensing, regulatory compliance (GDPR/CCPA), and data privacy — defer to the Compliance Agent.- **Edit files directly** — never use terminal commands to modify files.
 - **Read lock files and manifests directly** — do not run audit commands in the terminal.
 - **Always report back to the Orchestrator.** Never hand off to other agents.

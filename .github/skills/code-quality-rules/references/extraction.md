@@ -1,14 +1,4 @@
-+++
-id = "shared/extraction-rules"
-title = "Extraction Rules"
-agents = ["all"]
-technologies = ["all"]
-category = "strategy"
-tags = ["extraction", "refactoring", "shared-code"]
-version = 5
-+++
-
-### Extraction Rules
+# Extraction Rules
 
 - If the same 3+ lines appear in two places, extract into a shared function
 - Magic numbers must be extracted into named constants with descriptive names
@@ -35,7 +25,7 @@ version = 5
 - Never reassign function parameters inside the function body — use a new local variable instead to preserve the original input for debugging and clarity (Refactoring Guru, Remove Assignments to Parameters)
 - Introduce Parameter Object: when 3+ parameters consistently travel together across multiple function signatures, extract them into a dataclass, typed dict, or config object (Refactoring Guru, Introduce Parameter Object)
 - When a method uses more fields/methods from another class than its own, move it to that class — the method belongs where its data lives (Refactoring Guru, Move Method)
-- When a class has two distinct clusters of fields and methods that don’t interact, extract one cluster into a new class — this is the Extract Class refactoring (Refactoring Guru, Extract Class)
+- When a class has two distinct clusters of fields and methods that don't interact, extract one cluster into a new class — this is the Extract Class refactoring (Refactoring Guru, Extract Class)
 - Hide Delegate: if client code navigates through an object to reach a collaborator (`a.get_b().do_thing()`), add a forwarding method on the outer object to encapsulate the navigation and reduce coupling (Refactoring Guru, Hide Delegate)
 - Replace Method with Method Object: when a long method has local variables so intertwined that Extract Method is impossible, transform the method into a dedicated class where local variables become fields — then decompose the method into smaller methods within that class (Refactoring Guru, Replace Method with Method Object)
 - Substitute Algorithm: when an existing algorithm can be replaced with a clearer or more efficient one, replace the entire method body rather than patching incrementally — ensure the new algorithm passes all existing tests before removing the old one (Refactoring Guru, Substitute Algorithm)

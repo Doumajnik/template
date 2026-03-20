@@ -2,7 +2,7 @@
 name: Debug
 description: Diagnoses bugs from error logs, stack traces, and failing tests. Isolates root cause and applies fixes.
 model: Claude Opus 4.6
-tools: ['search', 'read', 'edit']
+tools: ['search', 'read', 'edit', 'execute']
 ---
 
 # Debug Agent

@@ -1,14 +1,4 @@
-+++
-id = "shared/decomposition"
-title = "Decomposition Rule"
-agents = ["all"]
-technologies = ["all"]
-category = "rule"
-tags = ["decomposition", "function-size", "single-responsibility"]
-version = 5
-+++
-
-### Decomposition
+# Decomposition Rules
 
 - Each module/file should have a single, clear responsibility
 - If a function does two unrelated things, split it into two functions
@@ -33,7 +23,7 @@ version = 5
 - Detect Primitive Obsession: replace repeated use of primitive types (strings for IDs, ints for money, tuples for coordinates) with small domain-specific value objects or dataclasses (Refactoring Guru, Primitive Obsession smell)
 - Follow the Law of Demeter: avoid message chains like `a.get_b().get_c().do_thing()` — if a method reaches through more than one level of indirection, introduce a forwarding method (Refactoring Guru, Message Chains smell)
 - Detect Feature Envy: if a method uses more data or methods from another class than its own, move it to the class it actually operates on (Refactoring Guru, Feature Envy smell)
-- Detect Inappropriate Intimacy: if two classes access each other’s private/internal details extensively, refactor to reduce coupling — extract a shared interface or introduce a mediator (Refactoring Guru, Inappropriate Intimacy smell)
+- Detect Inappropriate Intimacy: if two classes access each other's private/internal details extensively, refactor to reduce coupling — extract a shared interface or introduce a mediator (Refactoring Guru, Inappropriate Intimacy smell)
 - Avoid Speculative Generality: remove abstract classes, interfaces, or parameters created for anticipated future use that currently have only one consumer (Refactoring Guru, Speculative Generality smell)
 - Apply the Dependency Inversion Principle (SOLID — D): high-level modules should depend on abstractions, not concrete implementations — inject dependencies via constructor parameters, not by importing and instantiating directly
 - Detect Divergent Change: if a single class is modified for multiple unrelated reasons (e.g., both UI formatting and database schema changes), split it by axis of change so each class has exactly one reason to change (SOLID — SRP)

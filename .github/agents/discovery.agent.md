@@ -55,6 +55,10 @@ The orchestrator spawns you when the user presents new data:
    - New code symbols for `docs/CODE_INVENTORY.md`
    - New APIs (exposed endpoints or consumed external services) for `docs/API_DOCUMENTATION.md`
 
+## Context Acquisition
+
+You are the **exception** to the Context Gateway Protocol. You read raw new data directly — that's your purpose. However, you still receive a Librarian brief for **existing project context** so you can compare new data against what the project already has. Use the Librarian-provided brief to avoid documenting things that already exist.
+
 ## Rules
 
 - Be systematic — don't skip files or directories.

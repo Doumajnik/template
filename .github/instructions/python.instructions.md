@@ -1,14 +1,9 @@
-+++
-id = "technologies/python"
-title = "Python Conventions"
-agents = []
-technologies = ["python"]
-category = "convention"
-tags = ["python", "stdlib", "typing"]
-version = 5
-+++
+---
+description: "Python coding conventions and best practices. Use when writing, reviewing, or refactoring Python code."
+applyTo: "**/*.py"
+---
 
-### Python Conventions
+# Python Conventions
 
 - Use Python 3 features everywhere: f-strings, type hints, `pathlib`, `dataclasses`. No Python 2 compatibility code
 - Add type annotations on all public function signatures. Use `collections.abc` for generic types (`Sequence`, `Mapping`) — not `typing.List` or `typing.Dict`

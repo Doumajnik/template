@@ -1,14 +1,9 @@
-+++
-id = "technologies/typescript"
-title = "TypeScript Conventions"
-agents = []
-technologies = ["typescript"]
-category = "convention"
-tags = ["typescript", "types", "eslint"]
-version = 5
-+++
+---
+description: "TypeScript coding conventions and best practices. Use when writing, reviewing, or refactoring TypeScript code."
+applyTo: "**/*.ts,**/*.tsx"
+---
 
-### TypeScript Conventions
+# TypeScript Conventions
 
 - Use `const` by default. Use `let` only when reassignment is needed. Never use `var`
 - Use named exports in all modules. Avoid default exports — they make refactoring and auto-imports harder
@@ -45,7 +40,7 @@ version = 5
 - Do not use the `namespace` keyword. Use ES modules with `import`/`export` for all code organization
 - Only throw `Error` objects (or subclasses). Never throw strings, numbers, or plain objects — non-Error values lack stack traces
 - Never use `eval()`, `new Function(...string)`, or any dynamic code evaluation. They create injection risks and prevent static analysis
-- Do not use ECMAScript `#private` fields. Use TypeScript’s `private` modifier which provides compile-time enforcement and is stripped at runtime
+- Do not use ECMAScript `#private` fields. Use TypeScript's `private` modifier which provides compile-time enforcement and is stripped at runtime
 - Prefer `Number()` over `parseInt()`/`parseFloat()` for string-to-number conversion. If you must use `parseInt()`, always specify the radix explicitly
 - Always handle or explicitly discard Promise return values — never let Promises float unhandled. Either `await` the promise, `return` it, assign it, or prefix with `void` if deliberately ignoring the result. Unhandled rejections crash Node.js processes and silently swallow errors in browsers
 - Do not rely on JavaScript truthiness coercion in boolean positions (conditionals, `&&`, `||`). Explicitly compare with `!== null`, `!== undefined`, `!== 0`, `.length > 0`, etc. instead of using implicit coercion, which mishandles `0`, `""`, and `NaN`

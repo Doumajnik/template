@@ -128,18 +128,44 @@ crash.log
 tmp/
 temp/
 .cache/
+TEMP
 TEMP/
+TEMP.md
 
 # ===========================
-# Branch-specific: playbook_infrastructure
-# Remove this block before merging to main
+# Embedded repositories (not submodules)
 # ===========================
-.ai/plans/
-.ai/todos/
-.ai/sessions/
-.ai/specs/
-.ai/previews/
+ticketSellingAPI/
+
+# ===========================
+# AI Agent Ephemeral Files
+# Session-specific files that should NOT be forked/templated.
+# Templates (_TEMPLATE.*) ARE tracked; generated content is NOT.
+# ===========================
+.ai/sessions/*
+!.ai/sessions/_TEMPLATE.md
+.ai/todos/*
+!.ai/todos/_TEMPLATE.todo.md
+.ai/plans/*
+!.ai/plans/_TEMPLATE.architecture.md
+!.ai/plans/_TEMPLATE.plan.md
+!.ai/plans/impl/
+.ai/plans/impl/*
+!.ai/plans/impl/_TEMPLATE.impl.md
+.ai/specs/*
+.ai/previews/*
 .ai/trace.md
+
+# Archived playbooks (migrated to .github/skills/ and .github/instructions/)
+docs/playbooks/_archive/
+
+# AI Agent Reports (project-specific, regenerated per-project)
+# Template is tracked; generated reports are not.
+docs/*_REPORT.md
+docs/MIGRATION_LOG.md
+!docs/_TEMPLATE.report.md
+!docs/_TEMPLATE.retrospective-report.md
+!docs/_TEMPLATE.review-report.md
 
 # ===========================
 # Empty project directories

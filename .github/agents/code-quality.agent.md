@@ -152,6 +152,7 @@ You receive pre-filtered context from the **Librarian Agent** via the Orchestrat
 - **No false positives.** Only report real, measurable issues. Don't nitpick style unless it violates `PREFERENCES.md`.
 - **Don't duplicate.** Check existing findings in the report before adding new ones.
 - **Never edit source code.** Only edit `docs/QUALITY_REPORT.md`. Workers handle fixes.
+- **Dead code handoff.** Report dead code findings but never remove them yourself. The Cleanup Agent handles all dead code removal — your job is to detect and document.
 - **Always report back to the Orchestrator.** Never hand off to other agents.
 - **Prioritize by impact.** CRITICAL duplication and architectural issues go first.
 - **Check the whole project** on first run. On subsequent runs, focus on changes but still spot-check.

@@ -1,14 +1,20 @@
-+++
-id = "shared/testing-rules"
-title = "Testing Rules"
-agents = ["all"]
-technologies = ["all"]
-category = "rule"
-tags = ["testing", "tdd", "coverage"]
-version = 5
-+++
+---
+name: testing-rules
+description: "Testing conventions, TDD rules, and test quality standards. Use when writing tests, reviewing test code, setting up test infrastructure, or discussing test strategy. Covers unit tests, integration tests, test pyramid, parameterization, fixtures, and coverage targets."
+---
 
-### Testing Rules
+# Testing Rules
+
+## When to Use
+
+- Writing unit tests for new or existing functions
+- Reviewing test code for quality and coverage
+- Setting up test infrastructure (fixtures, factories, mocking)
+- Planning test strategy for a feature or module
+- Debugging flaky or slow tests
+- Writing integration or E2E tests
+
+## Rules
 
 - Minimum 15 tests per function: happy paths, edge cases, error conditions, boundary values
 - Tests mirror source structure: `src/utils/foo.py` → `tests/utils/test_foo.py`

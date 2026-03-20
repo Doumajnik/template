@@ -1,14 +1,9 @@
-+++
-id = "technologies/go"
-title = "Go Conventions"
-agents = []
-technologies = ["go"]
-category = "convention"
-tags = ["go", "golang", "modules"]
-version = 5
-+++
+---
+description: "Go coding conventions and best practices. Use when writing, reviewing, or refactoring Go code."
+applyTo: "**/*.go"
+---
 
-### Go Conventions
+# Go Conventions
 
 - Follow Effective Go and the Go Code Review Comments wiki for idiomatic patterns
 - Check errors immediately after every function call. Never discard errors with `_`. Handle or return every error
