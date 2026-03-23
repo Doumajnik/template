@@ -60,6 +60,21 @@ Spawn these agents **in parallel** (they are all read-only and write to separate
 
 See [report targets](./references/report-targets.md) for the full list of output files.
 
+### Phase 3.5 — Structure & Cleanup Analysis
+
+After audits, before writing tests, analyze the project's structure and identify dead assets.
+
+**3.5a — Project Structure Review (Architect Agent):**
+Spawn the **Architect Agent** in structure review mode. It analyzes the current directory layout from the Discovery summary and proposes an ideal structure following template conventions (`src/utils/`, `src/services/`, `src/models/`, `src/config/`). Outputs specific file/module moves with difficulty ratings. Writes to `docs/STRUCTURE_REVIEW.md`.
+
+**3.5b — Dead Code & Dead Document Detection (Cleanup Agent):**
+Spawn the **Cleanup Agent** in audit-only mode (read-only — no removals). It identifies:
+- **Dead code:** unused functions/classes, commented-out blocks, unused imports, unreachable code, orphaned test files
+- **Dead documents:** stale `docs/files/` entries, outdated discoveries, removed API endpoints in docs, orphaned `CODE_INVENTORY.md` entries
+- **Dead dependencies:** packages in manifests never imported in source
+
+Each item includes: file path, line number, description, confidence (certain/likely/possible), and removal effort (trivial/moderate). Writes to `docs/CLEANUP_REPORT.md`.
+
 ### Phase 4 — Test Harness (safety net before any changes)
 
 Before anything gets cleaned up or fixed, write thorough tests for every existing function.
@@ -74,6 +89,8 @@ Before anything gets cleaned up or fixed, write thorough tests for every existin
 
 Spawn the **Planning Agent** to produce:
 - Prioritized list of improvements from all audit reports
+- Structure reorganization moves from `docs/STRUCTURE_REVIEW.md` (prioritized by impact)
+- Dead asset removal list from `docs/CLEANUP_REPORT.md` (certain-confidence items first)
 - Estimated effort per item (small/medium/large)
 - Suggested implementation order (quick wins first, then structural)
 - Todo file at `.ai/todos/{date}_onboarding-improvements.todo.md`
@@ -82,7 +99,11 @@ Spawn the **Planning Agent** to produce:
 
 Present to the user:
 - Summary of discovery findings
+- **Proposed project structure** — current vs. ideal, with key reorganization moves
+- **Dead assets summary** — dead code count, dead docs count, dead dependency count (with confidence breakdown)
 - Key audit findings (critical/high items)
 - Test baseline status
-- Prioritized improvement plan
+- Prioritized improvement plan (including structure moves and cleanup items)
 - Recommendation to start with quick wins
+
+Ask: "Tests are in place as a safety net. Want me to start fixing the Critical items? I can also reorganize the project structure and clean up dead assets. Tests will verify nothing breaks."

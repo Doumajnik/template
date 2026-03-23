@@ -139,6 +139,32 @@ Phase 3 — AUDIT (all run in parallel)
        └────────────────┼────────────────┘
                         │
                         ▼
+Phase 3.5 — STRUCTURE & CLEANUP ANALYSIS
+┌──────────────────────┐ ┌──────────────────────┐
+│ 🏗️ Architect Agent   │ │ 🧹 Cleanup Agent     │
+│  (structure review)  │ │  (audit-only mode)   │
+│                      │ │                      │
+│ Current vs. ideal    │ │ Dead code:           │
+│  project structure   │ │  Unused functions    │
+│ File/module moves    │ │  Commented-out code  │
+│ New dirs to create   │ │  Unused imports      │
+│ Dirs to consolidate  │ │  Orphaned test files │
+│ Migration difficulty │ │                      │
+│  ratings per move    │ │ Dead documents:      │
+│                      │ │  Stale docs/files/   │
+│ → STRUCTURE_REVIEW.md│ │  Outdated discoveries│
+│                      │ │  Removed API entries │
+│                      │ │  Orphaned inventory  │
+│                      │ │                      │
+│                      │ │ Dead dependencies:   │
+│                      │ │  Never-imported pkgs │
+│                      │ │                      │
+│                      │ │ → CLEANUP_REPORT.md  │
+└──────────┬───────────┘ └──────────┬───────────┘
+           │                        │
+           └────────────┬───────────┘
+                        │
+                        ▼
 Phase 4 — TEST (safety net before ANY changes)
 ┌─────────────────────────────────────────┐
 │  🧪 Test Writer Agent (per source file) │
@@ -171,6 +197,17 @@ Phase 5 — PLAN
 Phase 6 — PRESENT
 ┌─────────────────────────────────────────┐
 │  "Tests are in place as a safety net.   │
+│                                         │
+│   Proposed structure reorganization:    │
+│   • Move utils/ → src/utils/           │
+│   • Create src/services/ for business  │
+│   • Consolidate 3 config dirs → 1      │
+│                                         │
+│   Dead assets found:                    │
+│   • 12 dead functions (certain)         │
+│   • 4 stale doc files                   │
+│   • 3 unused dependencies               │
+│                                         │
 │   Top 5 actions:                        │
 │   1. Hardcoded DB password in config.py │
 │   2. 3 critical CVEs in dependencies    │
@@ -178,7 +215,9 @@ Phase 6 — PRESENT
 │   4. 40% of exceptions silently caught  │
 │   5. No health check endpoint           │
 │                                         │
-│   Start fixing? Tests verify each fix." │
+│   Start fixing? I can also reorganize   │
+│   structure and clean up dead assets.   │
+│   Tests verify each change."            │
 └─────────────────────────────────────────┘
 
 After fixes — the verify loop:
@@ -208,10 +247,12 @@ After fixes — the verify loop:
 | Error Handling | `docs/ERROR_HANDLING_REPORT.md` | Silent catches, swallowed exceptions |
 | Type Safety | `docs/TYPE_SAFETY_REPORT.md` | Missing types, unsafe casts |
 | Monitoring | `docs/MONITORING_REPORT.md` | Logging/health check/alerting gaps |
+| Architect (structure review) | `docs/STRUCTURE_REVIEW.md` | Current vs. proposed structure, file moves, difficulty ratings |
+| Cleanup (audit-only) | `docs/CLEANUP_REPORT.md` | Dead code, dead documents, dead dependencies with confidence levels |
 | Test Writer | `tests/**` | 15+ unit tests per function |
 | Integration Tester | `tests/integration/` | Cross-module flow tests |
 | Baseline | `.ai/plans/{date}_test-baseline.md` | Pass/fail counts, existing bugs |
-| Orchestrator | `.ai/plans/{date}_onboarding-improvements.md` | Prioritized fix plan |
+| Orchestrator | `.ai/plans/{date}_onboarding-improvements.md` | Prioritized fix plan (includes structure moves + cleanup items) |
 
 ---
 

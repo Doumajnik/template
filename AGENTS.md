@@ -200,6 +200,269 @@ sequenceDiagram
     Note over O: Proceed to Planning →<br/>Scaffolder → Test Writer →<br/>Worker → Integration Tester
 ```
 
+### Context Gateway Protocol
+
+How the Librarian mediates all context. Every agent spawn follows this pattern — no exceptions.
+
+```mermaid
+sequenceDiagram
+    participant O as Orchestrator
+    participant LIB as Librarian
+    participant A as Any Agent
+
+    O->>LIB: "What context does {Agent} need for {task}?"
+    LIB->>LIB: Read docs/source, filter relevant info
+    LIB-->>O: Context brief (playbook rules, inventory, business logic)
+    O->>A: Spawn with task + Librarian brief
+    A->>A: Execute task using brief as primary context
+    A-->>O: Report results + proof of completion
+
+    Note over O,LIB: After code-changing agents (Worker, Refactor, Debug, Scaffolder):
+    O->>LIB: "Refresh the knowledge base." (index mode)
+    LIB->>LIB: Re-index changed files
+    LIB-->>O: Index updated
+```
+
+### Session Startup
+
+The 10-step bootstrap sequence at the start of every session.
+
+```mermaid
+flowchart TD
+    Start([Session Start]) --> R1[Read .ai/PREFERENCES.md]
+    R1 --> R2[Read docs/PLAYBOOK.md]
+    R2 --> R3[Read docs/CODE_INVENTORY.md]
+    R3 --> R4[Read docs/discoveries/]
+    R4 --> R5[Read .ai/lessons.md]
+    R5 --> R6[Read latest .ai/sessions/]
+    R6 --> R7{In-progress plans in .ai/plans/?}
+    R7 -->|yes| ASK[Ask user: resume?]
+    R7 -->|no| DL
+    ASK --> DL[Create dispatch log in .ai/sessions/]
+    DL --> ST[Create session transcript in .ai/sessions/]
+    ST --> LIB[Spawn Librarian — refresh index]
+    LIB --> Ready([Ready for user request])
+
+    style Start fill:#6c757d,color:#fff
+    style Ready fill:#27ae60,color:#fff
+    style ASK fill:#e8a838,color:#fff
+    style LIB fill:#27ae60,color:#fff
+```
+
+### Onboarding Pipeline
+
+Triggered by "onboard" or "onboard this project". Read-only audit that produces docs, reports, and a plan.
+
+```mermaid
+flowchart TD
+    U([User: "onboard"]) --> P1
+
+    subgraph P1 [Phase 1 — DISCOVER]
+        DISC[🔍 Discovery Agent]
+        DISC -->|summary| DOUT[docs/discoveries/]
+    end
+
+    P1 --> P2
+    subgraph P2 [Phase 2 — DOCUMENT]
+        DOC[📝 Doc Updater Agent]
+        DOC --> BL[BUSINESS_LOGIC.md]
+        DOC --> CI[CODE_INVENTORY.md]
+        DOC --> API[API_DOCUMENTATION.md]
+        DOC --> DF[docs/files/*.md]
+    end
+
+    P2 --> P3
+    subgraph P3 [Phase 3 — AUDIT — parallel]
+        SEC[🔒 Security]
+        CQ[📊 Code Quality]
+        DEP[📦 Dependency]
+        EH[⚠️ Error Handling]
+        TS[🔤 Type Safety]
+        MON[📡 Monitoring]
+    end
+
+    P3 --> P35
+    subgraph P35 ["Phase 3.5 — STRUCTURE & CLEANUP"]
+        ARCH[🏗️ Architect — structure review]
+        CLN[🧹 Cleanup — audit-only]
+        ARCH --> SR[STRUCTURE_REVIEW.md]
+        CLN --> CR[CLEANUP_REPORT.md]
+    end
+
+    P35 --> P4
+    subgraph P4 [Phase 4 — TEST]
+        TW[🧪 Test Writer — per file]
+        IT[🔗 Integration Tester]
+        RUN[▶️ Run all → baseline]
+    end
+
+    P4 --> P5
+    subgraph P5 [Phase 5 — PLAN]
+        PLAN[📋 Planning Agent]
+        PLAN --> IMP[Prioritized improvement plan]
+    end
+
+    P5 --> P6
+    subgraph P6 [Phase 6 — PRESENT]
+        PRESENT[Show findings + top actions + ask to fix]
+    end
+
+    style U fill:#6c757d,color:#fff
+    style PRESENT fill:#27ae60,color:#fff
+```
+
+### Error Recovery
+
+When a sub-agent fails — retry, escalate, or report.
+
+```mermaid
+flowchart TD
+    FAIL([Agent fails]) --> R1[Retry with clarified instructions + error context]
+    R1 --> R1OK{Success?}
+    R1OK -->|yes| DONE([Continue pipeline])
+    R1OK -->|no| ESC{Failure in scope?}
+    ESC -->|out of scope| ALT[Escalate to different agent]
+    ESC -->|in scope| R2[Retry once more with additional context]
+    ALT --> ALTOK{Success?}
+    ALTOK -->|yes| DONE
+    ALTOK -->|no| USER[Report to user — ask for guidance]
+    R2 --> R2OK{Success?}
+    R2OK -->|yes| DONE
+    R2OK -->|no| USER
+
+    style FAIL fill:#e74c3c,color:#fff
+    style DONE fill:#27ae60,color:#fff
+    style USER fill:#e8a838,color:#fff
+```
+
+### Circuit Breaker
+
+When things go sideways — halt, record, and re-plan from scratch.
+
+```mermaid
+flowchart TD
+    TRIGGER{Trigger detected?}
+    TRIGGER -->|Worker fails 2+ functions| HALT
+    TRIGGER -->|Reviewer rejects| HALT
+    TRIGGER -->|User corrects direction| HALT
+    TRIGGER -->|Accumulating complexity| HALT
+
+    HALT[🛑 Immediately halt pipeline] --> RECORD[Record failure pattern in .ai/lessons.md]
+    RECORD --> REPLAN[Re-plan from Prompt Engineer — step 1]
+    REPLAN --> REPORT[Report to user: Circuit breaker triggered]
+    REPORT --> PE([Restart full pipeline])
+
+    style TRIGGER fill:#e74c3c,color:#fff
+    style HALT fill:#e74c3c,color:#fff
+    style PE fill:#8e44ad,color:#fff
+```
+
+### Self-Improvement Loop
+
+Triggered by ANY user correction — style feedback, direction changes, wrong assumptions.
+
+```mermaid
+flowchart TD
+    CORRECT([User corrects something]) --> LESSON[Append to .ai/lessons.md]
+    LESSON --> DETAIL[Record: trigger, pattern, rule, affected agents]
+    DETAIL --> CHECK{Same mistake twice?}
+    CHECK -->|no| APPLY[Apply lesson in future sessions]
+    CHECK -->|yes| ESCALATE[Escalate: add to Core Rules or make stricter]
+    ESCALATE --> APPLY
+
+    style CORRECT fill:#e8a838,color:#fff
+    style ESCALATE fill:#e74c3c,color:#fff
+    style APPLY fill:#27ae60,color:#fff
+```
+
+### Autonomous Bug Fixing
+
+User reports a bug → Debug Agent fixes it autonomously.
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant O as Orchestrator
+    participant LIB as Librarian
+    participant DB as Debug Agent
+    participant W as Worker Agent
+
+    U->>O: Reports bug / error / failing test
+    O->>LIB: Context for Debug Agent?
+    LIB-->>O: Context brief (relevant source, logs, test files)
+    O->>DB: Spawn with bug report + brief
+    DB->>DB: Read logs, stack traces, failing tests
+    DB->>DB: Isolate root cause
+    DB->>DB: Apply fix
+    DB-->>O: Fix applied + proof (test output / diff)
+    
+    alt Root cause ambiguous
+        DB-->>O: Cannot determine root cause
+        O->>U: Ask for clarification
+    end
+
+    Note over O: Run full test suite to verify
+```
+
+### Pipeline Abort
+
+User says "abort", "stop", or "cancel" at any time.
+
+```mermaid
+flowchart TD
+    ABORT([User: abort / stop / cancel]) --> HALT[🛑 Immediately halt — no next agent]
+    HALT --> SAVE[Spawn Doc Updater — write session summary]
+    SAVE --> MARK[Mark plan as 🟡 Paused in .ai/plans/]
+    MARK --> REPORT[Report to user: completed / in-progress / remaining steps]
+    REPORT --> END([Session ended — resumable later])
+
+    style ABORT fill:#e74c3c,color:#fff
+    style HALT fill:#e74c3c,color:#fff
+    style END fill:#6c757d,color:#fff
+```
+
+### Conflict Resolution
+
+When agents produce contradictory recommendations.
+
+```mermaid
+flowchart TD
+    CONFLICT([Contradictory agent recommendations]) --> SEC{Security involved?}
+    SEC -->|yes| SECWIN[🔒 Security wins by default]
+    SEC -->|no| CORRECT{Correctness vs. performance?}
+    CORRECT -->|correctness at risk| CORWIN[✅ Correctness over optimization]
+    CORRECT -->|no risk| MEDIATE[Orchestrator presents both to user]
+    SECWIN --> LOG[Document resolution in dispatch log]
+    CORWIN --> LOG
+    MEDIATE --> USERPICK[User decides]
+    USERPICK --> LOG
+
+    style CONFLICT fill:#e8a838,color:#fff
+    style SECWIN fill:#27ae60,color:#fff
+    style CORWIN fill:#27ae60,color:#fff
+    style MEDIATE fill:#4a90d9,color:#fff
+```
+
+### Fix → Verify Loop
+
+Used after onboarding or any batch-fix session. Every fix is verified by the test suite.
+
+```mermaid
+flowchart TD
+    FIX([Worker fixes issue]) --> RUN[Run full test suite]
+    RUN --> PASS{All pass?}
+    PASS -->|yes| NEXT([✅ Next fix])
+    PASS -->|no| REG[🔴 Fix the regression first]
+    REG --> RERUN[Re-run tests]
+    RERUN --> PASS2{All pass?}
+    PASS2 -->|yes| NEXT
+    PASS2 -->|no| REG
+
+    style FIX fill:#4a90d9,color:#fff
+    style NEXT fill:#27ae60,color:#fff
+    style REG fill:#e74c3c,color:#fff
+```
+
 ---
 
 ## Context Gateway Protocol (MANDATORY — NO EXCEPTIONS)

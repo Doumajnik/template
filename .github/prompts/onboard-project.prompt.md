@@ -49,6 +49,57 @@ Spawn these agents **in parallel** (they are all read-only and write to separate
 | **Type Safety** | All source files | `docs/TYPE_SAFETY_REPORT.md` | Missing types, unsafe casts, `any` abuse, schema drift |
 | **Monitoring** | All source files | `docs/MONITORING_REPORT.md` | Missing logging, no health checks, alerting gaps |
 
+### Phase 3.5 — Structure & Cleanup Analysis
+
+After audits, before writing tests, analyze the project's structure and identify dead assets.
+
+**3.5a — Project Structure Review (Architect Agent)**
+
+Spawn the **Architect Agent** in **structure review mode** — it analyzes the current directory layout (from the Discovery summary) and proposes an ideal structure.
+
+**Input:** Discovery summary from Phase 1, `docs/CODE_INVENTORY.md`
+**Output:** `docs/STRUCTURE_REVIEW.md`
+
+The review must include:
+- Current structure map (as-is)
+- Proposed structure map (to-be) following template conventions (`src/utils/`, `src/services/`, `src/models/`, `src/config/`)
+- Specific moves: which files/modules should migrate and where
+- New directories to create (with rationale)
+- Directories to consolidate or rename
+- Dependency impact: which imports would need updating
+- A migration difficulty rating per move (trivial / moderate / complex)
+
+**3.5b — Dead Code & Dead Document Detection (Cleanup Agent)**
+
+Spawn the **Cleanup Agent** in **audit-only mode** — it identifies dead assets without removing anything. This is a read-only pass that produces a report.
+
+**Input:** All source files, `docs/`, `docs/files/`, `docs/discoveries/`, config files
+**Output:** `docs/CLEANUP_REPORT.md`
+
+The report must include:
+
+**Dead Code:**
+- Functions, classes, and constants that are never called or imported
+- Commented-out code blocks
+- Unused imports at the top of files
+- Unreachable code paths (after early returns, unconditional throws)
+- Unused variables and parameters
+- Test files for source files that no longer exist
+
+**Dead Documents:**
+- `docs/files/*.md` entries referencing files that no longer exist in `src/`
+- `docs/discoveries/*.md` entries that are outdated or superseded
+- `docs/API_DOCUMENTATION.md` entries for removed/deprecated endpoints
+- `docs/CODE_INVENTORY.md` entries for symbols that no longer exist
+- README sections referencing removed features or old setup instructions
+- Stale configuration files (unused env vars, deprecated config keys)
+
+**Dead Dependencies:**
+- Packages in lock files / manifests that are never imported in source
+- Dev dependencies that are never used in test or build scripts
+
+Each item must include: file path, line number (for code), what it is, confidence level (certain / likely / possible), and estimated removal effort (trivial / moderate).
+
 ### Phase 4 — Test Harness (safety net before any changes)
 
 Before anything gets cleaned up or fixed, **write thorough tests for every existing function**. These tests capture the current behavior so that cleanup, refactoring, and fixes can be verified.
@@ -133,23 +184,32 @@ After all audits and tests complete, synthesize findings into a prioritized acti
 - [ ] {Code quality improvements}
 - [ ] {Monitoring/logging gaps}
 - [ ] {Dependency version bumps}
+- [ ] {Structure reorganization moves from STRUCTURE_REVIEW.md}
 
 ## Low Priority (backlog)
 - [ ] {Nice-to-have cleanups}
 - [ ] {Style/convention alignment}
 - [ ] {Test coverage gaps}
+
+## Dead Assets to Remove
+- [ ] {Dead code from CLEANUP_REPORT.md — certain confidence}
+- [ ] {Dead documents from CLEANUP_REPORT.md}
+- [ ] {Dead dependencies from CLEANUP_REPORT.md}
+- [ ] {Dead code — likely confidence (review before removing)}
 ```
 
 ### Phase 6 — Present to User
 
 Show the user:
 1. **Discovery summary** — what was found in the codebase
-2. **Test baseline** — how many tests written, how many pass/fail
-3. **Audit overview** — counts per severity across all audits
-4. **Top 5 action items** — the most impactful things to fix first
-5. **Full improvement plan** — link to the plan file
+2. **Structure review** — current vs. proposed structure, key moves
+3. **Dead assets** — dead code count, dead docs count, dead dependency count (with confidence breakdown)
+4. **Test baseline** — how many tests written, how many pass/fail
+5. **Audit overview** — counts per severity across all audits
+6. **Top 5 action items** — the most impactful things to fix first
+7. **Full improvement plan** — link to the plan file
 
-Ask: "Tests are in place as a safety net. Want me to start fixing the Critical items? Tests will verify nothing breaks."
+Ask: "Tests are in place as a safety net. Want me to start fixing the Critical items? I can also reorganize the project structure and clean up dead assets. Tests will verify nothing breaks."
 
 ---
 
