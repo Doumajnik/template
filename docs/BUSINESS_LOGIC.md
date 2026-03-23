@@ -9,7 +9,7 @@
 
 <!-- Describe what this system does at a high level. What problem does it solve? Who uses it? -->
 
-RAG-Powered Playbook Infrastructure. Playbook rules are stored as individual markdown files with TOML frontmatter in `docs/playbooks/`. The `playbook_parser` module parses these files into structured chunk dicts for downstream consumption. The full RAG pipeline (embedding, indexing, semantic search) is designed but only the parser module is currently implemented.
+Playbook Infrastructure. Playbook rules are stored as individual markdown files with TOML frontmatter in `docs/playbooks/`. The `playbook_parser` module parses these files into structured chunk dicts for downstream consumption by the Librarian Agent.
 
 ---
 
@@ -31,21 +31,12 @@ RAG-Powered Playbook Infrastructure. Playbook rules are stored as individual mar
 
 <!-- Describe how data moves through the system. What comes in, what gets processed, what goes out? -->
 
-### RAG Pipeline
+### Playbook Pipeline
 
-> **⚠️ Planned — not yet implemented.** Only the playbook parser (step 1) exists on disk. The embedding client, knowledge index, CLI scripts, and CI workflow are designed but not yet built.
+**Flow:**
 
-The RAG (Retrieval-Augmented Generation) pipeline provides semantically relevant playbook knowledge to agents via the Librarian.
-
-**Intended Flow (designed, not implemented):**
-
-1. **Playbook Chunks** (`docs/playbooks/**/*.playbook.md`) → parsed by `playbook_parser.py` into structured dicts (metadata + body) ✔️ *Implemented*
-2. **Parser Output** → fed to `build-knowledge-index.py`, which diffs against the existing index by content hash ❌ *Not yet implemented*
-3. **New/Changed Chunks** → embedded via `embedding_client.py` (GitHub Models API, text-embedding-3-small) ❌ *Not yet implemented*
-4. **Embeddings** → merged into the **Knowledge Index** (`.ai/knowledge-index.json`) by `knowledge_index.py` ❌ *Not yet implemented*
-5. **Librarian Query** → query text embedded, similarity search, ranked results returned ❌ *Not yet implemented*
-
-**Fallback:** When the knowledge index is missing or `GH_MODELS_TOKEN` is not set, the Librarian falls back to metadata-only filtering (no embeddings) or skips RAG entirely and uses documentation search only.
+1. **Playbook Chunks** (`docs/playbooks/**/*.playbook.md`) → parsed by `playbook_parser.py` into structured dicts (metadata + body)
+2. **Librarian Agent** → reads parsed chunks, filters by metadata (agent, technology, category), and assembles context briefs for requesting agents
 
 ---
 

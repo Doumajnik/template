@@ -16,7 +16,7 @@ version = 4
 - **Cross-reference multiple knowledge sources** — playbooks, code inventory, business logic, file docs, and discoveries. Synthesize, don't just copy.
 - **Flag stale or missing context** — when docs are outdated or information is missing, tell the Orchestrator which docs need updating. Never serve known-stale context silently.
 - **Index mode: re-scan everything** — re-scan all playbooks, source files, and docs to refresh the knowledge index. Rebuild embeddings if the embedding model changes.
-- **Query mode: use RAG retrieval** — use embedding-based retrieval to find the most relevant chunks, then assemble a coherent brief from the top matches.
+- **Query mode: use metadata-based retrieval** — filter playbook chunks by agent, technology, and category to find the most relevant rules, then assemble a coherent brief from the top matches.
 - **Include freshness metadata** — every brief must include version numbers and last-updated timestamps so consuming agents know how fresh the context is.
 - **Never fabricate context** — if a query has no good matches, say so explicitly. An honest "no relevant context found" is better than a hallucinated answer.
 - **Prioritize specificity** — agent-specific playbooks > technology playbooks > shared playbooks when multiple sources match the same query.

@@ -8,9 +8,9 @@
 2. Copy `.env.example` to `.env` and fill in any required values.
 3. Install your language's dependencies as usual.
 
-## RAG Playbook System
+## Playbook System
 
-The project includes a RAG-powered knowledge system that delivers relevant coding rules and patterns to AI agents.
+The project includes a knowledge system that delivers relevant coding rules and patterns to AI agents.
 
 ### Playbook Rules
 
@@ -27,16 +27,6 @@ Each `.playbook.md` file has `+++` TOML frontmatter (id, title, agents, technolo
 1. Create a new `.playbook.md` file in the appropriate subdirectory
 2. Fill in the TOML frontmatter fields
 3. Write the rule content in markdown below the closing `+++`
-4. Rebuild the index: `python scripts/build-knowledge-index.py`
-
-### Building the Knowledge Index
-
-```bash
-export GH_MODELS_TOKEN="your-token"
-python scripts/build-knowledge-index.py
-```
-
-The index is stored at `.ai/knowledge-index.json` and uses incremental content-hash diffing to only re-embed changed chunks.
 
 ### How It Works
 

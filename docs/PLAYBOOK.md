@@ -23,13 +23,12 @@
 **Decision:** Use `+++` TOML frontmatter delimiters in `.playbook.md` files. Required fields: `id`, `title`, `agents`, `technologies`, `category`, `tags`, `version`. Valid categories: `pattern`, `anti-pattern`, `rule`, `convention`, `decision`, `strategy`.
 **Alternatives considered:** YAML frontmatter (rejected — ambiguous with markdown), JSON sidecar files (rejected — extra file management).
 
-### RAG Knowledge Index Architecture
+### Playbook Knowledge System
 
 **Date:** 2026-03-11
-**Context:** Needed semantic search over playbook rules for the Librarian Agent.
-**Decision:** Content-hash-based incremental indexing with GitHub Models text-embedding-3-small (1536 dimensions). Index stored as committed JSON (`.ai/knowledge-index.json`). Graceful degradation when index or token is unavailable.
-**Alternatives considered:** Full vector DB (rejected — overkill for ~50 chunks), no embeddings / keyword only (rejected — insufficient for semantic matching).
-**Status:** Only the parser module is implemented. Embedding client, knowledge index, CLI scripts, and CI workflow are designed but not yet built.
+**Context:** Needed structured delivery of playbook rules to agents via the Librarian.
+**Decision:** Playbook rules stored as `.playbook.md` files with TOML frontmatter. Parsed into structured chunks by `playbook_parser.py`. Librarian filters by metadata (agent, technology, category) and assembles context briefs.
+**Alternatives considered:** JSON sidecar files (rejected — extra file management), unstructured markdown (rejected — no machine-parseable metadata).
 
 ---
 
@@ -47,7 +46,7 @@
 ### Adversarial Architecture Review
 
 **Date:** 2026-03-15
-**Context:** The Architect↔Critic loop caught 3 critical contradictions and 6 additional issues in the RAG pipeline architecture, improving the design substantially before any code was written.
+**Context:** The Architect↔Critic loop caught 3 critical contradictions and 6 additional issues in the playbook pipeline architecture, improving the design substantially before any code was written.
 **Pattern:** Every non-trivial architecture goes through at least one Architect→Innovator→Critic cycle. The Critic's rejection is a feature — it catches contradictions, missing edge cases, and over-engineering before implementation begins. Expect 1-2 rounds. Maximum 10.
 
 ---
@@ -212,18 +211,13 @@ version = 1
 
 ---
 
-## Knowledge Index
+## Playbook System
 
-The knowledge index enables RAG (Retrieval-Augmented Generation) for the Librarian Agent, providing semantically relevant playbook rules to all agents on demand.
+The playbook system provides structured coding rules and patterns to all agents via the Librarian.
 
-> **⚠️ Status:** Only the parser module (`src/utils/playbook_parser.py`) is currently implemented. The build script, query script, embedding client, knowledge index module, and CI workflow are designed but not yet built. See the plan in `.ai/plans/2026-03-11_rag-playbook-infrastructure.plan.md`.
-
-- **Build script (planned):** `scripts/build-knowledge-index.py` — incrementally builds the index using content-hash-based diffing
-- **Query script (planned):** `scripts/query-knowledge-index.py` — searches the index and outputs ranked results
-- **Index location:** `.ai/knowledge-index.json` (committed to git)
-- **CI integration (planned):** Rebuild triggered on `docs/playbooks/**` changes pushed to `main`
-- **Embedding model (planned):** GitHub Models text-embedding-3-small (1536 dimensions)
-- **Graceful degradation:** If the index is missing or `GH_MODELS_TOKEN` is not set, the Librarian falls back to documentation-only search
+- **Parser:** `src/utils/playbook_parser.py` — parses `.playbook.md` files with TOML frontmatter into structured chunk dicts
+- **Rules location:** `docs/playbooks/` — organized by `shared/`, `agents/`, and `technologies/`
+- **Librarian integration:** The Librarian Agent reads parsed playbook chunks and assembles context briefs filtered by agent, technology, and category
 
 ---
 
