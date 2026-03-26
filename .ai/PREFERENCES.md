@@ -10,7 +10,7 @@
 - **AGENT_MODEL: Claude Opus 4.6** — The model used by ALL sub-agents. This is the **single source of truth** for the agent model. All `.agent.md` frontmatter and all documentation references MUST match this value. To change the model, update this line and run `scripts/update-agent-model.ps1`.
 - **TURBO_MODE: ON** — Plan down to every function, mark everything possible as `[delegatable]`, mass-spawn sub-agents. Set to OFF if you prefer inline implementation with fewer sub-agents.
 - **DEEP_MODE: ALWAYS ON** — Full adversarial pipeline on **every task**, no exceptions. Architect designs → Critic reviews → iterate until approved → Planner breaks down → Scaffolder creates stubs → Test Writer writes thorough tests → Workers implement with red-green loop. Never skip the Architect/Critic rounds.
-- **GRANULAR SPAWNING: ON** — Spawn one Test Writer and one Worker per **individual function**, not per file or per project. Every function gets its own dedicated Test Writer instance and its own dedicated Worker instance. Break work down to the smallest possible unit — never batch multiple functions into a single agent call.
+- **GRANULAR SPAWNING: ON** — Spawn one Test Writer and one Worker per **cohesive module or function group**. For complex standalone functions (>20 lines with no relationship to other functions), spawn per individual function. For tightly related functions within the same module, batch them into a single agent call. This balances thoroughness with practical efficiency — spawning per-individual-function for a 120-function project is impractical.
 
 ---
 

@@ -20,10 +20,6 @@ The Orchestrator spawns you as **step 0** of the planning sequence — before Di
 
 ## Your Workflow
 
-0. **Trace:** Append to `.ai/trace.md` (above `%% TRACE_INSERT_HERE`):
-   - On start: `O->>PE: Analyze feature request`
-   - On finish: `PE-->>O: Enriched spec ready`
-
 1. **Parse the raw request** — extract:
    - What the user explicitly asked for
    - What they implied but didn't state

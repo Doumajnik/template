@@ -62,4 +62,4 @@ Playbook Infrastructure. Playbook rules are stored as individual markdown files 
 
 | Dependency | Purpose | Auth | Status |
 |------------|---------|------|--------|
-| GitHub Models API (`https://models.github.ai/inference`) | Text embedding via `text-embedding-3-small` | `GH_MODELS_TOKEN` env var | ⏸️ *Planned — not yet implemented* |
+| *None yet* | — | — | — |

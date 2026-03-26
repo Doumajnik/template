@@ -24,10 +24,6 @@ You receive:
 
 ## Your Workflow
 
-0. **Trace:** Append to `.ai/trace.md` (above `%% TRACE_INSERT_HERE`):
-   - On start: `O->>EH: Audit/Design error handling {target}`
-   - On finish: `EH-->>O: Completed {summary}`
-
 1. **Scan existing error handling** — search for try/catch blocks, .catch() chains, error callbacks, throw statements, and error class definitions across the target scope.
 
 2. **Identify anti-patterns:**

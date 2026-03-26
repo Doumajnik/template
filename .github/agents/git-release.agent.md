@@ -24,10 +24,6 @@ You receive:
 
 ## Your Workflow
 
-0. **Trace:** Append to `.ai/trace.md` (above `%% TRACE_INSERT_HERE`):
-   - On start: `O->>GR: Prepare release {version}`
-   - On finish: `GR-->>O: Release prepared {summary}`
-
 1. **Determine current version** — read the version from `package.json`, `pyproject.toml`, `version.txt`, or whichever version source the project uses.
 
 2. **Analyze commits** — review commit history since the last release tag. Categorize commits by type:

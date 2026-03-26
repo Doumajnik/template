@@ -31,10 +31,6 @@ You do NOT modify `docs/PLAYBOOK.md` (architecture decisions/rules) — that's t
 
 ### Index Workflow
 
-0. **Trace:** Append to `.ai/trace.md` (above `%% TRACE_INSERT_HERE`):
-   - On start: `Note over LIB: Indexing codebase...`
-   - On finish: `LIB->>O: Index complete — {N} files indexed`
-
 1. **Scan** all files in `src/` recursively. Note every file, directory, and module boundary.
 
 2. **For each source file**, create or update `docs/files/{relative-path}.md`:
@@ -77,16 +73,12 @@ When spawned in **query mode**, you search the knowledge base and return a focus
 
 ### Query Workflow
 
-0. **Trace:** Append to `.ai/trace.md` (above `%% TRACE_INSERT_HERE`):
-   - On start: `O->>LIB: Query: {topic}`
-   - On finish: `LIB-->>O: Context brief ready`
-
 1. **Parse the query** — what agent needs context? For what task? What scope? Determine the target agent type and relevant technology.
 
 2. **Stage 1: Playbook Search** — read relevant playbook files from `docs/playbooks/`:
    - `docs/playbooks/shared/` — rules that apply to all agents (anti-duplication, code-style, naming, etc.). Always include the shared rules most relevant to the task.
    - `docs/playbooks/agents/{agent}.playbook.md` — agent-specific rules for the target agent. **Always include the full content** of the target agent's playbook.
-   - `docs/playbooks/technologies/{tech}.playbook.md` — technology-specific conventions if the task involves a specific language/framework. Include the full content if applicable.
+   - `.github/instructions/{lang}.instructions.md` — technology-specific conventions (Python, TypeScript, Go, .NET). Include when the task involves a specific language/framework. These replace the former `docs/playbooks/technologies/` folder.
    - Read only the playbooks relevant to the query — don't dump all playbooks
    - **Security Agent special rule:** When the target agent is Security, also include the full `docs/SECURITY_CHECKLIST.md` in the brief. The Security Agent needs every checklist item to audit against.
 
@@ -133,7 +125,7 @@ When spawned in **query mode**, you search the knowledge base and return a focus
 **Anti-Duplication Rules** (`shared/anti-duplication`)
 > Before creating anything new, search CODE_INVENTORY.md...
 
-**Python Testing Conventions** (`technologies/python`)
+**Python Testing Conventions** (`.github/instructions/python.instructions.md`)
 > Use pytest. Minimum 15 tests per function...
 
 ### Relevant Patterns

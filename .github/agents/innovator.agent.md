@@ -20,10 +20,6 @@ The Orchestrator spawns you **after the Architect's plan is drafted but before t
 
 ## Your Workflow
 
-0. **Trace:** Append to `.ai/trace.md` (above `%% TRACE_INSERT_HERE`):
-   - On start: `Note over IN: Generating alternative approaches`
-   - On finish: `IN-->>O: {N} ideas proposed`
-
 1. **Read context files:**
    - `docs/PLAYBOOK.md` — understand current patterns (so you can challenge them)
    - `docs/CODE_INVENTORY.md` — know what exists (so you don't reinvent, but can reimagine)

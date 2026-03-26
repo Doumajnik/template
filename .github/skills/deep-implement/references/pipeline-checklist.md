@@ -2,6 +2,8 @@
 
 ## Pre-Implementation Gates
 
+- [ ] Librarian queried before every agent spawn (Context Gateway Protocol)
+- [ ] Prompt Engineer produced enriched spec in `.ai/specs/`
 - [ ] Context files read (PREFERENCES, PLAYBOOK, CODE_INVENTORY)
 - [ ] Discovery completed (if new data involved)
 - [ ] Research brief produced with dependency list
@@ -11,6 +13,7 @@
 - [ ] Architect incorporated best ideas
 - [ ] Critic approved (≤10 rounds)
 - [ ] Planning Agent created function-level plan + todo file
+- [ ] UI Preview generated (if UI/frontend task) or explicitly skipped
 - [ ] User explicitly approved the plan
 
 ## Implementation Deliverables
@@ -27,13 +30,15 @@
 - [ ] Code Quality scan completed — no CRITICAL/HIGH unresolved
 - [ ] All documentation updated
 - [ ] Session summary written
-- [ ] Retrospective completed and Playbook updated
+- [ ] Retrospective completed (chunked) and Playbook updated
+- [ ] Cleanup Agent dedup pass completed (reports consolidated)
 - [ ] Todo file marked ✅ Complete
 
 ## Output Files
 
 | File | Purpose |
 | --- | --- |
+| `.ai/specs/{date}_{topic}.md` | Enriched spec from Prompt Engineer |
 | `.ai/todos/{date}_{topic}.todo.md` | Living task tracker |
 | `.ai/sessions/{date}_{topic}.dispatch.md` | Dispatch log |
 | `.ai/sessions/{date}_{topic}.transcript.md` | Session transcript |

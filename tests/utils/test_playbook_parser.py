@@ -513,3 +513,27 @@ class TestParseAllPlaybooks:
         result = parse_all_playbooks(str(tmp_path))
         assert len(result) == 1
         assert result[0]["id"] == "keep"
+
+
+# ---------------------------------------------------------------------------
+# Integration: validate ALL repo playbooks parse correctly
+# ---------------------------------------------------------------------------
+
+REPO_PLAYBOOK_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "docs", "playbooks")
+
+
+@pytest.mark.skipif(
+    not os.path.isdir(REPO_PLAYBOOK_DIR),
+    reason="docs/playbooks/ not found (running outside repo root)",
+)
+class TestRepoPlaybooksIntegration:
+    """Verify every .playbook.md in the repo parses without error."""
+
+    def test_all_repo_playbooks_parse(self):
+        chunks = parse_all_playbooks(REPO_PLAYBOOK_DIR)
+        assert len(chunks) > 0, "Expected at least one playbook in docs/playbooks/"
+
+    def test_no_duplicate_ids_in_repo(self):
+        chunks = parse_all_playbooks(REPO_PLAYBOOK_DIR)
+        ids = [c["id"] for c in chunks]
+        assert len(ids) == len(set(ids)), f"Duplicate IDs found: {[i for i in ids if ids.count(i) > 1]}"

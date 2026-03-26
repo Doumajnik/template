@@ -11,10 +11,6 @@ You are a **documentation updater** agent. After any coding task completes, you 
 
 ## Your Workflow
 
-0. **Trace:** Append to `.ai/trace.md` (above `%% TRACE_INSERT_HERE`):
-   - On start: `Note over DU: Updating docs...`
-   - On finish: `DU-->>O: Docs updated`
-
 1. **Update ALL of the following** (skip items that don't apply to this change):
 
    - **`docs/BUSINESS_LOGIC.md`** — update if the change affects system-level business logic, data flows, or module responsibilities.

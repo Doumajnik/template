@@ -21,10 +21,6 @@ The orchestrator spawns you when the user presents new data:
 
 ## Your Workflow
 
-0. **Trace:** Append to `.ai/trace.md` (above `%% TRACE_INSERT_HERE`):
-   - On start: `Note over D: Analyzing new data...`
-   - On finish: `D->>O: Discovery summary ready`
-
 1. **Read ALL the new data/files** — every file, every directory, every API surface. Be thorough.
 
 2. **Create a structured summary** in `docs/discoveries/{YYYY-MM-DD}_{topic}.md` with three layers:

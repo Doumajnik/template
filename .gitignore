@@ -156,6 +156,12 @@ ticketSellingAPI/
 .ai/previews/*
 .ai/trace.md
 
+# Feedback (project-specific, regenerated per-project)
+# README and PUSH_NOTE template are tracked; generated content is not.
+feedback/*
+!feedback/README.md
+!feedback/PUSH_NOTE.md
+
 # Archived playbooks (migrated to .github/skills/ and .github/instructions/)
 docs/playbooks/_archive/
 

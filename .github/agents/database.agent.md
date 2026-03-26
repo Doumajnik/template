@@ -26,10 +26,6 @@ You receive:
 
 ## Your Workflow
 
-0. **Trace:** Append to `.ai/trace.md` (above `%% TRACE_INSERT_HERE`):
-   - On start: `O->>DBA: Design schema for {feature}`
-   - On finish: `DBA-->>O: Schema ready â€” {N} tables/collections`
-
 1. **Understand the data model:**
    - Read `docs/BUSINESS_LOGIC.md` for entity relationships and data flows
    - Read existing schemas/models in `src/models/`

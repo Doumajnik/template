@@ -9,13 +9,6 @@
 
 ## Architecture Decisions
 
-<!-- Record significant architecture choices here. Format: -->
-<!-- ### {Decision Title} -->
-<!-- **Date:** YYYY-MM-DD -->
-<!-- **Context:** Why this decision was needed -->
-<!-- **Decision:** What was chosen -->
-<!-- **Alternatives considered:** What was rejected and why -->
-
 ### Playbook Chunk Format (TOML Frontmatter)
 
 **Date:** 2026-03-11
@@ -216,8 +209,9 @@ version = 1
 The playbook system provides structured coding rules and patterns to all agents via the Librarian.
 
 - **Parser:** `src/utils/playbook_parser.py` — parses `.playbook.md` files with TOML frontmatter into structured chunk dicts
-- **Rules location:** `docs/playbooks/` — organized by `shared/`, `agents/`, and `technologies/`
-- **Librarian integration:** The Librarian Agent reads parsed playbook chunks and assembles context briefs filtered by agent, technology, and category
+- **Validation:** `scripts/validate-playbooks.py` — runs `parse_all_playbooks()` as a pre-commit gate; exits non-zero on any malformed playbook
+- **Rules location:** `docs/playbooks/` — organized by `shared/` (all agents) and `agents/` (agent-specific)
+- **How playbooks reach agents:** The Librarian reads `.playbook.md` files, filters by agent name and technology, and includes relevant rules in the context brief passed to each agent at spawn time. Agents never read playbooks directly — they receive only the Librarian-curated subset.
 
 ---
 

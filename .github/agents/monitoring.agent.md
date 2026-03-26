@@ -25,10 +25,6 @@ You receive:
 
 ## Your Workflow
 
-0. **Trace:** Append to `.ai/trace.md` (above `%% TRACE_INSERT_HERE`):
-   - On start: `O->>MN: Setup monitoring for {target}`
-   - On finish: `MN-->>O: Monitoring audit complete — {summary}`
-
 1. **Audit current observability:**
    - Check for existing logging setup in `src/config/` and `src/utils/`
    - Identify code paths with no logging (silent failures)

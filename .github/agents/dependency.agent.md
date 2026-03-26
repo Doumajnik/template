@@ -25,10 +25,6 @@ You receive:
 
 ## Your Workflow
 
-0. **Trace:** Append to `.ai/trace.md` (above `%% TRACE_INSERT_HERE`):
-   - On start: `O->>DP: Audit dependencies`
-   - On finish: `DP-->>O: Dep audit complete â€” {summary}`
-
 1. **Identify the package manager and lock files:**
    - Read `package.json` / `requirements.txt` / `Pipfile` / `Cargo.toml` / `go.mod` / etc.
    - Read lock files for exact installed versions

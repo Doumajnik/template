@@ -23,17 +23,18 @@ The Orchestrator spawns you **after the Security Agent** (end of each cycle), be
 
 ## Your Workflow
 
-0. **Trace:** Append to `.ai/trace.md` (above `%% TRACE_INSERT_HERE`):
-   - On start: `O->>CQ: Code quality audit` then `Note over CQ: Scanning for smells...`
-   - On finish: `Note over CQ: {N} findings` then `CQ-->>O: Quality audit complete`
-
 1. **Read context files:**
    - `docs/CODE_INVENTORY.md` â€” know all symbols and their locations
    - `docs/PLAYBOOK.md` â€” understand patterns, anti-duplication rules, decomposition rules
    - `docs/QUALITY_REPORT.md` â€” read existing findings (avoid duplicates, check unresolved items)
    - `.ai/PREFERENCES.md` â€” user preferences and style rules
 
-2. **Scan the entire `src/` and `tests/` directories** (or scoped files if provided). For each file, run the full quality checklist below.
+2. **Verify file existence (MANDATORY before auditing):**
+   - Before auditing any file, confirm it exists on disk by reading it with `read_file`
+   - **Never audit code from context alone** — if the file doesn't exist on disk, skip it and flag: *"⚠️ File {path} referenced in context but not found on disk. Skipping."*
+   - This prevents phantom file audits where agents review code that was never persisted
+
+3. **Scan the entire `src/` and `tests/` directories** (or scoped files if provided). For each file, run the full quality checklist below.
 
 3. **Append findings** to `docs/QUALITY_REPORT.md` under a new audit entry.
 

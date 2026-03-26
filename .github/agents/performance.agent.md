@@ -25,10 +25,6 @@ You receive:
 
 ## Your Workflow
 
-0. **Trace:** Append to `.ai/trace.md` (above `%% TRACE_INSERT_HERE`):
-   - On start: `O->>PF: Profile {target}`
-   - On finish: `PF-->>O: Optimized {summary}`
-
 1. **Analyze the code:**
    - Read the target source files
    - Identify algorithmic complexity (O(nÂ˛) loops, unnecessary iterations, etc.)

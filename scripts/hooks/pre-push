@@ -1,6 +1,9 @@
 #!/bin/sh
+# TEMPLATE NOTE: This hook is intentionally inactive out of the box.
+# Uncomment your project's test command below once the language is chosen.
+# Without a test command, this hook always passes to avoid blocking pushes.
+#
 # Pre-push hook: runs tests before allowing a push.
-# Add your project's test command below once the language is chosen.
 # Agents should update this hook when test runners are configured.
 
 echo "🧪 Running tests before push..."

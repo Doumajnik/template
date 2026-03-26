@@ -21,10 +21,6 @@ You will receive:
 
 **Todo tracking:** If a todo file was provided, mark your test-writing task as 🔵 in-progress before starting, and ✅ done when tests are written. If you encounter unresolvable issues, mark the task as ❌ blocked and note the error in the Blockers section. Append to the Progress Log.
 
-**Trace:** When done, append to `.ai/trace.md` (above `%% TRACE_INSERT_HERE`):
-- `Note over TW: {filename} — wrote {N} tests`
-- `TW-->>O: Tests ready (all red)`
-
 ## Your Workflow
 
 ### Step 1 — Analyze every function's contract

@@ -24,10 +24,6 @@ You receive:
 
 ## Your Workflow
 
-0. **Trace:** Append to `.ai/trace.md` (above `%% TRACE_INSERT_HERE`):
-   - On start: `O->>AD: Design API {target}`
-   - On finish: `AD-->>O: Designed {summary}`
-
 1. **Read existing API context** — review `docs/API_DOCUMENTATION.md` and `docs/BUSINESS_LOGIC.md` to understand current conventions and patterns.
 
 2. **Analyze requirements** — identify the resources, operations, relationships, and data flows that the API must support.

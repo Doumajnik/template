@@ -24,10 +24,6 @@ You receive:
 
 ## Your Workflow
 
-0. **Trace:** Append to `.ai/trace.md` (above `%% TRACE_INSERT_HERE`):
-   - On start: `O->>MG: Migrate {target} from {old} to {new}`
-   - On finish: `MG-->>O: Migrated {summary}`
-
 1. **Analyze current usage** — search the entire codebase for all references to the APIs, patterns, or imports that will change. Build a complete inventory of affected files and call sites.
 
 2. **Research the new API** — read the migration task details and any Research Agent brief. Understand what changed: renamed methods, removed parameters, new required options, changed return types.

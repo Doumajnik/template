@@ -71,6 +71,25 @@ if [ -n "$TODO_HITS" ]; then
 fi
 
 # ──────────────────────────────────────
+# Project-specific validations
+# ──────────────────────────────────────
+
+# Validate playbook TOML frontmatter (if Python and the script are available)
+if command -v python3 >/dev/null 2>&1 && [ -f "scripts/validate-playbooks.py" ]; then
+    echo "  ▸ Validating playbook frontmatter..."
+    if ! python3 scripts/validate-playbooks.py; then
+        echo "  ❌ Playbook validation failed."
+        FAILED=1
+    fi
+elif command -v python >/dev/null 2>&1 && [ -f "scripts/validate-playbooks.py" ]; then
+    echo "  ▸ Validating playbook frontmatter..."
+    if ! python scripts/validate-playbooks.py; then
+        echo "  ❌ Playbook validation failed."
+        FAILED=1
+    fi
+fi
+
+# ──────────────────────────────────────
 # Language-specific linters & formatters
 # ──────────────────────────────────────
 # TODO: Add your linter/formatter commands here once the project language is chosen.

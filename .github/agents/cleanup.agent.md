@@ -24,10 +24,6 @@ You receive:
 
 ## Your Workflow
 
-0. **Trace:** Append to `.ai/trace.md` (above `%% TRACE_INSERT_HERE`):
-   - On start: `O->>CL: Cleanup {scope}`
-   - On finish: `CL-->>O: Cleaned â€” {summary}`
-
 1. **Identify dead code:**
    - Search for functions/classes/constants that are never called or imported
    - Cross-reference with `docs/CODE_INVENTORY.md` â€” find symbols with no consumers

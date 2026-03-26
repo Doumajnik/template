@@ -22,10 +22,6 @@ The Orchestrator spawns you **after the Worker has passed all unit tests**, befo
 
 ## Your Workflow
 
-0. **Trace:** Append to `.ai/trace.md` (above `%% TRACE_INSERT_HERE`):
-   - On start: `O->>IT: Integration tests for {feature}`
-   - On finish: `IT-->>O: {N} integration tests â€” {pass/fail}`
-
 1. **Understand the feature scope:**
    - Read `docs/BUSINESS_LOGIC.md` for data flows and module interactions
    - Identify the boundaries: module â†” module, service â†” service, API â†” client

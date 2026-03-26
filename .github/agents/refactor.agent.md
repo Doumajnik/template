@@ -24,10 +24,6 @@ You receive:
 
 ## Your Workflow
 
-0. **Trace:** Append to `.ai/trace.md` (above `%% TRACE_INSERT_HERE`):
-   - On start: `O->>RF: Refactor {target}`
-   - On finish: `RF-->>O: Refactored {summary}`
-
 1. **Read the target code** â€” understand the current structure, dependencies, and callers.
 
 2. **Plan the refactor:**

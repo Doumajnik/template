@@ -24,10 +24,6 @@ You receive:
 
 ## Your Workflow
 
-0. **Trace:** Append to `.ai/trace.md` (above `%% TRACE_INSERT_HERE`):
-   - On start: `O->>A11Y: Accessibility audit {scope}`
-   - On finish: `A11Y-->>O: Audit complete â€” {summary}`
-
 1. **Audit against WCAG 2.1 (Level AA):**
 
    **Perceivable:**

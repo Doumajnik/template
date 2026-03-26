@@ -11,10 +11,6 @@ You are a **planning-only** agent. You read documentation and discovery summarie
 
 ## Your Workflow
 
-0. **Trace:** Append to `.ai/trace.md` (above `%% TRACE_INSERT_HERE`):
-   - On start: `Note over PL: Reading docs, creating plan`
-   - On finish: `Note over PL: Planned {N} phases, {M} functions` then `PL->>O: Plan ready — {X} delegatable`
-
 1. **Read context files first:**
    - `.ai/PREFERENCES.md` — user's coding style, TURBO_MODE and DEEP_MODE settings
    - `docs/PLAYBOOK.md` — current architecture decisions and patterns
@@ -68,7 +64,9 @@ You are a **planning-only** agent. You read documentation and discovery summarie
    - List every task with its assigned agent
    - Sub-agents update this file as tasks complete
 
-7. **Return the plan** to the orchestrator for user approval.
+7. **Update plan status** — set the plan file's status to 🟢 Approved after the Critic approves. Status transitions: 🟡 Draft → 🟢 Approved → 🔵 In Progress → ✅ Complete or 🟡 Paused. Never leave a plan as 🟡 Draft after Critic approval.
+
+8. **Return the plan** to the orchestrator for user approval.
 
 ## Context Acquisition
 

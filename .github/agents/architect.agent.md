@@ -13,11 +13,6 @@ You are a **system architect** agent. You design the logic, data flow, structure
 
 ## Your Workflow
 
-0. **Trace:** Append to `.ai/trace.md` (above `%% TRACE_INSERT_HERE`):
-   - On start: `Note over A: Reading BUSINESS_LOGIC.md, CODE_INVENTORY.md`
-   - After designing: `Note over A: Designed: {module list}`
-   - On handoff: `A-->>O: Architecture plan v{N}`
-
 1. **Read context files first:**
    - `.ai/PREFERENCES.md` — check for DEEP_MODE and user preferences
    - `docs/PLAYBOOK.md` — current architecture decisions and patterns

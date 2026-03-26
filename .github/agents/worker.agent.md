@@ -20,10 +20,6 @@ You will receive:
 4. Relevant context from `CODE_INVENTORY.md` and `PLAYBOOK.md`
 5. The **todo file path** in `.ai/todos/` (if one exists for this session)
 
-**Trace:** When done, append to `.ai/trace.md` (above `%% TRACE_INSERT_HERE`):
-- `Note over W: {function}() — red-green {N} iterations`
-- `W-->>O: ✅ All tests green` (or `❌ {error}` on failure)
-
 ## Todo Tracking
 
 If a todo file was provided:
@@ -77,6 +73,7 @@ When done, report back with **proof of completion**:
 2. What symbols (functions, classes, constants) you implemented
 3. Test results: ✅ all passing / ❌ N failing (with details) — **include actual test output**
 4. Number of red-green iterations it took
-5. Any concerns or questions
+5. **Disk verification** — confirm every file you created/modified exists on disk by reading at least the first line. Report: *"Verified on disk: {file list}"*
+6. Any concerns or questions
 
 Never mark a task complete without demonstrating tests pass. A staff engineer must be able to verify from your report alone.

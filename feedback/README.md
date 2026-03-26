@@ -1,34 +1,39 @@
 # Project Feedback
 
-Automated feedback from projects built with this template. On every push to `main`, the pipeline collects agent reports and opens a GitHub Issue on the template repo. Claude reviews the issue and creates a PR with improvements.
+Automated feedback from projects built with this template. The Retrospective Agent appends template-relevant observations to a single file (`FEEDBACK.md`) after every session. On push to `main`, the pipeline collects this file and opens a GitHub Issue on the template repo. Claude reviews the issue and creates a PR with improvements.
 
-## Pipeline
+## How It Works
 
 ```
-push to main
-  → send-feedback-via-issue.yml (project repo)
-    → opens issue with "feedback" label on template repo
-      → process-feedback-issue.yml (template repo)
-        → Claude reviews → PR with improvements
+Retrospective Agent → appends to feedback/FEEDBACK.md
+  → push to main
+    → send-feedback-via-issue.yml (project repo)
+      → opens issue with "feedback" label on template repo
+        → process-feedback-issue.yml (template repo)
+          → Claude reviews → PR with improvements
 ```
 
-Only two workflows:
+## Files
 
-| Workflow | Runs in | Purpose |
+| File | Purpose | Tracked in git? |
 |---|---|---|
-| `send-feedback-via-issue.yml` | Project repo | Collects feedback files, opens issue |
-| `process-feedback-issue.yml` | Template repo | Claude reviews issue, creates PR |
+| `README.md` | This documentation | Yes |
+| `PUSH_NOTE.md` | Optional user note attached to a push | Yes (template only) |
+| `FEEDBACK.md` | Append-only log written by Retrospective Agent | **No** (gitignored) |
 
-Forks don't have `TEMPLATE_FEEDBACK_ENABLED` set, so the workflow is skipped automatically.
+All other files in this folder are gitignored. The Retrospective Agent is the only writer — it appends a `## Template Feedback` entry after every session with observations about the template itself (confusing instructions, missing patterns, conflicting rules).
 
 ## What Gets Collected
 
+On push to `main`, the feedback workflow collects:
+
+- `feedback/FEEDBACK.md` — template observations from the Retrospective Agent
+- `feedback/PUSH_NOTE.md` — optional user note (see below)
 - `docs/RETROSPECTIVE_REPORT.md` — agent decisions, what worked/didn't
 - `docs/PLAYBOOK.md` — architecture rules that evolved
 - `docs/QUALITY_REPORT.md` — code quality findings
 - `docs/SECURITY_REPORT.md` — security audit results
 - `.ai/lessons.md` — lessons captured after corrections
-- `feedback/PUSH_NOTE.md` — optional user note (see below)
 
 Each file is truncated to 500 lines. A guard step skips the entire job if none of these have content.
 
@@ -55,16 +60,14 @@ DRAFT
 Still thinking about this...
 ```
 
-## Deduplication
-
-A SHA-256 hash of the payload is stored in the `LAST_FEEDBACK_SHA` repo variable. If the payload hasn't changed since the last send, the issue is skipped.
-
 ## Setup
 
 1. Set repo variable `TEMPLATE_FEEDBACK_ENABLED` to `true`.
 2. Set repo variable `TEMPLATE_REPO` to the template's `owner/repo`.
 3. Create a PAT with `public_repo` scope → add as secret `TEMPLATE_FEEDBACK_TOKEN`.
 4. In the **template repo**, ensure `process-feedback-issue.yml` exists and `GH_MODELS_TOKEN` secret is set.
+
+Forks don't have `TEMPLATE_FEEDBACK_ENABLED` set, so the workflow is skipped automatically.
 
 ## Privacy
 

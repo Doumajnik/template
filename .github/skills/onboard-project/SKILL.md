@@ -107,3 +107,12 @@ Present to the user:
 - Recommendation to start with quick wins
 
 Ask: "Tests are in place as a safety net. Want me to start fixing the Critical items? I can also reorganize the project structure and clean up dead assets. Tests will verify nothing breaks."
+
+## Key Rules
+
+- **Context Gateway (mandatory):** Every agent spawn MUST be preceded by a Librarian query. No agent receives raw files — only Librarian-curated context briefs. See copilot-instructions.md Context Gateway Protocol.
+  - **Exception:** The Discovery Agent reads raw source directly (per Context Gateway Protocol), but still receives a Librarian brief for existing project context.
+- **Read-only audit:** This pipeline does NOT change code. It produces documentation and reports only.
+- **Parallel audits:** Phase 3 agents can run in parallel — they write to separate report files.
+
+> **Relationship:** This skill implements the onboarding pipeline referenced by the `"onboard"` quick command in `copilot-instructions.md` / `AGENTS.md`.

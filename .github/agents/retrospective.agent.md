@@ -32,10 +32,6 @@ You receive:
 
 ## Your Workflow
 
-0. **Trace:** Append to `.ai/trace.md` (above `%% TRACE_INSERT_HERE`):
-   - On start: `O->>RT: Retrospective chunk {M/N}` (or `O->>RT: Retrospective merge pass`)
-   - On finish: `RT-->>O: Retrospective chunk complete — {N} findings` (or `RT-->>O: Merge complete — {N} improvements`)
-
 ### Chunk Pass (one per transcript slice)
 
 1. **Read the transcript chunk deeply:**
@@ -90,7 +86,24 @@ You receive:
    - If agent behavior revealed implicit preferences that should be explicit
    - If the user corrected an agent's approach — encode that as a preference
 
-6. **Append chunk findings to `docs/RETROSPECTIVE_REPORT.md`:**
+6. **Append template feedback to `feedback/FEEDBACK.md`:**
+   - At the end of every chunk pass, evaluate whether any findings are about **the template itself** (not the project)
+   - Template feedback includes: confusing agent instructions, missing patterns, conflicting rules, unclear playbook entries, pipeline steps that don't work as documented
+   - If you have template feedback, append a section using this format:
+
+   ```markdown
+   ---
+
+   ## Template Feedback — {YYYY-MM-DD} — {session topic}
+
+   | # | Observation | Affected File(s) | Suggestion |
+   |---|------------|-------------------|------------|
+   | 1 | {what was confusing or broken in the template} | {agent.md, PLAYBOOK.md, etc.} | {concrete fix} |
+   ```
+
+   - If no template-level feedback exists for this chunk, skip this step
+
+7. **Append chunk findings to `docs/RETROSPECTIVE_REPORT.md`:**
    - Append a new entry (never overwrite previous entries)
    - Use the chunk format below
 
@@ -124,7 +137,7 @@ You receive:
    - {section}: {what was added/changed}
    ```
 
-7. **Report back** to the Orchestrator with:
+8. **Report back** to the Orchestrator with:
    - Number of decisions audited in this chunk
    - Number of tool calls audited
    - Number of issues found

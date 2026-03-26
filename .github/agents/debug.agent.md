@@ -27,10 +27,6 @@ You receive:
 
 ## Your Workflow
 
-0. **Trace:** Append to `.ai/trace.md` (above `%% TRACE_INSERT_HERE`):
-   - On start: `O->>DB: Debug {issue}`
-   - On finish: `DB-->>O: Fixed {root cause}` (or `DB-->>O: âťŚ Unresolved â€” {reason}`)
-
 1. **Reproduce the issue:**
    - Read the error message / stack trace carefully
    - Read the failing test to understand expected vs actual behavior

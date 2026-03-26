@@ -18,10 +18,6 @@ The Orchestrator spawns you in two contexts:
 
 ## Your Workflow
 
-0. **Trace:** Append to `.ai/trace.md` (above `%% TRACE_INSERT_HERE`):
-   - On start: `O->>RE: Research topic` then `Note over RE: Investigating...`
-   - On finish: `RE-->>O: Research brief ready`
-
 1. **Understand the topic** — what is the Orchestrator asking you to research?
 
 2. **Web research first (MANDATORY for pre-architecture research):**

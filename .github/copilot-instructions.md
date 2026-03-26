@@ -64,7 +64,7 @@ Before spawning ANY working agent, the Orchestrator MUST:
 3. **Pass the brief to the target agent** — include the Librarian's brief in the agent's spawn prompt. The brief MUST include:
    - **Agent-specific playbook rules** from `docs/playbooks/agents/{agent}.playbook.md`
    - **Shared playbook rules** from `docs/playbooks/shared/` (relevant to the task)
-   - **Technology-specific playbook rules** from `docs/playbooks/technologies/{tech}.playbook.md` (if applicable)
+   - **Technology-specific rules** from `.github/instructions/{lang}.instructions.md` (if applicable)
    - Relevant code inventory, business logic, and file summaries
 4. **NEVER skip this step.** Even for trivial tasks, ad-hoc agents, or quick fixes — always query the Librarian first.
 5. **Security Agent special rule:** When spawning the Security Agent, the Librarian MUST include the full `docs/SECURITY_CHECKLIST.md` in the brief. The Security Agent checks every item in the checklist against every source file.
@@ -84,6 +84,8 @@ Before spawning ANY working agent, the Orchestrator MUST:
 
 **Violation = invalid pipeline.** If an agent is spawned without a Librarian brief, the output is suspect and the step should be re-done.
 
+**Practical enforcement:** Query the Librarian at minimum at these points: (1) session start, (2) at every phase transition (planning → implementation → review), (3) when spawning an agent for a different domain than the previous dispatch. For sequential dispatches within the same phase and domain (e.g., Worker #3 after Worker #2 on the same module), reuse the existing Librarian brief — no re-query needed.
+
 ---
 
 ## Session Startup (ALWAYS do first)
@@ -95,9 +97,11 @@ Before spawning ANY working agent, the Orchestrator MUST:
 5. `.ai/lessons.md` — lessons learned from past corrections. Review for patterns relevant to the current task.
 6. Latest `.ai/sessions/` — recent context.
 7. Check `.ai/plans/` for in-progress plans (status 🟢). Ask user if they want to resume.
-8. **Create a dispatch log** — copy `.ai/DISPATCH_LOG_TEMPLATE.md` to `.ai/sessions/{YYYY-MM-DD}_{topic}.dispatch.md`. Fill in the session date and topic. All sub-agent calls during this session are logged here.
-9. **Create a session transcript** — copy `.ai/SESSION_TRANSCRIPT_TEMPLATE.md` to `.ai/sessions/{YYYY-MM-DD}_{topic}.transcript.md`. This is the full audit trail with a live workflow diagram. Updated after every agent spawn.
-10. **Refresh knowledge index** — spawn Librarian in index mode if source code has changed since last session.
+8. **Check for incomplete todos** — scan `.ai/todos/` for files with remaining ⬜ tasks. If found, present them to the user and ask whether to resume or start fresh.
+9. **Check for retrospective action items** — read the latest entry in `docs/RETROSPECTIVE_REPORT.md` for any action items. If found, add them to the new session's todo file so they're tracked.
+10. **Create a dispatch log** — copy `.ai/DISPATCH_LOG_TEMPLATE.md` to `.ai/sessions/{YYYY-MM-DD}_{topic}.dispatch.md`. Fill in the session date and topic. If continuing a previous session, add a `Continues from: {previous dispatch log}` header to chain the logs. All sub-agent calls during this session are logged here.
+11. **Create a session transcript (optional)** — copy `.ai/SESSION_TRANSCRIPT_TEMPLATE.md` to `.ai/sessions/{YYYY-MM-DD}_{topic}.transcript.md`. This is an optional full audit trail with a live workflow diagram. If you find transcripts are not being maintained, the dispatch log is sufficient — skip this step.
+12. **Refresh knowledge index** — spawn Librarian in index mode if source code has changed since last session.
 
 ---
 
@@ -136,7 +140,9 @@ When the user presents new data (new codebase, files, library, API, specs), you 
 20. **Retrospective Agent (chunked)** — the Orchestrator partitions the session transcript into chunks and spawns one Retrospective instance per chunk. Each reads its transcript slice deeply (every tool call, command, response, decision) and appends findings to `docs/RETROSPECTIVE_REPORT.md` and `docs/PLAYBOOK.md`. A final merge pass writes the session summary and cross-chunk patterns. Marks ✅ and sets todo status to ✅ Complete.
 21. **Cleanup Agent (dedup pass)** — scans `docs/RETROSPECTIVE_REPORT.md`, `docs/PLAYBOOK.md`, and `.ai/lessons.md` for duplicate entries, overlapping rules, and superseded lessons. Consolidates and removes redundancy.
 
-Skip the full sequence for trivial tasks — spawn only needed agent(s). **Even for trivial tasks, ALWAYS query the Librarian first** to get context before spawning any agent.
+Skip the full sequence for **truly trivial tasks** (questions, docs-only updates, simple lookups) — spawn only needed agent(s). **Even for trivial tasks, ALWAYS query the Librarian first** to get context before spawning any agent.
+
+> **IMPORTANT:** Modifications to existing code are NEVER trivial. Any request that changes existing behavior, refactors logic, or modifies existing files MUST go through the **Change Pipeline** below — no exceptions.
 
 ### Ad-Hoc Agents (spawned as needed)
 
@@ -161,6 +167,48 @@ These agents are NOT part of the sequential pipeline. The Orchestrator spawns th
 
 ---
 
+## Change Pipeline (modifications to existing code)
+
+When the user requests a **change** to existing code — modifying behavior, updating a feature, refactoring logic, renaming, restructuring, adjusting business rules, or any alteration to code that already exists — the Orchestrator MUST run the **Change Pipeline**. Changes are NEVER treated as trivial tasks. Even seemingly small changes can have cascading effects.
+
+**What triggers the Change Pipeline:**
+
+- "Change X to Y", "Update this to...", "Modify the behavior of..."
+- "Refactor this", "Restructure how...", "Move this logic to..."
+- "Make it so that...", "Instead of X, do Y"
+- "Add a parameter to...", "Remove this field from..."
+- Any request that alters existing source code behavior
+
+**What does NOT trigger the Change Pipeline (use other pipelines instead):**
+
+- New greenfield features with no existing code → Planning Sequence
+- Bug reports / errors / failing tests → Autonomous Bug Fixing
+- Questions, lookups, docs-only updates → Trivial Task Shortcut
+
+### Change Pipeline Steps
+
+1. **Prompt Engineer Agent** — analyzes the change request. Produces an enriched spec in `.ai/specs/` focusing on: what currently exists, what needs to change, what must NOT change, edge cases introduced by the modification, and acceptance criteria. Surfaces `[ASK USER]` questions.
+2. **Impact Analysis** (Librarian + Discovery) — the Orchestrator spawns the Librarian to identify all files, functions, tests, and modules affected by the change. If the scope is large or unclear, spawn a Discovery Agent to map the blast radius. The output is an **impact brief**: affected files, dependent modules, tests that must be updated, and potential regression risks.
+3. **Research Agent** — investigates best practices for the type of change being made (e.g., migration patterns, backward compatibility strategies, deprecation approaches). Uses the enriched spec + impact brief as input.
+4. **Dependency check** — if the change introduces or removes dependencies, map and install/uninstall them upfront.
+5. **Architect** — designs the change approach using the enriched spec, impact brief, and research findings. Must explicitly address: how to preserve existing behavior where intended, how to migrate callers/consumers, and how to avoid regressions.
+6. **Innovator** — reviews the change plan and proposes creative alternatives (e.g., a cleaner decomposition, a simpler migration path). Reports back to Orchestrator.
+7. **Architect (revision)** — Orchestrator feeds Innovator's best ideas back to the Architect.
+8. **Critic** — reviews for regressions, breaking changes, unnecessary scope creep, and over-engineering. Orchestrator mediates Architect↔Critic loop (max 10 rounds). **The Critic must specifically verify: "Does this change break anything that currently works?"**
+9. **Planning Agent** — creates change plan + todo file in `.ai/todos/`. The plan must include a **regression checklist** — a list of existing behaviors that must still work after the change.
+10. **User approval (MANDATORY GATE)** — present the full change plan, impact analysis, and regression checklist. Ask for explicit approval.
+11. **Test Writer** — writes/updates tests for the changed behavior AND regression tests for unchanged behavior that might be affected. Minimum 15 tests per changed function.
+12. **Worker** — implements the change. Runs red-green loop. Must verify all existing tests still pass (not just new ones).
+13. **Integration Tester** — writes/runs E2E tests covering the change. Specifically tests the boundary between changed and unchanged code.
+14. **Reviewer** — validates the change. Specifically checks: no unintended side effects, regression checklist passes, all affected callers updated.
+15. **Security Agent** — audits changed code for vulnerabilities. Marks ✅ in todo.
+16. **Code Quality Agent** — scans for duplication/smells in changed code. Marks ✅ in todo.
+17. **Doc Updater** — updates all affected docs (API docs, business logic, file docs, code inventory). Marks ✅ in todo.
+18. **Retrospective Agent (chunked)** — reviews the change session. Marks ✅.
+19. **Cleanup Agent (dedup pass)** — consolidates reports. Marks ✅.
+
+---
+
 ## Documentation Hierarchy (read in this order)
 
 1. `docs/discoveries/` — analyzed data summaries. Read FIRST for recently discovered data.
@@ -178,8 +226,11 @@ The orchestrator and Planning Agent NEVER read raw source code. Only Workers and
 - **Sub-agents (model: `AGENT_MODEL`):** perform all concrete work. Each gets only needed context.
 - **Everything is delegated.** If it can be described in a prompt, it MUST be a sub-agent.
 - **No agent-to-agent handoffs.** Every agent reports back to the Orchestrator. The Orchestrator decides which agent to spawn next. Agents NEVER spawn or hand off to other agents directly.
-- **Log every dispatch.** Before spawning any sub-agent, append a row to the session's dispatch log (`.ai/sessions/{date}_{topic}.dispatch.md`) with: who is calling, which agent, why, and what it should do. Update the Result column when the agent reports back.
-- **Update the session transcript after every agent spawn.** When a sub-agent completes: (1) append its dispatch block (prompt, response, tool calls, commands, decisions, issues) to the transcript, and (2) insert a new node into the workflow diagram above `%% WORKFLOW_INSERT_HERE` with the agent emoji, name, and task summary. Color the node green (✅), yellow (⚠️), or red (❌) based on outcome.
+- **Log every dispatch.** Before spawning any sub-agent, append a row to the session's dispatch log (`.ai/sessions/{date}_{topic}.dispatch.md`) with: who is calling, which agent, why, and what it should do. Update the Result column when the agent reports back. **Dispatch logs must cover the full session lifecycle** — every spawn gets logged, no exceptions. If a session spans multiple chats, chain the logs with a `Continues from:` header.
+- **Update the session transcript after every agent spawn (if maintained).** When a sub-agent completes: (1) append its dispatch block (prompt, response, tool calls, commands, decisions, issues) to the transcript, and (2) insert a new node into the workflow diagram above `%% WORKFLOW_INSERT_HERE` with the agent emoji, name, and task summary. Color the node green (✅), yellow (⚠️), or red (❌) based on outcome.
+- **Verify Worker output on disk.** After every Worker dispatch, verify the Worker's output files exist on disk (`read_file` or `list_dir`). Don't trust context-window-only evidence — code in the context may not have been persisted.
+- **Enforce todo updates.** After every agent reports back, check that the agent updated the todo file. If the previous agent didn't mark their task 🔵/✅/❌, prompt them before dispatching the next agent. Refuse to proceed if the todo is stale.
+- **Auto-refresh Librarian after code changes.** After every code-changing agent completes (Worker, Scaffolder, Refactor, Debug), spawn the Librarian in index mode to refresh the knowledge base. This is part of the Orchestrator's post-dispatch routine — don't rely on remembering to do it manually.
 
 ---
 
@@ -224,6 +275,7 @@ These short phrases trigger full pipelines — no extra explanation needed from 
 | User says | What to do |
 |---|---|
 | **"onboard"** or **"onboard this project"** | Run the full onboarding pipeline from `.github/prompts/onboard-project.prompt.md` — discover, document, audit, test, plan, present. |
+| **"change"**, **"modify"**, or **"update"** + description | Run the Change Pipeline — full planning with impact analysis before any code is touched. |
 | **"abort"**, **"stop"**, or **"cancel"** | Pipeline Abort (see below). |
 
 ---
@@ -280,4 +332,5 @@ The user can stop the pipeline at any time by saying "abort", "stop", or "cancel
 - **Proof of completion.** Never mark a task complete without evidence. Every agent must include proof in their report: test output, diff summary, verification results, or concrete output. Ask yourself: "Would a staff engineer approve this?"
 - **Demand elegance (balanced).** For non-trivial changes, pause and ask "is there a more elegant way?" If a fix feels hacky, implement the clean solution. Skip this for simple, obvious fixes — don't over-engineer.
 - **Tool path discovery.** When running or checking for an external tool/executable, if it is installed but NOT on the system PATH, record the tool name and its full path in `.ai/TOOL_PATHS.md`. All sub-agents MUST read `.ai/TOOL_PATHS.md` at startup and use the full paths listed there when invoking tools. Never assume a tool is on PATH — check `.ai/TOOL_PATHS.md` first.
+- **Trace protocol.** If `.ai/trace.md` exists, append your trace entry above `%% TRACE_INSERT_HERE` on start and finish. Format: `O->>{AGENT}: {task}` on start, `{AGENT}-->>O: {result}` on finish. See `.ai/TRACE_TEMPLATE.md` for details.
 - **Tool restrictions enforced.** `.ai/TOOL_MANIFEST.md` defines which tools each agent may use. The Librarian includes a `### Tool Restrictions` section in every context brief. A `PreToolUse` hook (`scripts/tool-guard.py`) hard-blocks denied tool calls at runtime. When adding new tool restrictions, update the manifest and the hook script.

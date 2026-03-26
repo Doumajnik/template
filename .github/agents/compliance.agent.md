@@ -25,10 +25,6 @@ You receive:
 
 ## Your Workflow
 
-0. **Trace:** Append to `.ai/trace.md` (above `%% TRACE_INSERT_HERE`):
-   - On start: `O->>CMP: Compliance audit {scope}`
-   - On finish: `CMP-->>O: Audit complete â€” {summary}`
-
 1. **License compliance:**
    - Read the project's license file (`LICENSE`, `LICENSE.md`)
    - Cross-reference all dependency licenses against the project license

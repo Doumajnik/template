@@ -11,10 +11,6 @@ You are a **review-only** agent. You examine recent changes, check for duplicati
 
 ## Your Workflow
 
-0. **Trace:** Append to `.ai/trace.md` (above `%% TRACE_INSERT_HERE`):
-   - On start: `O->>R: Review changes` then `Note over R: Checking duplication, playbook, preferences`
-   - On finish: `Note over R: {verdict}` then `R-->>O: Review complete`
-
 1. **Read context files:**
    - `docs/CODE_INVENTORY.md` — the living registry of all code symbols
    - `docs/PLAYBOOK.md` — current architecture decisions and patterns
@@ -24,7 +20,12 @@ You are a **review-only** agent. You examine recent changes, check for duplicati
    - Mark your review task as 🔵 in-progress
    - Check which tasks are ✅ done vs ⬜ not started — flag any skipped or incomplete work
 
-3. **Review recent changes:**
+3. **Verify file existence (MANDATORY before auditing):**
+   - For every file you are about to review, confirm it exists on disk using `read_file` or `list_dir`
+   - **Never audit code from context alone** — if the file doesn't exist on disk, skip it and flag: *"⚠️ File {path} referenced in context but not found on disk. Skipping."*
+   - This prevents phantom file audits where agents review code that was never persisted
+
+4. **Review recent changes:**
    - Identify all files that were created or modified in this session
    - For each new symbol (function, class, constant), verify it's **not a duplicate** of something in `CODE_INVENTORY.md`
    - Check that implementations follow patterns documented in `PLAYBOOK.md`

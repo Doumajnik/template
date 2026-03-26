@@ -24,10 +24,6 @@ You receive:
 
 ## Your Workflow
 
-0. **Trace:** Append to `.ai/trace.md` (above `%% TRACE_INSERT_HERE`):
-   - On start: `O->>TS: Audit type safety {target}`
-   - On finish: `TS-->>O: Completed {summary}`
-
 1. **Scan for type issues** — search the codebase systematically for:
    - Explicit `any` types or equivalent (Python `Any`, `# type: ignore`)
    - Missing return type annotations on functions

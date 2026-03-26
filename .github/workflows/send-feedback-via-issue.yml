@@ -31,6 +31,7 @@ jobs:
         run: |
           has_content=false
           for file in \
+            feedback/FEEDBACK.md \
             docs/RETROSPECTIVE_REPORT.md \
             docs/PLAYBOOK.md \
             docs/QUALITY_REPORT.md \
@@ -64,6 +65,7 @@ jobs:
           body=""
 
           for file in \
+            feedback/FEEDBACK.md \
             docs/RETROSPECTIVE_REPORT.md \
             docs/PLAYBOOK.md \
             docs/QUALITY_REPORT.md \

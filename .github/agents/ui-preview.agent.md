@@ -23,10 +23,6 @@ You receive:
 
 ## Your Workflow
 
-0. **Trace:** Append to `.ai/trace.md` (above `%% TRACE_INSERT_HERE`):
-   - On start: `O->>UP: Generate UI preview`
-   - On finish: `UP-->>O: Preview ready for review`
-
 1. **Analyze the planned UI** — from the architecture and implementation plans, identify:
    - All screens/pages/views to preview
    - Component hierarchy and layout

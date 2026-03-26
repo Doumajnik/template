@@ -243,7 +243,7 @@ sequenceDiagram
 | `/implement-plan`    | Execute a plan: Scaffolder → Test Writer → Worker → Integration Tester → Reviewer → Quality gates |
 | `/review-session`    | Review changes, run Security + Code Quality audits, write session summary               |
 | `/update-inventory`  | Re-scan `src/` and regenerate the code inventory + per-file docs                        |
-| `/deep-implement`    | Full 19-step pipeline: plan + implement + audit + retrospective                         |
+| `/deep-implement`    | Full pipeline: plan + implement + audit + retrospective                         |
 
 ---
 

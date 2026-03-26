@@ -23,10 +23,6 @@ The Orchestrator spawns you **after the Reviewer passes** (end of each cycle) an
 
 ## Your Workflow
 
-0. **Trace:** Append to `.ai/trace.md` (above `%% TRACE_INSERT_HERE`):
-   - On start: `O->>SEC: Security audit` then `Note over SEC: Scanning project...`
-   - On finish: `Note over SEC: {N} findings` then `SEC-->>O: Audit complete`
-
 1. **Read context files:**
    - `docs/SECURITY_CHECKLIST.md` — the **authoritative checklist**. Every item must be checked against every source file.
    - `docs/CODE_INVENTORY.md` — know what exists
@@ -35,7 +31,12 @@ The Orchestrator spawns you **after the Reviewer passes** (end of each cycle) an
    - `.ai/PREFERENCES.md` — user preferences
    - Your **agent-specific playbook** from the Librarian's brief — follow all rules listed there
 
-2. **Batch audit the entire project.** Process ALL source files in `src/` in batches of 3-5 files at a time. For each batch:
+2. **Verify file existence (MANDATORY before auditing):**
+   - Before auditing any file, confirm it exists on disk by reading it with `read_file`
+   - **Never audit code from context alone** — if the file doesn't exist on disk, skip it and flag: *"⚠️ File {path} referenced in context but not found on disk. Skipping."*
+   - This prevents phantom file audits where agents review code that was never persisted
+
+3. **Batch audit the entire project.** Process ALL source files in `src/` in batches of 3-5 files at a time. For each batch:
    - Read each file in the batch completely
    - Check EVERY item in `docs/SECURITY_CHECKLIST.md` against each file
    - Record findings AND passes — the report must address every checklist section for every file
