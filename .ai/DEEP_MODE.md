@@ -68,6 +68,39 @@ The orchestrator spawns agents in this sequence. This mirrors the Planning Seque
 - **Test-first:** tests are written before implementation (red-green loop).
 - **Isolation:** each worker only edits its assigned file.
 
+## Two-Phase Pipeline Separation
+
+The DEEP_MODE pipeline can be split across two sessions for overnight/batch planning:
+
+| Phase | Prompt | Steps | Session |
+| --- | --- | --- | --- |
+| **Planning** | `/plan-only` | 1–12 (Analysis → Architecture → Approval) | Session 1 (overnight / batch) |
+| **Implementation** | `/implement-plan` | 13–22 (Scaffold → Test → Implement → Review → Docs) | Session 2 (fresh context) |
+
+### How it works
+
+1. **Session 1:** Run `/plan-only` with your task description. The full adversarial pipeline runs (Prompt Engineer → Research → Architect → Innovator → Critic → Planning) and writes all artifacts to `.ai/` (spec, research brief, architecture plan, impl plan, todo file, UI preview).
+2. **Between sessions:** Review the plan artifacts. Approve or request revisions.
+3. **Session 2:** Run `/implement-plan` pointing to the saved plan. It reads all artifacts and runs the full implementation pipeline (Scaffolder → Test Writer → Worker → Integration Tester → Reviewer → Security → Code Quality → Doc Updater → Retrospective).
+
+### Benefits
+
+- **Clean context windows** — planning consumes significant context; starting fresh for implementation avoids truncation.
+- **Overnight batch planning** — queue multiple `/plan-only` runs, review all plans the next morning.
+- **Plan review gate** — artifacts can be reviewed, shared with teammates, or revised before any code is written.
+- **Resumability** — if implementation is interrupted, the plan and todo file persist on disk.
+
+### Artifacts
+
+All artifacts are saved to disk between phases:
+
+- `.ai/specs/{date}_{topic}.spec.md` — enriched requirements
+- `.ai/research/{date}_{topic}.research.md` — research brief
+- `.ai/plans/{date}_{topic}.plan.md` — architecture plan with Innovator + Critique logs
+- `.ai/plans/impl/{date}_{topic}.impl.md` — function-level implementation plan
+- `.ai/todos/{date}_{topic}.todo.md` — living task tracker
+- `.ai/previews/{date}_{topic}/` — UI preview (conditional)
+
 ## When OFF
 
 DEEP_MODE is **permanently ON** for this project. This section is kept for reference only. If it were ever turned off, the flow would skip Architect and Critic rounds: Planning → Scaffolder → Test Writer → Worker → Integration Tester → Reviewer → Security → Code Quality → Doc Updater → Retrospective.

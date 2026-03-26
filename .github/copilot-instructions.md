@@ -284,6 +284,8 @@ These short phrases trigger full pipelines — no extra explanation needed from 
 |---|---|
 | **"onboard"** or **"onboard this project"** | Run the full onboarding pipeline from `.github/prompts/onboard-project.prompt.md` — discover, document, audit, test, plan, present. |
 | **"change"**, **"modify"**, or **"update"** + description | Run the Change Pipeline — full planning with impact analysis before any code is touched. |
+| **"plan only"** or **"plan"** + description | Run `/plan-only` — full adversarial planning pipeline (steps 1–12) without implementation. Saves all artifacts to `.ai/` for later implementation. |
+| **"implement plan"** + path | Run `/implement-plan` — pick up from saved plan artifacts and run the full implementation pipeline (steps 13–22). |
 | **"abort"**, **"stop"**, or **"cancel"** | Pipeline Abort (see below). |
 
 ---
@@ -342,3 +344,4 @@ The user can stop the pipeline at any time by saying "abort", "stop", or "cancel
 - **Tool path discovery.** When running or checking for an external tool/executable, if it is installed but NOT on the system PATH, record the tool name and its full path in `.ai/TOOL_PATHS.md`. All sub-agents MUST read `.ai/TOOL_PATHS.md` at startup and use the full paths listed there when invoking tools. Never assume a tool is on PATH — check `.ai/TOOL_PATHS.md` first.
 - **Trace protocol.** If `.ai/trace.md` exists, append your trace entry above `%% TRACE_INSERT_HERE` on start and finish. Format: `O->>{AGENT}: {task}` on start, `{AGENT}-->>O: {result}` on finish. See `.ai/TRACE_TEMPLATE.md` for details.
 - **Tool restrictions enforced.** `.ai/TOOL_MANIFEST.md` defines which tools each agent may use. The Librarian includes a `### Tool Restrictions` section in every context brief. A `PreToolUse` hook (`scripts/tool-guard.py`) hard-blocks denied tool calls at runtime. When adding new tool restrictions, update the manifest and the hook script.
+- **The Lounge.** `.ai/lounge/` is a shared space for all agents and subagents. Any agent can drop a note, quote, observation, or high score there whenever they want — no permission needed.
