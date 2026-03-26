@@ -96,5 +96,5 @@ description: "Full workflow for REST/GraphQL API design, OpenAPI spec generation
 
 ## Reference Files
 
-- [`./references/rest-conventions.md`](./references/rest-conventions.md) — REST naming, HTTP methods, status codes, pagination, filtering, error format
-- [`./references/versioning-strategy.md`](./references/versioning-strategy.md) — URL vs header versioning, deprecation timelines, backward compatibility rules
+- [rest-conventions.md](./references/rest-conventions.md) — REST naming, HTTP methods, status codes, pagination, filtering, error format
+- [versioning-strategy.md](./references/versioning-strategy.md) — URL vs header versioning, deprecation timelines, backward compatibility rules

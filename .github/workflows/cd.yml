@@ -53,10 +53,8 @@ jobs:
       github.event_name == 'push' ||
       (github.event_name == 'workflow_dispatch' &&
        github.event.inputs.environment == 'staging')
-    environment:
-      name: staging
-      # TODO: Configure for your project — set your staging URL
-      # url: https://staging.example.com
+    # TODO: Create a 'staging' environment in Settings → Environments before enabling.
+    # Then uncomment and configure the 'environment' block here (name + url).
     steps:
       - uses: actions/checkout@v4
 
@@ -113,10 +111,8 @@ jobs:
       startsWith(github.ref, 'refs/tags/v') ||
       (github.event_name == 'workflow_dispatch' &&
        github.event.inputs.environment == 'production')
-    environment:
-      name: production
-      # TODO: Configure for your project — set your production URL
-      # url: https://example.com
+    # TODO: Create a 'production' environment in Settings → Environments before enabling.
+    # Then uncomment and configure the 'environment' block here (name + url).
     steps:
       - uses: actions/checkout@v4
 

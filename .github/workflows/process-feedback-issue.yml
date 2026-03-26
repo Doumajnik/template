@@ -38,31 +38,33 @@ jobs:
 
       - name: Extract feedback from issue
         id: feedback
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
           mkdir -p feedback
 
-          # Extract project info from issue body
-          issue_body='${{ github.event.issue.body }}'
-
-          project_name=$(echo "$issue_body" | grep -oP '(?<=\*\*Project:\*\* ).*' | head -1 || echo "unknown")
+          # Extract project info from issue body (passed via env to prevent injection)
+          project_name=$(echo "$ISSUE_BODY" | grep -oP '(?<=\*\*Project:\*\* ).*' | head -1 || echo "unknown")
           project_safe=$(echo "$project_name" | tr '/' '_' | tr ' ' '_')
           date_str=$(date -u +%Y-%m-%d)
           filename="feedback/${date_str}_issue_${project_safe}.md"
 
           # Save the full issue body as feedback
-          cat > "$filename" << EOF
-          # Feedback from Issue #${{ github.event.issue.number }}
-
-          - **Title:** ${{ github.event.issue.title }}
-          - **Author:** @${{ github.event.issue.user.login }}
-          - **Received:** $(date -u +%Y-%m-%dT%H:%M:%SZ)
-          - **Issue:** #${{ github.event.issue.number }}
-
-          ---
-
-          EOF
-
-          echo '${{ github.event.issue.body }}' >> "$filename"
+          {
+            echo "# Feedback from Issue #${ISSUE_NUMBER}"
+            echo ""
+            echo "- **Title:** ${ISSUE_TITLE}"
+            echo "- **Author:** @${ISSUE_AUTHOR}"
+            echo "- **Received:** $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "- **Issue:** #${ISSUE_NUMBER}"
+            echo ""
+            echo "---"
+            echo ""
+            echo "$ISSUE_BODY"
+          } > "$filename"
 
           echo "filename=${filename}" >> "$GITHUB_OUTPUT"
           echo "project_safe=${project_safe}" >> "$GITHUB_OUTPUT"
