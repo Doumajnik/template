@@ -39,6 +39,7 @@ Your job: understand intent → read docs → decide which sub-agents to spawn �
 | **Debug** | Diagnoses bugs from error logs, stack traces, and failing tests. Applies fixes | `.github/agents/debug.agent.md` |
 | **Performance** | Profiles bottlenecks, algorithmic complexity, and memory issues | `.github/agents/performance.agent.md` |
 | **Database** | Designs schemas, writes migrations, optimizes queries | `.github/agents/database.agent.md` |
+| **SQL Query** | Writes, reviews, and optimizes SQL queries. Analyzes EXPLAIN plans, detects N+1 patterns | `.github/agents/sql-query.agent.md` |
 | **Monitoring** | Audits observability — logging, health checks, alerting. Reports gaps — Workers implement | `.github/agents/monitoring.agent.md` |
 | **Dependency** | Audits dependency trees for outdated packages and license compliance | `.github/agents/dependency.agent.md` |
 | **Cleanup** | Removes dead code, unused imports, and stale files | `.github/agents/cleanup.agent.md` |
@@ -53,6 +54,9 @@ Your job: understand intent → read docs → decide which sub-agents to spawn �
 | **Librarian** | Maintains knowledge index, serves context briefs to all agents (query + index modes) | `.github/agents/librarian.agent.md` |
 | **Prompt Engineer** | Deeply analyzes feature requests, produces enriched specs for the pipeline | `.github/agents/prompt-engineer.agent.md` |
 | **UI Preview** | Generates HTML/CSS preview mockups from plans for user approval before scaffolding | `.github/agents/ui-preview.agent.md` |
+| **Frontend Component** | Builds accessible, performant UI components with proper state management and design system compliance | `.github/agents/frontend-component.agent.md` |
+| **Load Testing** | Designs load test scenarios, analyzes results, validates SLOs. Reports bottlenecks — Workers implement fixes | `.github/agents/load-testing.agent.md` |
+| **Config Management** | Audits and designs application configuration patterns — env vars, feature flags, secrets management | `.github/agents/config-management.agent.md` |
 
 When spawning a sub-agent, read its `.agent.md` file and include the relevant instructions in the prompt.
 
@@ -564,6 +568,7 @@ These agents are NOT part of the sequential pipeline. The Orchestrator spawns th
 - **Debug** — diagnoses bugs from error logs, stack traces, and failing tests.
 - **Performance** — profiles bottlenecks, algorithmic complexity, and memory issues.
 - **Database** — designs schemas, writes migrations, optimizes queries.
+- **SQL Query** — writes, reviews, and optimizes SQL queries. Analyzes EXPLAIN plans, detects N+1 patterns.
 - **Monitoring** — audits observability (logging, health checks, alerting). Reports gaps — Workers implement.
 - **Dependency** — audits dependency trees for outdated packages and license compliance.
 - **Cleanup** — removes dead code, unused imports, and stale files.
@@ -574,6 +579,9 @@ These agents are NOT part of the sequential pipeline. The Orchestrator spawns th
 - **Error Handling** — audits error handling for silent catches, missing context. Reports findings — Workers fix.
 - **Type Safety** — audits type coverage, finds unsafe casts, validates schema consistency. Reports findings — Workers fix.
 - **Git / Release** — manages changelogs, semantic versioning, release notes, tag creation.
+- **Frontend Component** — builds accessible, performant UI components with design system compliance.
+- **Load Testing** — designs load test scenarios, writes test scripts, analyzes results against SLOs.
+- **Config Management** — audits and designs application configuration patterns, feature flags, and secret management.
 
 > **TURBO_MODE** (read from `.ai/PREFERENCES.md`): When ON, plan to function level, mark all `[delegatable]`, mass-spawn. When OFF, plan at phase level, spawn per phase.
 

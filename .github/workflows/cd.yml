@@ -1,0 +1,130 @@
+name: CD
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+
+concurrency:
+  group: cd-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # TODO: Configure for your project — run your CI checks
+      # Reuse CI workflow or inline critical checks here
+
+      # --- Python ---
+      # - uses: actions/setup-python@v5
+      #   with:
+      #     python-version: '3.12'
+      #     cache: pip
+      # - run: pip install -e ".[dev]" || pip install -r requirements-dev.txt || true
+      # - run: python -m pytest tests/ --tb=short -q
+
+      # --- Node ---
+      # - uses: actions/setup-node@v4
+      #   with:
+      #     node-version: '20'
+      #     cache: npm
+      # - run: npm ci
+      # - run: npm test
+
+      - run: echo "TODO — Configure validation checks for your project"
+
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [validate]
+    if: >-
+      github.event_name == 'push' ||
+      (github.event_name == 'workflow_dispatch' &&
+       github.event.inputs.environment == 'staging')
+    environment:
+      name: staging
+      # TODO: Configure for your project — set your staging URL
+      # url: https://staging.example.com
+    steps:
+      - uses: actions/checkout@v4
+
+      # TODO: Configure for your project — add your staging deployment steps
+      # Examples:
+      # - Deploy to cloud provider (AWS, GCP, Azure)
+      # - Push Docker image to registry
+      # - Deploy via Helm/kubectl
+      # - Deploy serverless functions
+
+      - run: echo "TODO — Configure staging deployment for your project"
+      - run: echo "Deploying ${{ github.sha }} to staging"
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: [deploy-staging]
+    steps:
+      - uses: actions/checkout@v4
+
+      # TODO: Configure for your project — run integration tests against staging
+      # Examples:
+      # - API smoke tests
+      # - E2E browser tests
+      # - Health check verification
+
+      # --- Python ---
+      # - uses: actions/setup-python@v5
+      #   with:
+      #     python-version: '3.12'
+      #     cache: pip
+      # - run: pip install -e ".[dev]" || pip install -r requirements-dev.txt || true
+      # - env:
+      #     BASE_URL: https://staging.example.com
+      #   run: python -m pytest tests/integration/ --tb=short -q
+
+      # --- Node ---
+      # - uses: actions/setup-node@v4
+      #   with:
+      #     node-version: '20'
+      #     cache: npm
+      # - run: npm ci
+      # - env:
+      #     BASE_URL: https://staging.example.com
+      #   run: npm run test:integration
+
+      - run: echo "TODO — Configure integration tests for your project"
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [integration-tests]
+    if: >-
+      startsWith(github.ref, 'refs/tags/v') ||
+      (github.event_name == 'workflow_dispatch' &&
+       github.event.inputs.environment == 'production')
+    environment:
+      name: production
+      # TODO: Configure for your project — set your production URL
+      # url: https://example.com
+    steps:
+      - uses: actions/checkout@v4
+
+      # TODO: Configure for your project — add your production deployment steps
+      # The 'production' environment should have protection rules configured:
+      #   - Required reviewers for manual approval gate
+      #   - Deployment branches restricted to tags matching 'v*'
+      # Configure at: Settings → Environments → production → Protection rules
+
+      - run: echo "TODO — Configure production deployment for your project"
+      - run: echo "Deploying ${{ github.ref_name }} to production"
