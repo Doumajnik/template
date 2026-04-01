@@ -35,3 +35,15 @@ version = 4
 - Flag Refused Bequest — subclasses that ignore or override most of their parent's methods indicate a wrong inheritance hierarchy; prefer composition or extract only the shared interface (source: refactoring.guru "Dispensables")
 - Flag Duplicate Code across modules — two or more code fragments that look almost identical should be extracted into a shared utility; duplication is the single most reliable sign that something needs to be refactored (source: refactoring.guru "Dispensables")
 - Flag Comments as a smell — when a method is filled with explanatory comments, the code itself needs to be clarified through renaming, extracting, or restructuring rather than annotated; comments should explain WHY, not WHAT (source: refactoring.guru "Dispensables")
+
+### Parallelism & Process Separation Rules
+
+- Analyze plans for sequential bottlenecks — if operations A and B have no data dependency, they should be designed for parallel execution
+- Flag synchronous blocking patterns where async or concurrent alternatives exist (e.g., awaiting sequential API calls that could be parallel)
+- Verify process boundaries — tightly coupled independent processes indicate missing separation; suggest queues, workers, or service decomposition
+- Check for fan-out/fan-in opportunities — batch items that can be processed independently should be parallelizable
+- Flag single points of serialization in multi-step workflows — a pipeline stage that blocks all downstream work is a bottleneck
+- Verify that I/O-bound and CPU-bound work are separated to allow proper scheduling (e.g., don't mix heavy computation with network calls in the same synchronous path)
+- Look for producer-consumer patterns that could benefit from streaming or event-driven processing instead of batch
+- Flag "god pipelines" — monolithic sequential flows that should be decomposed into independent stages with clear boundaries
+- In bottleneck scan mode, focus exclusively on parallelism and optimization — skip style, duplication, and structure checks

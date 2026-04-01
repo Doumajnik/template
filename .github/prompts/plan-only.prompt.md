@@ -28,26 +28,27 @@ description: Run ONLY the planning phases (overnight-safe). Produces all artifac
 
 6. **Architect Agent** — design the system using the enriched spec + research brief. Produce architecture plan at `.ai/plans/{YYYY-MM-DD}_{topic}.plan.md` with:
    - System design, data flow, module decomposition, deduplication report
-   - Innovator Log section (filled in step 8)
-   - Critique Log section (filled in steps 9-10)
-7. **Innovator Agent** — review the architecture plan, propose creative alternatives. Append to the plan's Innovator Log.
-8. **Architect (revision)** — incorporate Innovator's best ideas. Update the plan.
-9. **Critic Agent** — adversarial review. Focus on: duplication, missing decomposition, over-engineering, completeness, regressions.
-10. **Iterate** — Architect↔Critic loop, max 10 rounds. All feedback appended to the plan's Critique Log. Continue until Critic approves or max rounds reached.
+   - Innovator Log section (filled in step 9)
+   - Critique Log section (filled in steps 10-11)
+7. **Critic Agent (bottleneck scan)** — preliminary pass: review the Architect's plan specifically for parallelism opportunities, sequential bottlenecks, and process separation issues. Produce a focused bottleneck brief.
+8. **Innovator Agent** — review the architecture plan AND the Critic's bottleneck findings, propose creative alternatives especially for parallelism and optimization. Append to the plan's Innovator Log.
+9. **Architect (revision)** — incorporate Innovator's best ideas and bottleneck findings. Update the plan.
+10. **Critic Agent (full review)** — full adversarial review. Focus on: duplication, missing decomposition, over-engineering, completeness, regressions, and verify bottleneck findings were addressed.
+11. **Iterate** — Architect↔Critic loop, max 10 rounds. All feedback appended to the plan's Critique Log. Continue until Critic approves or max rounds reached.
 
 ### Phase C — Implementation Planning
 
-11. **Planning Agent** — break the approved architecture into function-level implementation plans:
+12. **Planning Agent** — break the approved architecture into function-level implementation plans:
     - Shared utilities first, then features, then wiring
     - **Deduplication pass (MANDATORY):** check every planned function against `CODE_INVENTORY.md` and `src/`
     - Mark matches as `[REUSE: existing_symbol]` or `[EXTEND: existing_symbol]`
     - Produce detailed impl plan at `.ai/plans/impl/{YYYY-MM-DD}_{topic}.impl.md`
     - **Create the todo file** at `.ai/todos/{YYYY-MM-DD}_{topic}.todo.md` with tasks for every pipeline step and every function
-12. **UI Preview Agent** — `[CONDITIONAL]` if frontend work is involved, generate HTML/CSS preview in `.ai/previews/`.
+13. **UI Preview Agent** — `[CONDITIONAL]` if frontend work is involved, generate HTML/CSS preview in `.ai/previews/`.
 
 ### Phase D — Approval Gate
 
-13. **Present plan to user** — show the full plan summary:
+14. **Present plan to user** — show the full plan summary:
     - Phases, functions, dependencies, files to create/modify
     - Deduplication results (what's reused vs new)
     - Critique rounds summary (how many, what was challenged)

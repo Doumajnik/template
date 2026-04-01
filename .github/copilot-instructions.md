@@ -127,22 +127,23 @@ When the user presents new data (new codebase, files, library, API, specs), you 
 3. **Research Agent** — researches the topic on the web (best practices, libraries, patterns, pitfalls). Uses the enriched spec as input. Produces a research brief with recommended approach and dependency list. Passes findings to the Architect.
 4. **Dependency mapping & install** — based on the Research Agent's findings, map out all required dependencies and install them upfront before any coding begins.
 5. **Architect** — designs architecture plan, using both the enriched spec and the Research Agent's brief as input.
-6. **Innovator** — reviews the plan and proposes creative alternatives and outside-the-box ideas. Reports back to Orchestrator.
-7. **Architect (revision)** — Orchestrator feeds Innovator's best ideas back to the Architect to consider incorporating.
-8. **Critic** — reviews for flaws, duplication, over-engineering. Orchestrator mediates Architect↔Critic loop (max 10 rounds). All agents report back to Orchestrator — no direct handoffs.
-9. **Planning Agent** — reads docs, creates plan + todo file. The todo file (`.ai/todos/{YYYY-MM-DD}_{topic}.todo.md`) is the **living tracker** — every subsequent agent reads it, marks their task(s) 🔵 in-progress before starting and ✅ done when complete, and appends to its Progress Log.
-10. **UI Preview Agent** — if the task involves UI/frontend work, generates an interactive HTML/CSS preview in `.ai/previews/` with a component decomposition map. Skipped for backend-only tasks.
-11. **User approval (MANDATORY GATE)** — present the full plan (and UI preview if applicable) and ask for explicit approval. Suggest opening a new chat session for implementation to keep context clean. **If user does not approve**, restart the entire pipeline from step 1 to ensure no dependencies or context are missed in the revision.
-12. **Scaffolder** — creates file stubs. Uses the UI Preview's component decomposition (if available) to create accurate frontend stubs. Marks scaffolding tasks ✅ in todo.
-13. **Test Writer** — writes 15+ failing tests per function (one instance per function). Marks test tasks ✅ in todo.
-14. **Worker** — implements code, red-green loop until tests pass (one instance per function). Marks each function ✅ in todo as it passes.
-15. **Integration Tester** — writes and runs E2E/integration tests. Marks ✅ in todo.
-16. **Reviewer** — validates result. Checks todo for skipped/incomplete tasks. Marks review ✅ in todo.
-17. **Security Agent** — audits all code for vulnerabilities, appends to `docs/SECURITY_REPORT.md`. Marks ✅ in todo. If CRITICAL/HIGH → Workers fix → re-verify.
-18. **Code Quality Agent** — scans for duplication/smells, appends to `docs/QUALITY_REPORT.md`. Marks ✅ in todo. If CRITICAL/HIGH → Workers fix → re-verify.
-19. **Doc Updater** — updates all docs, writes session summary, commits. Marks doc tasks ✅ in todo.
-20. **Retrospective Agent (chunked)** — the Orchestrator partitions the session transcript into chunks and spawns one Retrospective instance per chunk. Each reads its transcript slice deeply (every tool call, command, response, decision) and appends findings to `docs/RETROSPECTIVE_REPORT.md` and `docs/PLAYBOOK.md`. A final merge pass writes the session summary and cross-chunk patterns. Marks ✅ and sets todo status to ✅ Complete.
-21. **Cleanup Agent (dedup pass)** — scans `docs/RETROSPECTIVE_REPORT.md`, `docs/PLAYBOOK.md`, and `.ai/lessons.md` for duplicate entries, overlapping rules, and superseded lessons. Consolidates and removes redundancy.
+6. **Critic (bottleneck scan)** — preliminary pass in bottleneck scan mode: reviews the Architect's plan specifically for parallelism opportunities, sequential bottlenecks, and process separation issues. Reports a focused bottleneck brief to the Orchestrator, who passes it to the Innovator.
+7. **Innovator** — reviews the plan AND the Critic's bottleneck findings. Proposes creative alternatives and outside-the-box ideas, especially for parallelism and optimization opportunities identified in the bottleneck scan. Reports back to Orchestrator.
+8. **Architect (revision)** — Orchestrator feeds Innovator's best ideas and the Critic's bottleneck findings back to the Architect to consider incorporating.
+9. **Critic (full review)** — full adversarial review for flaws, duplication, over-engineering, and verifies that bottleneck findings from step 6 were addressed. Orchestrator mediates Architect↔Critic loop (max 10 rounds). All agents report back to Orchestrator — no direct handoffs.
+10. **Planning Agent** — reads docs, creates plan + todo file. The todo file (`.ai/todos/{YYYY-MM-DD}_{topic}.todo.md`) is the **living tracker** — every subsequent agent reads it, marks their task(s) 🔵 in-progress before starting and ✅ done when complete, and appends to its Progress Log.
+11. **UI Preview Agent** — if the task involves UI/frontend work, generates an interactive HTML/CSS preview in `.ai/previews/` with a component decomposition map. Skipped for backend-only tasks.
+12. **User approval (MANDATORY GATE)** — present the full plan (and UI preview if applicable) and ask for explicit approval. Suggest opening a new chat session for implementation to keep context clean. **If user does not approve**, restart the entire pipeline from step 1 to ensure no dependencies or context are missed in the revision.
+13. **Scaffolder** — creates file stubs. Uses the UI Preview's component decomposition (if available) to create accurate frontend stubs. Marks scaffolding tasks ✅ in todo.
+14. **Test Writer** — writes 15+ failing tests per function (one instance per function). Marks test tasks ✅ in todo.
+15. **Worker** — implements code, red-green loop until tests pass (one instance per function). Marks each function ✅ in todo as it passes.
+16. **Integration Tester** — writes and runs E2E/integration tests. Marks ✅ in todo.
+17. **Reviewer** — validates result. Checks todo for skipped/incomplete tasks. Marks review ✅ in todo.
+18. **Security Agent** — audits all code for vulnerabilities, appends to `docs/SECURITY_REPORT.md`. Marks ✅ in todo. If CRITICAL/HIGH → Workers fix → re-verify.
+19. **Code Quality Agent** — scans for duplication/smells, appends to `docs/QUALITY_REPORT.md`. Marks ✅ in todo. If CRITICAL/HIGH → Workers fix → re-verify.
+20. **Doc Updater** — updates all docs, writes session summary, commits. Marks doc tasks ✅ in todo.
+21. **Retrospective Agent (chunked)** — the Orchestrator partitions the session transcript into chunks and spawns one Retrospective instance per chunk. Each reads its transcript slice deeply (every tool call, command, response, decision) and appends findings to `docs/RETROSPECTIVE_REPORT.md` and `docs/PLAYBOOK.md`. A final merge pass writes the session summary and cross-chunk patterns. Marks ✅ and sets todo status to ✅ Complete.
+22. **Cleanup Agent (dedup pass)** — scans `docs/RETROSPECTIVE_REPORT.md`, `docs/PLAYBOOK.md`, and `.ai/lessons.md` for duplicate entries, overlapping rules, and superseded lessons. Consolidates and removes redundancy.
 
 Skip the full sequence for **truly trivial tasks** (questions, docs-only updates, simple lookups) — spawn only needed agent(s). **Even for trivial tasks, ALWAYS query the Librarian first** to get context before spawning any agent.
 
@@ -200,20 +201,21 @@ When the user requests a **change** to existing code — modifying behavior, upd
 3. **Research Agent** — investigates best practices for the type of change being made (e.g., migration patterns, backward compatibility strategies, deprecation approaches). Uses the enriched spec + impact brief as input.
 4. **Dependency check** — if the change introduces or removes dependencies, map and install/uninstall them upfront.
 5. **Architect** — designs the change approach using the enriched spec, impact brief, and research findings. Must explicitly address: how to preserve existing behavior where intended, how to migrate callers/consumers, and how to avoid regressions.
-6. **Innovator** — reviews the change plan and proposes creative alternatives (e.g., a cleaner decomposition, a simpler migration path). Reports back to Orchestrator.
-7. **Architect (revision)** — Orchestrator feeds Innovator's best ideas back to the Architect.
-8. **Critic** — reviews for regressions, breaking changes, unnecessary scope creep, and over-engineering. Orchestrator mediates Architect↔Critic loop (max 10 rounds). **The Critic must specifically verify: "Does this change break anything that currently works?"**
-9. **Planning Agent** — creates change plan + todo file in `.ai/todos/`. The plan must include a **regression checklist** — a list of existing behaviors that must still work after the change.
-10. **User approval (MANDATORY GATE)** — present the full change plan, impact analysis, and regression checklist. Ask for explicit approval.
-11. **Test Writer** — writes/updates tests for the changed behavior AND regression tests for unchanged behavior that might be affected. Minimum 15 tests per changed function.
-12. **Worker** — implements the change. Runs red-green loop. Must verify all existing tests still pass (not just new ones).
-13. **Integration Tester** — writes/runs E2E tests covering the change. Specifically tests the boundary between changed and unchanged code.
-14. **Reviewer** — validates the change. Specifically checks: no unintended side effects, regression checklist passes, all affected callers updated.
-15. **Security Agent** — audits changed code for vulnerabilities. Marks ✅ in todo.
-16. **Code Quality Agent** — scans for duplication/smells in changed code. Marks ✅ in todo.
-17. **Doc Updater** — updates all affected docs (API docs, business logic, file docs, code inventory). Marks ✅ in todo.
-18. **Retrospective Agent (chunked)** — reviews the change session. Marks ✅.
-19. **Cleanup Agent (dedup pass)** — consolidates reports. Marks ✅.
+6. **Critic (bottleneck scan)** — preliminary pass in bottleneck scan mode: reviews the change plan specifically for parallelism opportunities, sequential bottlenecks, and process separation issues. Reports a focused bottleneck brief to the Orchestrator, who passes it to the Innovator.
+7. **Innovator** — reviews the change plan AND the Critic's bottleneck findings. Proposes creative alternatives (e.g., a cleaner decomposition, a simpler migration path), especially for parallelism and optimization opportunities. Reports back to Orchestrator.
+8. **Architect (revision)** — Orchestrator feeds Innovator's best ideas and the Critic's bottleneck findings back to the Architect.
+9. **Critic (full review)** — full adversarial review for regressions, breaking changes, unnecessary scope creep, over-engineering, and verifies that bottleneck findings from step 6 were addressed. Orchestrator mediates Architect↔Critic loop (max 10 rounds). **The Critic must specifically verify: "Does this change break anything that currently works?"**
+10. **Planning Agent** — creates change plan + todo file in `.ai/todos/`. The plan must include a **regression checklist** — a list of existing behaviors that must still work after the change.
+11. **User approval (MANDATORY GATE)** — present the full change plan, impact analysis, and regression checklist. Ask for explicit approval.
+12. **Test Writer** — writes/updates tests for the changed behavior AND regression tests for unchanged behavior that might be affected. Minimum 15 tests per changed function.
+13. **Worker** — implements the change. Runs red-green loop. Must verify all existing tests still pass (not just new ones).
+14. **Integration Tester** — writes/runs E2E tests covering the change. Specifically tests the boundary between changed and unchanged code.
+15. **Reviewer** — validates the change. Specifically checks: no unintended side effects, regression checklist passes, all affected callers updated.
+16. **Security Agent** — audits changed code for vulnerabilities. Marks ✅ in todo.
+17. **Code Quality Agent** — scans for duplication/smells in changed code. Marks ✅ in todo.
+18. **Doc Updater** — updates all affected docs (API docs, business logic, file docs, code inventory). Marks ✅ in todo.
+19. **Retrospective Agent (chunked)** — reviews the change session. Marks ✅.
+20. **Cleanup Agent (dedup pass)** — consolidates reports. Marks ✅.
 
 ---
 
