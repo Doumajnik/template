@@ -132,18 +132,20 @@ When the user presents new data (new codebase, files, library, API, specs), you 
 8. **Architect (revision)** — Orchestrator feeds Innovator's best ideas and the Critic's bottleneck findings back to the Architect to consider incorporating.
 9. **Critic (full review)** — full adversarial review for flaws, duplication, over-engineering, and verifies that bottleneck findings from step 6 were addressed. Orchestrator mediates Architect↔Critic loop (max 10 rounds). All agents report back to Orchestrator — no direct handoffs.
 10. **Planning Agent** — reads docs, creates plan + todo file. The todo file (`.ai/todos/{YYYY-MM-DD}_{topic}.todo.md`) is the **living tracker** — every subsequent agent reads it, marks their task(s) 🔵 in-progress before starting and ✅ done when complete, and appends to its Progress Log.
-11. **UI Preview Agent** — if the task involves UI/frontend work, generates an interactive HTML/CSS preview in `.ai/previews/` with a component decomposition map. Skipped for backend-only tasks.
-12. **User approval (MANDATORY GATE)** — present the full plan (and UI preview if applicable) and ask for explicit approval. Suggest opening a new chat session for implementation to keep context clean. **If user does not approve**, restart the entire pipeline from step 1 to ensure no dependencies or context are missed in the revision.
-13. **Scaffolder** — creates file stubs. Uses the UI Preview's component decomposition (if available) to create accurate frontend stubs. Marks scaffolding tasks ✅ in todo.
-14. **Test Writer** — writes 15+ failing tests per function (one instance per function). Marks test tasks ✅ in todo.
-15. **Worker** — implements code, red-green loop until tests pass (one instance per function). Marks each function ✅ in todo as it passes.
-16. **Integration Tester** — writes and runs E2E/integration tests. Marks ✅ in todo.
-17. **Reviewer** — validates result. Checks todo for skipped/incomplete tasks. Marks review ✅ in todo.
-18. **Security Agent** — audits all code for vulnerabilities, appends to `docs/SECURITY_REPORT.md`. Marks ✅ in todo. If CRITICAL/HIGH → Workers fix → re-verify.
-19. **Code Quality Agent** — scans for duplication/smells, appends to `docs/QUALITY_REPORT.md`. Marks ✅ in todo. If CRITICAL/HIGH → Workers fix → re-verify.
-20. **Doc Updater** — updates all docs, writes session summary, commits. Marks doc tasks ✅ in todo.
-21. **Retrospective Agent (chunked)** — the Orchestrator partitions the session transcript into chunks and spawns one Retrospective instance per chunk. Each reads its transcript slice deeply (every tool call, command, response, decision) and appends findings to `docs/RETROSPECTIVE_REPORT.md` and `docs/PLAYBOOK.md`. A final merge pass writes the session summary and cross-chunk patterns. Marks ✅ and sets todo status to ✅ Complete.
-22. **Cleanup Agent (dedup pass)** — scans `docs/RETROSPECTIVE_REPORT.md`, `docs/PLAYBOOK.md`, and `.ai/lessons.md` for duplicate entries, overlapping rules, and superseded lessons. Consolidates and removes redundancy.
+11. **Architect (plan verification)** — the Architect verifies the function-level plan faithfully translates the architecture: all modules, data flows, and APIs accounted for, decomposition is optimal, no decisions lost in translation. If issues found → Planning Agent revises.
+12. **UI Preview Agent** — if the task involves UI/frontend work, generates an interactive HTML/CSS preview in `.ai/previews/` with a component decomposition map. Skipped for backend-only tasks.
+13. **User approval (MANDATORY GATE)** — present the full plan (and UI preview if applicable) and ask for explicit approval. Suggest opening a new chat session for implementation to keep context clean. **If user does not approve**, restart the entire pipeline from step 1 to ensure no dependencies or context are missed in the revision.
+14. **Scaffolder** — creates file stubs. Uses the UI Preview's component decomposition (if available) to create accurate frontend stubs. Marks scaffolding tasks ✅ in todo.
+15. **Architect (scaffold review)** — quick verification that scaffolded files match the verified plan: correct file structure, function signatures, module boundaries, and completeness. If issues found → Scaffolder revises.
+16. **Test Writer** — writes 15+ failing tests per function (one instance per function). Marks test tasks ✅ in todo.
+17. **Worker** — implements code, red-green loop until tests pass (one instance per function). Marks each function ✅ in todo as it passes.
+18. **Integration Tester** — writes and runs E2E/integration tests. Marks ✅ in todo.
+19. **Reviewer** — validates result. Checks todo for skipped/incomplete tasks. Marks review ✅ in todo.
+20. **Security Agent** — audits all code for vulnerabilities, appends to `docs/SECURITY_REPORT.md`. Marks ✅ in todo. If CRITICAL/HIGH → Workers fix → re-verify.
+21. **Code Quality Agent** — scans for duplication/smells, appends to `docs/QUALITY_REPORT.md`. Marks ✅ in todo. If CRITICAL/HIGH → Workers fix → re-verify.
+22. **Doc Updater** — updates all docs, writes session summary, commits. Marks doc tasks ✅ in todo.
+23. **Retrospective Agent (chunked)** — the Orchestrator partitions the session transcript into chunks and spawns one Retrospective instance per chunk. Each reads its transcript slice deeply (every tool call, command, response, decision) and appends findings to `docs/RETROSPECTIVE_REPORT.md` and `docs/PLAYBOOK.md`. A final merge pass writes the session summary and cross-chunk patterns. Marks ✅ and sets todo status to ✅ Complete.
+24. **Cleanup Agent (dedup pass)** — scans `docs/RETROSPECTIVE_REPORT.md`, `docs/PLAYBOOK.md`, and `.ai/lessons.md` for duplicate entries, overlapping rules, and superseded lessons. Consolidates and removes redundancy.
 
 Skip the full sequence for **truly trivial tasks** (questions, docs-only updates, simple lookups) — spawn only needed agent(s). **Even for trivial tasks, ALWAYS query the Librarian first** to get context before spawning any agent.
 
@@ -206,16 +208,17 @@ When the user requests a **change** to existing code — modifying behavior, upd
 8. **Architect (revision)** — Orchestrator feeds Innovator's best ideas and the Critic's bottleneck findings back to the Architect.
 9. **Critic (full review)** — full adversarial review for regressions, breaking changes, unnecessary scope creep, over-engineering, and verifies that bottleneck findings from step 6 were addressed. Orchestrator mediates Architect↔Critic loop (max 10 rounds). **The Critic must specifically verify: "Does this change break anything that currently works?"**
 10. **Planning Agent** — creates change plan + todo file in `.ai/todos/`. The plan must include a **regression checklist** — a list of existing behaviors that must still work after the change.
-11. **User approval (MANDATORY GATE)** — present the full change plan, impact analysis, and regression checklist. Ask for explicit approval.
-12. **Test Writer** — writes/updates tests for the changed behavior AND regression tests for unchanged behavior that might be affected. Minimum 15 tests per changed function.
-13. **Worker** — implements the change. Runs red-green loop. Must verify all existing tests still pass (not just new ones).
-14. **Integration Tester** — writes/runs E2E tests covering the change. Specifically tests the boundary between changed and unchanged code.
-15. **Reviewer** — validates the change. Specifically checks: no unintended side effects, regression checklist passes, all affected callers updated.
-16. **Security Agent** — audits changed code for vulnerabilities. Marks ✅ in todo.
-17. **Code Quality Agent** — scans for duplication/smells in changed code. Marks ✅ in todo.
-18. **Doc Updater** — updates all affected docs (API docs, business logic, file docs, code inventory). Marks ✅ in todo.
-19. **Retrospective Agent (chunked)** — reviews the change session. Marks ✅.
-20. **Cleanup Agent (dedup pass)** — consolidates reports. Marks ✅.
+11. **Architect (plan verification)** — verifies the change plan faithfully translates the architecture: all affected modules, migration paths, and regression strategies accounted for. If issues found → Planning Agent revises.
+12. **User approval (MANDATORY GATE)** — present the full change plan, impact analysis, and regression checklist. Ask for explicit approval.
+13. **Test Writer** — writes/updates tests for the changed behavior AND regression tests for unchanged behavior that might be affected. Minimum 15 tests per changed function.
+14. **Worker** — implements the change. Runs red-green loop. Must verify all existing tests still pass (not just new ones).
+15. **Integration Tester** — writes/runs E2E tests covering the change. Specifically tests the boundary between changed and unchanged code.
+16. **Reviewer** — validates the change. Specifically checks: no unintended side effects, regression checklist passes, all affected callers updated.
+17. **Security Agent** — audits changed code for vulnerabilities. Marks ✅ in todo.
+18. **Code Quality Agent** — scans for duplication/smells in changed code. Marks ✅ in todo.
+19. **Doc Updater** — updates all affected docs (API docs, business logic, file docs, code inventory). Marks ✅ in todo.
+20. **Retrospective Agent (chunked)** — reviews the change session. Marks ✅.
+21. **Cleanup Agent (dedup pass)** — consolidates reports. Marks ✅.
 
 ---
 
@@ -286,8 +289,8 @@ These short phrases trigger full pipelines — no extra explanation needed from 
 |---|---|
 | **"onboard"** or **"onboard this project"** | Run the full onboarding pipeline from `.github/prompts/onboard-project.prompt.md` — discover, document, audit, test, plan, present. |
 | **"change"**, **"modify"**, or **"update"** + description | Run the Change Pipeline — full planning with impact analysis before any code is touched. |
-| **"plan only"** or **"plan"** + description | Run `/plan-only` — full adversarial planning pipeline (steps 1–12) without implementation. Saves all artifacts to `.ai/` for later implementation. |
-| **"implement plan"** + path | Run `/implement-plan` — pick up from saved plan artifacts and run the full implementation pipeline (steps 13–22). |
+| **"plan only"** or **"plan"** + description | Run `/plan-only` — full adversarial planning pipeline (steps 1–13) without implementation. Saves all artifacts to `.ai/` for later implementation. |
+| **"implement plan"** + path | Run `/implement-plan` — pick up from saved plan artifacts and run the full implementation pipeline (steps 14–24). |
 | **"abort"**, **"stop"**, or **"cancel"** | Pipeline Abort (see below). |
 
 ---

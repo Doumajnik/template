@@ -4,7 +4,7 @@ description: Resume implementation from a saved plan (produced by /plan-only). R
 
 # Implement from Plan: ${input:planPath}
 
-## Full Implementation Pipeline (Steps 13–22)
+## Full Implementation Pipeline (Steps 14–24)
 
 > **Purpose:** Pick up where `/plan-only` left off. Reads the saved plan artifacts from disk
 > and runs the complete implementation → test → review → security → docs → retrospective pipeline.
@@ -34,16 +34,17 @@ description: Resume implementation from a saved plan (produced by /plan-only). R
 7. **Scaffolder Agent** — create file stubs with signatures and docstrings per the impl plan.
    - Use the UI Preview's component decomposition (if available in `.ai/previews/`) for frontend stubs.
    - Mark scaffolding tasks ✅ in the todo file.
+8. **Architect (scaffold review)** — quick verification that scaffolded files match the verified plan: correct file structure, function signatures, module boundaries, and completeness. If issues found → Scaffolder revises.
 
 ### Phase 2 — Test Writing
 
-8. **Test Writer Agent** (one per function/module) — write 15+ tests per function that fail on stubs (red phase).
+9. **Test Writer Agent** (one per function/module) — write 15+ tests per function that fail on stubs (red phase).
    - Follow the test structure from `docs/PLAYBOOK.md`
    - Mark test-writing tasks ✅ in the todo file.
 
 ### Phase 3 — Implementation
 
-9. **Worker Agent** (one per function/module) — implement each function following the red-green loop:
+10. **Worker Agent** (one per function/module) — implement each function following the red-green loop:
    - Mark the task 🔵 in-progress in the todo file **before starting**
    - Run existing tests — confirm they fail (red) on the stub
    - Implement the function — replace stub with real logic
@@ -51,17 +52,17 @@ description: Resume implementation from a saved plan (produced by /plan-only). R
    - If tests fail: fix implementation (NOT tests), re-run (max 5 attempts)
    - Mark the task ✅ done in the todo file when tests pass
    - Move to the next function
-10. **Verify all files on disk** — after each Worker completes, confirm output files exist. Don't trust context-window-only evidence.
+11. **Verify all files on disk** — after each Worker completes, confirm output files exist. Don't trust context-window-only evidence.
 
 ### Phase 4 — Integration Testing
 
-11. **Integration Tester Agent** — write and run E2E/integration tests for multi-module flows.
+12. **Integration Tester Agent** — write and run E2E/integration tests for multi-module flows.
     - Cover the boundaries between new and existing code.
     - Mark ✅ in the todo file.
 
 ### Phase 5 — Review
 
-12. **Reviewer Agent** — validate the full implementation:
+13. **Reviewer Agent** — validate the full implementation:
     - Quality, correctness, adherence to the architecture plan
     - Check todo for skipped/incomplete tasks
     - Verify functions ≤40 lines, doc comments on exports, no silent catches
@@ -70,20 +71,20 @@ description: Resume implementation from a saved plan (produced by /plan-only). R
 
 ### Phase 6 — Security & Quality
 
-13. **Security Agent** — audit all code for vulnerabilities (OWASP Top 10). Append findings to `docs/SECURITY_REPORT.md`. Mark ✅. If CRITICAL/HIGH → Workers fix → re-verify.
-14. **Code Quality Agent** — scan for duplication, code smells, dead code. Append findings to `docs/QUALITY_REPORT.md`. Mark ✅. If CRITICAL/HIGH → Workers fix → re-verify.
+14. **Security Agent** — audit all code for vulnerabilities (OWASP Top 10). Append findings to `docs/SECURITY_REPORT.md`. Mark ✅. If CRITICAL/HIGH → Workers fix → re-verify.
+15. **Code Quality Agent** — scan for duplication, code smells, dead code. Append findings to `docs/QUALITY_REPORT.md`. Mark ✅. If CRITICAL/HIGH → Workers fix → re-verify.
 
 ### Phase 7 — Documentation & Closure
 
-15. **Doc Updater Agent** — update all documentation:
+16. **Doc Updater Agent** — update all documentation:
     - `docs/CODE_INVENTORY.md` — new symbols
     - `docs/BUSINESS_LOGIC.md` — new data flows / module responsibilities
     - `docs/files/` — per-file docs for new/modified files
     - `docs/API_DOCUMENTATION.md` — new endpoints (if applicable)
     - Write session summary to `.ai/sessions/`
     - Mark doc tasks ✅ in the todo file.
-16. **Retrospective Agent (chunked)** — review the session transcript. Append findings to `docs/RETROSPECTIVE_REPORT.md` and `docs/PLAYBOOK.md`. Mark ✅. Set todo status to ✅ Complete.
-17. **Cleanup Agent (dedup pass)** — scan reports and lessons for duplicate entries. Consolidate.
+17. **Retrospective Agent (chunked)** — review the session transcript. Append findings to `docs/RETROSPECTIVE_REPORT.md` and `docs/PLAYBOOK.md`. Mark ✅. Set todo status to ✅ Complete.
+18. **Cleanup Agent (dedup pass)** — scan reports and lessons for duplicate entries. Consolidate.
 
 ## Two-Phase Workflow
 

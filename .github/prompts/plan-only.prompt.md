@@ -4,7 +4,7 @@ description: Run ONLY the planning phases (overnight-safe). Produces all artifac
 
 # Plan Only: ${input:taskDescription}
 
-## Planning-Only Pipeline (Steps 1–12)
+## Planning-Only Pipeline (Steps 1–13)
 
 > **Purpose:** Run the full adversarial planning pipeline WITHOUT implementation.
 > Designed for overnight or batch runs — produces all artifacts to disk so implementation
@@ -36,7 +36,7 @@ description: Run ONLY the planning phases (overnight-safe). Produces all artifac
 10. **Critic Agent (full review)** — full adversarial review. Focus on: duplication, missing decomposition, over-engineering, completeness, regressions, and verify bottleneck findings were addressed.
 11. **Iterate** — Architect↔Critic loop, max 10 rounds. All feedback appended to the plan's Critique Log. Continue until Critic approves or max rounds reached.
 
-### Phase C — Implementation Planning
+### Phase C — Implementation Planning & Verification
 
 12. **Planning Agent** — break the approved architecture into function-level implementation plans:
     - Shared utilities first, then features, then wiring
@@ -44,11 +44,12 @@ description: Run ONLY the planning phases (overnight-safe). Produces all artifac
     - Mark matches as `[REUSE: existing_symbol]` or `[EXTEND: existing_symbol]`
     - Produce detailed impl plan at `.ai/plans/impl/{YYYY-MM-DD}_{topic}.impl.md`
     - **Create the todo file** at `.ai/todos/{YYYY-MM-DD}_{topic}.todo.md` with tasks for every pipeline step and every function
-13. **UI Preview Agent** — `[CONDITIONAL]` if frontend work is involved, generate HTML/CSS preview in `.ai/previews/`.
+13. **Architect (plan verification)** — Architect verifies the function-level plan faithfully translates the architecture: all modules, data flows, and APIs accounted for, decomposition is optimal, no decisions lost in translation. If issues found → Planning Agent revises.
+14. **UI Preview Agent** — `[CONDITIONAL]` if frontend work is involved, generate HTML/CSS preview in `.ai/previews/`.
 
 ### Phase D — Approval Gate
 
-14. **Present plan to user** — show the full plan summary:
+15. **Present plan to user** — show the full plan summary:
     - Phases, functions, dependencies, files to create/modify
     - Deduplication results (what's reused vs new)
     - Critique rounds summary (how many, what was challenged)
