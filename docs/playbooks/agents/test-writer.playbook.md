@@ -10,6 +10,7 @@ version = 4
 
 ### Test Writer Guidelines
 
+- **BLACK-BOX TESTING ONLY:** Never read source/implementation files (`src/`). Write tests exclusively from Librarian-provided function signatures, docstrings, and descriptions. This is enforced by the Tool Manifest.
 - Write minimum 15 tests per function covering: happy paths (3+), edge cases (5+), error conditions (5+), boundary values (2+)
 - Tests must fail before implementation exists (red phase) — verify against the stub
 - Use descriptive test names: `test_<function>_<scenario>_<expected_result>`

@@ -154,11 +154,30 @@ When spawned in **query mode**, I search the knowledge base and return a focused
 You MUST NOT call any denied tool. The PreToolUse hook will block the call.
 ```
 
+### Agent-Specific Context Rules
+
+**Test Writer Agent — Black-Box Constraint:**
+When the target agent is **Test Writer**, I MUST provide ONLY:
+- **Function signatures** (name, parameters with types, return type)
+- **Docstrings / descriptions** (what the function does, not how)
+- **Error conditions** (what exceptions/errors should be raised and when)
+- **Invariants and constraints** (valid input ranges, preconditions, postconditions)
+- **Related type definitions** (models, schemas, enums used in signatures)
+
+I MUST NOT include:
+- Implementation code or logic
+- Algorithm details or internal data structures
+- Line-level source code excerpts
+- Any information about HOW a function achieves its result
+
+This ensures the Test Writer creates true black-box tests based on contracts, not implementations. If the knowledge base lacks sufficient contract information for a function, flag it: *"⚠️ Insufficient contract docs for {function}. Test Writer will need: {missing details}."*
+
 ### Query Examples
 
 | Orchestrator Asks | Librarian Returns |
 | --- | --- |
 | "Context for Worker implementing `calculateTotal` in billing module" | File summary for billing.ts, related symbols (LineItem, TaxRate), business rule for total calculation, relevant patterns (use Decimal for money), dependencies |
+| "Context for Test Writer testing `calculateTotal` in billing module" | Function signature (`calculateTotal(items: List[LineItem], tax_rate: Decimal) -> Decimal`), docstring, error conditions, related types — NO implementation code |
 | "Context for Security Agent auditing auth module" | All auth-related files, auth patterns, external API calls, known security constraints, previous security findings |
 | "Context for Reviewer checking the new payment feature" | All changed files' summaries, related business logic, relevant PLAYBOOK rules, test coverage notes |
 | "What modules are related to user authentication?" | Auth module files, related symbols, data flows, API endpoints, dependencies — nothing about billing or reports |

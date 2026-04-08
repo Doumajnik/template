@@ -18,6 +18,17 @@ Tools that access the internet. Only agents with explicit web research responsib
 | Research | **ALLOWED** | Web research is its primary purpose |
 | All others | **DENIED** | No web access needed — work with local codebase/docs only |
 
+### Source File Reading Tools
+
+Tools that read source/implementation files. The Test Writer is denied access to enforce black-box testing — tests are written from Librarian-provided signatures and descriptions only.
+
+**Tool patterns:** `read_file`, `grep_search`, `semantic_search` (when targeting `src/` paths)
+
+| Agent | Source File Reading | Reason |
+|---|---|---|
+| Test Writer | **DENIED** (for `src/` paths) | Black-box testing: must write tests from function contracts only, never from implementation. May read/write `tests/` and `docs/` freely. |
+| All others | **ALLOWED** | Need source access to implement, review, debug, or analyze code |
+
 ---
 
 ## How This Is Enforced
