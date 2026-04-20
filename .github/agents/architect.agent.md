@@ -1,7 +1,7 @@
 ---
 name: Architect
 description: Designs system logic, structure, and execution plans. Optimizes for reuse, decomposition, and zero duplication.
-model: Claude Opus 4.6
+model: Claude Opus 4.7
 tools: ['search', 'read', 'edit']
 ---
 

@@ -1,7 +1,7 @@
 ---
 name: Performance
 description: Profiles for bottlenecks, algorithmic complexity, and memory issues. Suggests and implements optimizations.
-model: Claude Opus 4.6
+model: Claude Sonnet 4.6
 tools: ['search', 'read', 'edit', 'execute']
 ---
 

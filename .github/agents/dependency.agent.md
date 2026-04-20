@@ -1,7 +1,7 @@
 ---
 name: Dependency
 description: Audits dependency trees for outdated packages, vulnerabilities, and license compliance.
-model: Claude Opus 4.6
+model: Claude Sonnet 4.6
 tools: ['search', 'read', 'edit']
 ---
 

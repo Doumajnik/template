@@ -1,7 +1,7 @@
 ---
 name: Integration Tester
 description: Writes E2E and integration tests covering multi-module flows, API contracts, and system boundaries.
-model: Claude Opus 4.6
+model: Claude Sonnet 4.6
 tools: ['search', 'read', 'edit', 'execute']
 ---
 

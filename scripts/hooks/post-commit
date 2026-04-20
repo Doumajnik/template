@@ -1,0 +1,34 @@
+#!/bin/sh
+# Post-commit hook: rebuild the code intelligence graph if any source files
+# were touched in the commit. Runs in the background — never blocks.
+#
+# Skipped silently when the graph package or Python isn't available.
+
+# Only rebuild if the commit touched files the graph cares about.
+CHANGED=$(git diff-tree --no-commit-id --name-only -r HEAD 2>/dev/null \
+    | grep -E '\.(py|js|jsx|ts|tsx|mjs|cjs)$' || true)
+
+if [ -z "$CHANGED" ]; then
+    exit 0
+fi
+
+# Pick whichever python is available.
+if command -v python3 >/dev/null 2>&1; then
+    PY=python3
+elif command -v python >/dev/null 2>&1; then
+    PY=python
+else
+    exit 0
+fi
+
+# Bail if the graph package isn't installed in this checkout.
+if [ ! -f "src/graph/cli.py" ]; then
+    exit 0
+fi
+
+# Run the cheap "rebuild only if stale" command in the background.
+# Output goes to a log so devs can inspect if curious; failures don't block.
+mkdir -p .ai/graph
+( $PY -m src.graph.cli ensure >.ai/graph/last-build.log 2>&1 & ) >/dev/null 2>&1
+
+exit 0

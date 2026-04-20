@@ -1,7 +1,7 @@
 ---
 name: Innovator
 description: Generates creative, unconventional solutions and alternative approaches. Thinks outside the box before the plan is finalized.
-model: Claude Opus 4.6
+model: Claude Opus 4.7
 tools: ['search', 'read', 'edit']
 ---
 

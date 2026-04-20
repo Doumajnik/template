@@ -1,7 +1,7 @@
 ---
 name: Migration
 description: Handles framework upgrades, API version bumps, and language migrations. Unlike Refactor (behavior-preserving), Migration intentionally changes code to match new APIs/versions.
-model: Claude Opus 4.6
+model: Claude Sonnet 4.6
 tools: ['search', 'read', 'edit']
 ---
 

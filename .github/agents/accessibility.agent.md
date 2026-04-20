@@ -1,7 +1,7 @@
 ---
 name: Accessibility
 description: Reviews UI/frontend code for WCAG compliance, screen reader support, and keyboard navigation.
-model: Claude Opus 4.6
+model: Claude Sonnet 4.6
 tools: ['search', 'read', 'edit']
 ---
 

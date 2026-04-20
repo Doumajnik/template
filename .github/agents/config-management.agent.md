@@ -1,7 +1,7 @@
 ---
 name: Config Management
 description: Audits and designs application configuration patterns — env vars, feature flags, secrets management, multi-environment config.
-model: Claude Opus 4.6
+model: Claude Sonnet 4.6
 tools: ['search', 'read', 'edit']
 ---
 

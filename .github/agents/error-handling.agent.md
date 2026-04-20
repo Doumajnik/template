@@ -1,7 +1,7 @@
 ---
 name: Error Handling
 description: Audits existing error handling for silent catches, missing context, swallowed exceptions, and designs error recovery patterns. Reports findings — Workers apply fixes.
-model: Claude Opus 4.6
+model: Claude Sonnet 4.6
 tools: ['search', 'read', 'edit']
 ---
 

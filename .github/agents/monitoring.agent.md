@@ -1,7 +1,7 @@
 ---
 name: Monitoring
 description: Audits observability infrastructure — logging, health checks, alerting. Reports gaps and recommends setup — Workers implement.
-model: Claude Opus 4.6
+model: Claude Sonnet 4.6
 tools: ['search', 'read', 'edit']
 ---
 

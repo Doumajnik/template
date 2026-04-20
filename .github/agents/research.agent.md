@@ -1,7 +1,7 @@
 ---
 name: Research
 description: Investigates topics by searching the web, codebase, and docs. Produces structured research briefs that feed into the Architect's design.
-model: Claude Opus 4.6
+model: Claude Sonnet 4.6
 tools: ['search', 'read', 'edit', 'web/fetch', 'playwright/*']
 ---
 

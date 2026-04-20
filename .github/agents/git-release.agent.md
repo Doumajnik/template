@@ -1,7 +1,7 @@
 ---
 name: Git Release
 description: Manages release workflows including changelog generation, semantic version bumping, release notes, and tag creation. Validates conventional commit format.
-model: Claude Opus 4.6
+model: Claude Sonnet 4.6
 tools: ['search', 'read', 'edit']
 ---
 

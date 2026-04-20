@@ -194,3 +194,6 @@ docs/MIGRATION_LOG.md
 !.ai/specs/
 !.ai/previews/
 !.github/instructions/
+
+# Code intelligence graph snapshots (rebuildable)
+.ai/graph/

@@ -1,7 +1,7 @@
 ---
 name: Prompt Engineer
 description: Deeply analyzes feature requests and produces comprehensive, enriched specifications that feed into the pipeline
-model: Claude Opus 4.6
+model: Claude Opus 4.7
 tools: ['search', 'read', 'edit']
 ---
 

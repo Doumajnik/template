@@ -1,7 +1,7 @@
 ---
 name: API Design
 description: Designs REST/GraphQL/gRPC API contracts. Generates OpenAPI/AsyncAPI specs, validates endpoint naming, versioning strategy, and request/response schemas.
-model: Claude Opus 4.6
+model: Claude Sonnet 4.6
 tools: ['search', 'read', 'edit']
 ---
 

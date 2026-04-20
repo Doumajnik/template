@@ -1,7 +1,7 @@
 ---
 name: SQL Query
 description: Writes, reviews, and optimizes SQL queries. Analyzes EXPLAIN plans, detects N+1 patterns, and ensures query security.
-model: Claude Opus 4.6
+model: Claude Sonnet 4.6
 tools: ['search', 'read', 'edit']
 ---
 

@@ -1,7 +1,7 @@
 ---
 name: UI Preview
 description: Generates interactive HTML/CSS preview mockups from architecture plans for user approval before scaffolding
-model: Claude Opus 4.6
+model: Claude Sonnet 4.6
 tools: ['search', 'read', 'edit']
 ---
 

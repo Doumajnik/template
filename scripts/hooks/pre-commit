@@ -94,11 +94,14 @@ fi
 # ──────────────────────────────────────
 # TODO: Add your linter/formatter commands here once the project language is chosen.
 # Examples:
-#   ruff check src/ tests/              (Python)
-#   npx eslint src/ --max-warnings=0    (Node.js)
-#   dotnet format --verify-no-changes   (.NET)
-#   go vet ./...                        (Go)
-#   cargo clippy -- -D warnings         (Rust)
+#   ruff format <files> && ruff check --fix <files>   (Python)
+#   npx eslint --fix <files>                          (Node.js)
+#   dotnet format                                     (.NET)
+#   gofmt -w <files> && go vet ./...                  (Go)
+#   cargo fmt && cargo clippy -- -D warnings          (Rust)
+#
+# Run formatters in-place on staged files, then `git add` the changes so a
+# format-only commit goes through in one shot.
 
 # ──────────────────────────────────────
 # Result

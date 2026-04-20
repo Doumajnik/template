@@ -1,7 +1,7 @@
 ---
 name: Test Writer
 description: Writes thorough, correct tests covering logic, edge cases, and error handling
-model: Claude Opus 4.6
+model: Claude Sonnet 4.6
 tools: ['search', 'read', 'edit', 'execute']
 ---
 

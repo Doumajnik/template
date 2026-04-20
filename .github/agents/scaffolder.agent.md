@@ -1,7 +1,7 @@
 ---
 name: Scaffolder
 description: Creates file structure with empty stubs, signatures, and docstrings. No implementation logic.
-model: Claude Opus 4.6
+model: Claude Opus 4.7
 tools: ['search', 'read', 'edit']
 ---
 

@@ -1,7 +1,7 @@
 ---
 name: Discovery
 description: Systematically reads new data/codebases and produces structured summaries in docs/discoveries/
-model: Claude Opus 4.6
+model: Claude Sonnet 4.6
 tools: ['search', 'read', 'edit']
 ---
 

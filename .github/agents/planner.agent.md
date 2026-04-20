@@ -1,7 +1,7 @@
 ---
 name: Planning
 description: Creates high-level plans, function-level impl plans, and todo files from docs and discovery summaries
-model: Claude Opus 4.6
+model: Claude Opus 4.7
 tools: ['search', 'read', 'edit']
 ---
 

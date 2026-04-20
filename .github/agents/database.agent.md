@@ -1,7 +1,7 @@
 ---
 name: Database
 description: Designs schemas, writes migrations, optimizes queries, and manages seed data.
-model: Claude Opus 4.6
+model: Claude Sonnet 4.6
 tools: ['search', 'read', 'edit']
 ---
 

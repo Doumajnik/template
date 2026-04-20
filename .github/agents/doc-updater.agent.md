@@ -1,7 +1,7 @@
 ---
 name: Doc Updater
 description: Updates all documentation, writes session summaries, commits with conventional messages
-model: Claude Opus 4.6
+model: Claude Sonnet 4.6
 tools: ['search', 'read', 'edit']
 ---
 

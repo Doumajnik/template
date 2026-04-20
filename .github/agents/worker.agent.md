@@ -1,7 +1,7 @@
 ---
 name: Worker
 description: Implements a single function, runs tests, fixes until green
-model: Claude Opus 4.6
+model: Claude Sonnet 4.6
 tools: ['search', 'read', 'edit', 'execute']
 ---
 

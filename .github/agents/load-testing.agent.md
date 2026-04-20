@@ -1,7 +1,7 @@
 ---
 name: Load Testing
 description: Designs and analyzes load test scenarios with performance baselines and SLO validation. Reports bottlenecks — Workers implement fixes.
-model: Claude Opus 4.6
+model: Claude Sonnet 4.6
 tools: ['search', 'read', 'edit']
 ---
 

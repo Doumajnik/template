@@ -7,7 +7,58 @@
 
 ## Agent Settings
 
-- **AGENT_MODEL: Claude Opus 4.6** — The model used by ALL sub-agents. This is the **single source of truth** for the agent model. All `.agent.md` frontmatter and all documentation references MUST match this value. To change the model, update this line and run `scripts/update-agent-model.ps1`.
+- **AGENT_MODEL: Claude Sonnet 4.6** — The **default** model for any agent not explicitly listed in the per-agent table below. The per-agent overrides table is the **single source of truth** for which model each sub-agent uses. All `.agent.md` frontmatter MUST match. To change models, edit the table below and run `scripts/update-agent-model.ps1`.
+
+### Per-Agent Model Overrides
+
+Models are tiered to balance cost and capability:
+
+- **Claude Opus 4.7** — deepest reasoning, plan creation, creative design.
+- **Claude Opus 4.6** — strict adherence, adversarial review, debugging.
+- **Claude Sonnet 4.6** — workhorse default for execution, audits, docs, research.
+
+<!-- AGENT_MODEL_TABLE_START -->
+
+| Agent | Model | Rationale |
+| --- | --- | --- |
+| Architect | Claude Opus 4.7 | Deep system design |
+| Innovator | Claude Opus 4.7 | Creative alternatives |
+| Scaffolder | Claude Opus 4.7 | Faithful translation of plan to stubs |
+| Prompt Engineer | Claude Opus 4.7 | Deep request analysis |
+| Planning | Claude Opus 4.7 | Faithful plan decomposition |
+| Critic | Claude Opus 4.6 | Adversarial review, plan adherence |
+| Reviewer | Claude Opus 4.6 | Strict compliance review |
+| Security | Claude Opus 4.6 | Strict checklist adherence |
+| Retrospective | Claude Opus 4.6 | Deep transcript analysis |
+| Debug | Claude Opus 4.6 | Complex root-cause reasoning |
+| Worker | Claude Sonnet 4.6 | Implementation workhorse |
+| Test Writer | Claude Sonnet 4.6 | Test generation |
+| Doc Updater | Claude Sonnet 4.6 | Documentation |
+| Discovery | Claude Sonnet 4.6 | Summarization |
+| Research | Claude Sonnet 4.6 | Web/codebase research |
+| Librarian | Claude Sonnet 4.6 | Index + context briefs |
+| Cleanup | Claude Sonnet 4.6 | Mechanical cleanup |
+| Refactor | Claude Sonnet 4.6 | Behavior-preserving edits |
+| Integration Tester | Claude Sonnet 4.6 | E2E test writing |
+| Code Quality | Claude Sonnet 4.6 | Smell scanning |
+| Dependency | Claude Sonnet 4.6 | Dependency audit |
+| Accessibility | Claude Sonnet 4.6 | WCAG audit |
+| Compliance | Claude Sonnet 4.6 | License/privacy audit |
+| Monitoring | Claude Sonnet 4.6 | Observability audit |
+| Migration | Claude Sonnet 4.6 | Mechanical migration |
+| API Design | Claude Sonnet 4.6 | Contract authoring |
+| Error Handling | Claude Sonnet 4.6 | Pattern audit |
+| Type Safety | Claude Sonnet 4.6 | Type audit |
+| Git Release | Claude Sonnet 4.6 | Changelog/version bumps |
+| Database | Claude Sonnet 4.6 | Schema/migration authoring |
+| SQL Query | Claude Sonnet 4.6 | Query writing/optimization |
+| Performance | Claude Sonnet 4.6 | Profiling |
+| Frontend Component | Claude Sonnet 4.6 | UI component build |
+| UI Preview | Claude Sonnet 4.6 | Mockup generation |
+| Load Testing | Claude Sonnet 4.6 | Load scenario design |
+| Config Management | Claude Sonnet 4.6 | Config audit/design |
+
+<!-- AGENT_MODEL_TABLE_END -->
 - **TURBO_MODE: ON** — Plan down to every function, mark everything possible as `[delegatable]`, mass-spawn sub-agents. Set to OFF if you prefer inline implementation with fewer sub-agents.
 - **DEEP_MODE: ALWAYS ON** — Full adversarial pipeline on **every task**, no exceptions. Architect designs → Critic reviews → iterate until approved → Planner breaks down → Scaffolder creates stubs → Test Writer writes thorough tests → Workers implement with red-green loop. Never skip the Architect/Critic rounds.
 - **GRANULAR SPAWNING: ON** — Spawn one Test Writer and one Worker per **cohesive module or function group**. For complex standalone functions (>20 lines with no relationship to other functions), spawn per individual function. For tightly related functions within the same module, batch them into a single agent call. This balances thoroughness with practical efficiency — spawning per-individual-function for a 120-function project is impractical.

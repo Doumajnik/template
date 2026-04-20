@@ -1,7 +1,7 @@
 ---
 name: Librarian
 description: Maintains the knowledge index and serves as the context gateway for all agents. Indexes code into docs, answers context queries with focused briefs.
-model: Claude Opus 4.6
+model: Claude Sonnet 4.6
 tools: ['search', 'read', 'edit']
 ---
 

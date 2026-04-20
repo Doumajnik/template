@@ -1,7 +1,7 @@
 ---
 name: Type Safety
 description: Audits type coverage across the codebase. Finds any types, missing annotations, schema drift, and unsafe casts. Reports findings — Workers apply fixes. Language-agnostic (TypeScript, Python, etc.).
-model: Claude Opus 4.6
+model: Claude Sonnet 4.6
 tools: ['search', 'read', 'edit']
 ---
 
