@@ -41,29 +41,5 @@ EXAMPLES:
 
 ---
 
-## Workflow Diagram
+<!-- Workflow diagram removed. The dispatch table above is the single source of truth for what was spawned, in what order, and why. The canonical workflow shape lives in AGENTS.md. -->
 
-> This diagram grows as agents are dispatched. Each agent appends its step above `%% DISPATCH_INSERT_HERE`.
-
-```mermaid
-flowchart TD
-    U["👤 User"]
-    O["🎯 Orchestrator"]
-    D["🔎 Discovery"]
-    PL["🧠 Planning"]
-    A["🏗️ Architect"]
-    IN["💡 Innovator"]
-    C["⚖️ Critic"]
-    S["📁 Scaffolder"]
-    TW["📝 Test Writer"]
-    W["🔧 Worker"]
-    R["🔍 Reviewer"]
-    SEC["🔒 Security"]
-    CQ["📊 Code Quality"]
-    DU["📚 Doc Updater"]
-    RE["🔬 Research"]
-
-    %% === Dispatch entries are inserted below === %%
-    %% Example: O -->|"task description"| A
-    %% DISPATCH_INSERT_HERE
-```

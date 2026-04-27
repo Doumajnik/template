@@ -4,16 +4,19 @@ description: Run ONLY the planning phases (overnight-safe). Produces all artifac
 
 # Plan Only: ${input:taskDescription}
 
-## Planning-Only Pipeline (Steps 1–13)
+## Phase A — Planning Only (Planning Sequence steps 1–14)
 
 > **Purpose:** Run the full adversarial planning pipeline WITHOUT implementation.
 > Designed for overnight or batch runs — produces all artifacts to disk so implementation
 > can happen in a fresh session using `/implement-plan`.
 >
+> **Maps to:** [AGENTS.md](../../AGENTS.md) Planning Sequence — Phase A (steps 1–14), stops at the User Approval gate.
+>
 > **Output:** spec, research brief, architecture plan, critique log, implementation plan, todo file, UI preview (if applicable).
+> **Does NOT:** scaffold, write tests, implement code, or run reviews. Those are Phase B (`/implement-plan`).
 > **Does NOT:** scaffold, write tests, implement code, or run reviews.
 
-### Phase A — Analysis & Research
+### Phase A — Analysis & Research (Planning Sequence steps 1–4)
 
 1. **Read context** — `.ai/PREFERENCES.md`, `docs/PLAYBOOK.md`, `docs/CODE_INVENTORY.md`, `.ai/lessons.md`
 2. **Prompt Engineer Agent** — analyze the request deeply. Produce an enriched spec at `.ai/specs/{YYYY-MM-DD}_{topic}.spec.md` covering:
@@ -24,7 +27,7 @@ description: Run ONLY the planning phases (overnight-safe). Produces all artifac
    - Recommended approach, dependency list, trade-offs, risks
 5. **Dependency mapping** — list all required dependencies in the research brief. Do NOT install yet (that happens at implementation time).
 
-### Phase B — Architecture & Adversarial Review
+### Phase B — Architecture & Adversarial Review (Planning Sequence steps 5–10, includes Observability + Cost briefs)
 
 6. **Architect Agent** — design the system using the enriched spec + research brief. Produce architecture plan at `.ai/plans/{YYYY-MM-DD}_{topic}.plan.md` with:
    - System design, data flow, module decomposition, deduplication report
@@ -36,7 +39,7 @@ description: Run ONLY the planning phases (overnight-safe). Produces all artifac
 10. **Critic Agent (full review)** — full adversarial review. Focus on: duplication, missing decomposition, over-engineering, completeness, regressions, and verify bottleneck findings were addressed.
 11. **Iterate** — Architect↔Critic loop, max 10 rounds. All feedback appended to the plan's Critique Log. Continue until Critic approves or max rounds reached.
 
-### Phase C — Implementation Planning & Verification
+### Phase C — Implementation Planning & Verification (Planning Sequence steps 11–13)
 
 12. **Planning Agent** — break the approved architecture into function-level implementation plans:
     - Shared utilities first, then features, then wiring
@@ -47,7 +50,7 @@ description: Run ONLY the planning phases (overnight-safe). Produces all artifac
 13. **Architect (plan verification)** — Architect verifies the function-level plan faithfully translates the architecture: all modules, data flows, and APIs accounted for, decomposition is optimal, no decisions lost in translation. If issues found → Planning Agent revises.
 14. **UI Preview Agent** — `[CONDITIONAL]` if frontend work is involved, generate HTML/CSS preview in `.ai/previews/`.
 
-### Phase D — Approval Gate
+### Phase D — Approval Gate (Planning Sequence step 14)
 
 15. **Present plan to user** — show the full plan summary:
     - Phases, functions, dependencies, files to create/modify

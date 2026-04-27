@@ -4,12 +4,14 @@ description: Resume implementation from a saved plan (produced by /plan-only). R
 
 # Implement from Plan: ${input:planPath}
 
-## Full Implementation Pipeline (Steps 14–24)
+## Phase B — Full Implementation Pipeline (Planning Sequence steps 15–25)
 
 > **Purpose:** Pick up where `/plan-only` left off. Reads the saved plan artifacts from disk
 > and runs the complete implementation → test → review → security → docs → retrospective pipeline.
 >
-> **Prerequisite:** A completed `/plan-only` run with all artifacts on disk (spec, research brief,
+> **Maps to:** [AGENTS.md](../../AGENTS.md) Planning Sequence — Phase B (steps 15–25).
+>
+> **Prerequisite:** A completed `/plan-only` (Phase A) run with all artifacts on disk (spec, research brief,
 > architecture plan, impl plan, todo file). The plan must have status 🟢 Approved.
 >
 > **Designed for:** Starting a fresh session the morning after an overnight planning batch.

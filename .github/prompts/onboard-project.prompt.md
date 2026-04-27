@@ -49,7 +49,7 @@ Spawn these agents **in parallel** (they are all read-only and write to separate
 | **Type Safety** | All source files | `docs/TYPE_SAFETY_REPORT.md` | Missing types, unsafe casts, `any` abuse, schema drift |
 | **Monitoring** | All source files | `docs/MONITORING_REPORT.md` | Missing logging, no health checks, alerting gaps |
 
-### Phase 3.5 — Structure & Cleanup Analysis
+### Phase 4 — Structure & Cleanup Analysis
 
 After audits, before writing tests, analyze the project's structure and identify dead assets.
 
@@ -100,11 +100,11 @@ The report must include:
 
 Each item must include: file path, line number (for code), what it is, confidence level (certain / likely / possible), and estimated removal effort (trivial / moderate).
 
-### Phase 4 — Test Harness (safety net before any changes)
+### Phase 5 — Test Harness (safety net before any changes)
 
 Before anything gets cleaned up or fixed, **write thorough tests for every existing function**. These tests capture the current behavior so that cleanup, refactoring, and fixes can be verified.
 
-**4a — Unit Tests (Test Writer Agent)**
+**5a — Unit Tests (Test Writer Agent)**
 
 Spawn **one Test Writer Agent per source file** (or per key module for large projects). Each writes tests for every public function in that file.
 
@@ -121,7 +121,7 @@ Spawn **one Test Writer Agent per source file** (or per key module for large pro
 - `src/utils/parser.js` → `tests/utils/parser.test.js`
 - `src/models/user.ts` → `tests/models/user.test.ts`
 
-**4b — Integration Tests (Integration Tester Agent)**
+**5b — Integration Tests (Integration Tester Agent)**
 
 Spawn the **Integration Tester Agent** to write tests for cross-module flows.
 
@@ -134,7 +134,7 @@ Spawn the **Integration Tester Agent** to write tests for cross-module flows.
 
 **Output:** Integration test files in `tests/integration/` or `tests/e2e/`
 
-**4c — Run All Tests (verify baseline)**
+**5c — Run All Tests (verify baseline)**
 
 Run the full test suite. Record the results:
 - How many pass (existing behavior captured correctly)
@@ -161,11 +161,11 @@ Save baseline results to `.ai/plans/{date}_test-baseline.md`:
 - test_db_connection — requires running PostgreSQL
 ```
 
-### Phase 5 — Improvement Plan (prioritized recommendations)
+### Phase 6 — Improvement Plan (prioritized recommendations)
 
 After all audits and tests complete, synthesize findings into a prioritized action plan.
 
-**Read all reports from Phase 3 + test baseline from Phase 4, then create `.ai/plans/{date}_onboarding-improvements.md`:**
+**Read all reports from Phase 3 + test baseline from Phase 5, then create `.ai/plans/{date}_onboarding-improvements.md`:**
 
 ```markdown
 # Onboarding Improvement Plan
@@ -198,7 +198,7 @@ After all audits and tests complete, synthesize findings into a prioritized acti
 - [ ] {Dead code — likely confidence (review before removing)}
 ```
 
-### Phase 6 — Present to User
+### Phase 7 — Present to User
 
 Show the user:
 1. **Discovery summary** — what was found in the codebase
@@ -234,7 +234,7 @@ Once the user approves fixes, the pipeline follows this pattern for each fix:
                                ✅ Then continue
 ```
 
-This ensures every cleanup, refactor, or fix is verified against the test harness written in Phase 4.
+This ensures every cleanup, refactor, or fix is verified against the test harness written in Phase 5.
 
 ---
 
