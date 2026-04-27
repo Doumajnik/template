@@ -1,3 +1,13 @@
++++
+id = "agents/observability"
+title = "Observability Engineer Agent Playbook"
+agents = ["observability"]
+technologies = ["all"]
+category = "rule"
+tags = ["observability", "telemetry", "slo", "metrics", "traces", "logs"]
+version = 1
++++
+
 # Observability Engineer Playbook
 
 ## SLO Defaults

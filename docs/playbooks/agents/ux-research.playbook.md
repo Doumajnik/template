@@ -1,3 +1,13 @@
++++
+id = "agents/ux-research"
+title = "UX Research Agent Playbook"
+agents = ["ux-research"]
+technologies = ["all"]
+category = "rule"
+tags = ["ux-research", "usability", "personas"]
+version = 1
++++
+
 # UX Research Playbook
 
 ## Method Selection

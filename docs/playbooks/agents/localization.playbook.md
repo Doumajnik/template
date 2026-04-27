@@ -1,3 +1,13 @@
++++
+id = "agents/localization"
+title = "Localization Agent Playbook"
+agents = ["localization"]
+technologies = ["all"]
+category = "rule"
+tags = ["localization", "i18n", "l10n", "translations"]
+version = 1
++++
+
 # Localization Playbook
 
 ## Externalization Rules

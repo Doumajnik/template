@@ -26,9 +26,9 @@ Your job: understand intent → read docs → decide which sub-agents to spawn �
 | **Architect** | Designs system architecture | `.github/agents/architect.agent.md` |
 | **Critic** | Reviews architecture for flaws | `.github/agents/critic.agent.md` |
 | **Scaffolder** | Creates file stubs with signatures and docstrings | `.github/agents/scaffolder.agent.md` |
-| **Test Writer** | Writes 15+ tests per function (red phase) | `.github/agents/test-writer.agent.md` |
+| **Test Writer** | Writes 20+ black-box tests per function across 12 categories (red phase) | `.github/agents/test-writer.agent.md` |
 | **Worker** | Implements functions, runs red-green loop | `.github/agents/worker.agent.md` |
-| **Integration Tester** | Writes E2E and integration tests for multi-module flows | `.github/agents/integration-tester.agent.md` |
+| **Integration Tester** | Writes black-box integration / E2E / contract tests across module boundaries | `.github/agents/integration-tester.agent.md` |
 | **Reviewer** | Reviews for duplication, playbook compliance, and preference alignment | `.github/agents/reviewer.agent.md` |
 | **Doc Updater** | Updates all docs, commits with conventional messages | `.github/agents/doc-updater.agent.md` |
 | **Innovator** | Generates creative, unconventional solutions and alternatives | `.github/agents/innovator.agent.md` |
@@ -278,9 +278,9 @@ Splitting these into separate sessions keeps context windows small and allows pl
 
 15. **Scaffolder** — creates file stubs. Uses the UI Preview's component decomposition (if available) to create accurate frontend stubs. Marks scaffolding tasks ✅ in todo.
 16. **Architect (scaffold review)** — quick verification that scaffolded files match the verified plan: correct file structure, function signatures, module boundaries, and completeness. If issues found → Scaffolder revises.
-17. **Test Writer** — writes 15+ failing tests per function (one instance per function). Marks test tasks ✅ in todo.
+17. **Test Writer** — writes 20+ black-box failing tests per function across the 12-category taxonomy (one instance per function). Cannot read source — hard-enforced by Tool Guard. Marks test tasks ✅ in todo.
 18. **Worker** — implements code, red-green loop until tests pass (one instance per function). Marks each function ✅ in todo as it passes. Workers also implement the telemetry instrumentation designed by the Observability Engineer.
-19. **Integration Tester** — writes and runs E2E/integration tests. Marks ✅ in todo.
+19. **Integration Tester** — writes black-box integration tests (15+ per feature, in `tests/integration/`), E2E tests (5+ per user-facing feature, in `tests/e2e/`), and contract tests (1+ per consumer↔provider pair, in `tests/contracts/`). Cannot read source — works from `docs/API_DOCUMENTATION.md`, `docs/BUSINESS_LOGIC.md`, and the Librarian brief. Marks ✅ in todo.
 20. **Reviewer** — validates result. Checks todo for skipped/incomplete tasks. Marks review ✅ in todo.
 21. **Security Agent** — audits all code for vulnerabilities, appends to `docs/SECURITY_REPORT.md`. Marks ✅ in todo. If CRITICAL/HIGH → Workers fix → re-verify.
 22. **Code Quality Agent** — scans for duplication/smells, appends to `docs/QUALITY_REPORT.md`. Marks ✅ in todo. If CRITICAL/HIGH → Workers fix → re-verify.
@@ -370,7 +370,7 @@ When the user requests a **change** to existing code — modifying behavior, upd
 11. **Deprecation Manager** — if the change removes or replaces a public API, feature, or shared utility, designs the announce → warn → remove timeline and writes a migration guide. Updates `docs/DEPRECATION_LOG.md`. Skipped when the change is internal-only with no consumers.
 12. **Architect (plan verification)** — verifies the change plan faithfully translates the architecture: all affected modules, migration paths, regression strategies, and deprecation timeline accounted for. If issues found → Planning Agent revises.
 13. **User approval (MANDATORY GATE)** — present the full change plan, impact analysis, regression checklist, and deprecation entries (if any). Ask for explicit approval.
-14. **Test Writer** — writes/updates tests for the changed behavior AND regression tests for unchanged behavior that might be affected. Minimum 15 tests per changed function.
+14. **Test Writer** — writes/updates tests for the changed behavior AND regression tests for unchanged behavior that might be affected. Minimum 20 tests per changed function across the 12-category taxonomy. Cannot read source — hard-enforced by Tool Guard.
 15. **Worker** — implements the change. Runs red-green loop. Must verify all existing tests still pass (not just new ones).
 16. **Integration Tester** — writes/runs E2E tests covering the change. Specifically tests the boundary between changed and unchanged code.
 17. **Reviewer** — validates the change. Specifically checks: no unintended side effects, regression checklist passes, all affected callers updated.
@@ -408,7 +408,7 @@ The full step-by-step procedure lives in [.github/prompts/onboard-project.prompt
 4. **Structure & Cleanup analysis** —
    - **4a:** Architect (structure-review mode) → `docs/STRUCTURE_REVIEW.md`.
    - **4b:** Cleanup (audit-only mode) → `docs/CLEANUP_REPORT.md` (dead code, dead docs, dead deps).
-5. **Test harness** — Test Writer (per source file, 15+ tests/function) + Integration Tester capture current behavior as a safety net. Run full suite, save `.ai/plans/{date}_test-baseline.md` with pass/fail/skip counts.
+5. **Test harness** — Test Writer (per source file, 20+ black-box tests/function across the 12-category taxonomy) + Integration Tester (15+ integration / 5+ E2E / 1+ contract per feature) capture current behavior as a safety net. Both run black-box — no source reads. Run full suite, save `.ai/plans/{date}_test-baseline.md` with pass/fail/skip counts.
 6. **Improvement plan** — Planning Agent synthesizes all reports + baseline into `.ai/plans/{date}_onboarding-improvements.md` prioritized Critical / High / Medium / Low + dead-asset removal list.
 7. **Present to user** — show discovery, structure review, dead-asset counts, test baseline, top-5 actions, and the full improvement plan. Ask for approval before any fix work.
 

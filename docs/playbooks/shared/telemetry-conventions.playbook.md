@@ -1,3 +1,13 @@
++++
+id = "shared/telemetry-conventions"
+title = "Telemetry Conventions (shared)"
+agents = ["all"]
+technologies = ["all"]
+category = "convention"
+tags = ["telemetry", "observability", "metrics", "traces", "logs", "shared"]
+version = 1
++++
+
 # Telemetry Conventions (shared)
 
 Universal rules for emitting metrics, traces, and logs. Applies to every code-writing agent (Worker, Frontend Component, Refactor, Migration). The Observability Engineer designs the telemetry plan; this playbook defines the conventions everyone follows when implementing it.

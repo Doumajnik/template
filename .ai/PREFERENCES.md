@@ -119,7 +119,7 @@ Models are tiered to balance cost and capability:
 
 <!-- Examples: "always run tests before committing", "prefer small MRs", "squash commits" -->
 
-- **At least 15 tests per function.** Every public function must have a minimum of 15 test cases covering: happy path (multiple inputs), edge cases, boundary values, empty/null/missing inputs, invalid types, large inputs, error conditions, negative logic, idempotency, combination inputs, regression cases, and any domain-specific scenarios. Test thoroughly — don't just check the obvious case. Tests are written by Test Writer and Worker sub-agents (model: see `AGENT_MODEL` in Agent Settings), never by the orchestrator.
+- **At least 20 tests per function, distributed across the 12-category taxonomy.** Every public function must have a minimum of 20 test cases covering all 12 categories defined by the Test Writer: happy path, output structure & type, boundary values, empty/null/missing, type abuse, range/domain violations, Unicode/encoding/special chars, error contract, idempotency/purity, state and side effects, concurrency/time/randomness, and adversarial/abuse inputs. Test thoroughly — don't just check the obvious case. Tests are written by Test Writer (black-box, hard-enforced) and Integration Tester sub-agents (model: see `AGENT_MODEL` in Agent Settings), never by the orchestrator.
 - **Run tests without asking.** Test Writer and Worker agents should run tests automatically as part of their workflow — never pause to ask the user for permission to execute tests.
 
 ---

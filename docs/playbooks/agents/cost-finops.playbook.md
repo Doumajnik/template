@@ -1,3 +1,13 @@
++++
+id = "agents/cost-finops"
+title = "Cost / FinOps Agent Playbook"
+agents = ["cost-finops"]
+technologies = ["all"]
+category = "rule"
+tags = ["cost-finops", "finops", "cloud-cost"]
+version = 1
++++
+
 # Cost / FinOps Playbook
 
 ## Cost Driver Cheat Sheet

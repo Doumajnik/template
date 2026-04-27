@@ -20,13 +20,14 @@ Tools that access the internet. Only agents with explicit web research responsib
 
 ### Source File Reading Tools
 
-Tools that read source/implementation files. The Test Writer is denied access to enforce black-box testing — tests are written from Librarian-provided signatures and descriptions only.
+Tools that read source/implementation files. Both the Test Writer and Integration Tester are denied access to enforce **black-box testing** — tests are written from Librarian-provided contracts and `docs/` (API docs, business logic), never from implementation code.
 
 **Tool patterns:** `read_file`, `grep_search`, `semantic_search` (when targeting `src/` paths)
 
 | Agent | Source File Reading | Reason |
 |---|---|---|
-| Test Writer | **DENIED** (for `src/` paths) | Black-box testing: must write tests from function contracts only, never from implementation. May read/write `tests/` and `docs/` freely. |
+| Test Writer | **DENIED** (for `src/` paths) | Black-box unit testing: must write tests from function contracts only, never from implementation. May read/write `tests/` and `docs/` freely. |
+| Integration Tester | **DENIED** (for `src/` paths) | Black-box integration / E2E / contract testing: must work from API docs, business logic docs, and the Librarian brief. May read/write `tests/`, `tests/integration/`, `tests/e2e/`, `tests/contracts/` freely. |
 | All others | **ALLOWED** | Need source access to implement, review, debug, or analyze code |
 
 ---

@@ -1,3 +1,13 @@
++++
+id = "shared/cost-aware-design"
+title = "Cost-Aware Design (shared)"
+agents = ["all"]
+technologies = ["all"]
+category = "rule"
+tags = ["cost", "finops", "shared"]
+version = 1
++++
+
 # Cost-Aware Design (shared)
 
 Every code-writing and architecture agent should weigh cost in design decisions. The Cost/FinOps Agent owns the explicit analysis; this playbook is the baseline awareness everyone applies.

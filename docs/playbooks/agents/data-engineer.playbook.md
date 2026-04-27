@@ -1,3 +1,13 @@
++++
+id = "agents/data-engineer"
+title = "Data Engineer Agent Playbook"
+agents = ["data-engineer"]
+technologies = ["all"]
+category = "rule"
+tags = ["data-engineer", "etl", "data-warehouse", "lineage"]
+version = 1
++++
+
 # Data Engineer Playbook
 
 ## Core Mission

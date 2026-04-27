@@ -6,7 +6,8 @@ against denied patterns, and outputs a permission decision on stdout.
 
 Enforcement rules are defined inline below (sourced from .ai/TOOL_MANIFEST.md).
 Only the Research agent is allowed to use web access tools.
-Test Writer is denied source file reading tools (black-box testing enforcement).
+Test Writer and Integration Tester are denied source file reading tools
+(black-box testing enforcement — they work from contracts and docs only).
 """
 
 import json
@@ -28,8 +29,13 @@ WEB_ACCESS_ALLOWED_AGENTS = {"research"}
 # Source file reading tools — denied for Test Writer on src/ paths
 SOURCE_READ_TOOLS = {"read_file", "grep_search", "semantic_search"}
 
-# Agents denied from reading source files (black-box testing)
-SOURCE_READ_DENIED_AGENTS = {"test writer", "test_writer", "testwriter"}
+# Agents denied from reading source files (black-box testing).
+# Both Test Writer (unit) and Integration Tester (integration / E2E / contract)
+# must work from contracts and docs only — never from implementation code.
+SOURCE_READ_DENIED_AGENTS = {
+    "test writer", "test_writer", "testwriter",
+    "integration tester", "integration_tester", "integrationtester",
+}
 
 # Path patterns that count as source/implementation files
 SOURCE_PATH_PATTERNS = [
@@ -118,8 +124,9 @@ def check_permission(tool_name, agent_name, payload):
             and targets_source_path(payload)):
         return "deny", (
             f"Tool '{tool_name}' denied for agent '{agent_name}' on source files. "
-            "Test Writer must not read implementation code (black-box testing). "
-            "Use the Librarian-provided context brief for function signatures. "
+            "Test Writer and Integration Tester must not read implementation code "
+            "(black-box testing). Use the Librarian-provided context brief, "
+            "docs/API_DOCUMENTATION.md, and docs/BUSINESS_LOGIC.md for contracts. "
             "See .ai/TOOL_MANIFEST.md for details."
         )
 

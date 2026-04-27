@@ -16,32 +16,80 @@ description: "Testing conventions, TDD rules, and test quality standards. Use wh
 
 ## Rules
 
-- Minimum 15 tests per function: happy paths, edge cases, error conditions, boundary values
-- Tests mirror source structure: `src/utils/foo.py` → `tests/utils/test_foo.py`
-- Test function names follow `test_<function>_<scenario>` pattern
-- Each test should test ONE thing — one assertion per behavior
-- Use fixtures and factories for test data setup — avoid duplicating setup across tests
-- Mock external dependencies (APIs, databases, file system) — never make real network calls in unit tests
-- Test edge cases: empty inputs, None/null, maximum values, boundary conditions, Unicode
-- Tests must be deterministic — no random data, no time-dependent assertions without mocking
-- Test error paths: verify that errors raise with correct types, messages, and context
-- Integration tests go in a separate directory or are clearly marked — don't mix with unit tests
-- Coverage target: 80%+ for new code. 100% for critical paths (auth, payments, data integrity)
-- Tests should run in under 5 seconds for unit tests. Flag slow tests with markers
-- Never test private/internal methods directly — test through the public API
-- Don't test framework behavior — test YOUR logic
-- Arrange-Act-Assert pattern: separate setup, execution, and verification with blank lines
-- Test data should not depend on database state — each test creates its own data
-- Use `pytest.raises` (Python) or `expect(...).toThrow` (TS) to test error conditions — never try/catch in tests
-- Snapshot tests are allowed for serialized output (JSON, HTML) but must be reviewed on every update
-- Never assert on object identity (===) when testing value equality — use deep equality
-- Test timeout: unit tests ≤5s, integration tests ≤30s. Flag slow tests with markers
-- Test environment must be isolated — never share state between tests. Reset mocks after each test
-- Use in-memory databases or containers for integration tests — never test against shared dev databases
-- Parameterized tests must have descriptive test IDs — not just `test[0]`, `test[1]`
-- Flaky test policy: a test that fails intermittently must be fixed or quarantined within 24 hours — never ignored
-- Code under test must not import test utilities — the dependency flows one way: tests → production code
-- Test names should read as specifications: "test_create_user_returns_201_when_valid_email" tells the story
+### Black-box first
+
+- **Test Writers and Integration Testers are black-box agents.** They never read source files (`src/`). The `scripts/tool-guard.py` PreToolUse hook physically blocks `read_file` / `grep_search` / `semantic_search` calls targeting `src/` paths from these agents.
+- Tests are written from **contracts only**: function signatures, docstrings, type annotations, `docs/API_DOCUMENTATION.md`, `docs/BUSINESS_LOGIC.md`, and the Librarian's context brief.
+- **Why:** A tester who reads the implementation writes tests that mirror the code's structure — same blind spots, same bugs. Black-box testing catches what the implementer didn't think of.
+- If the contract is too vague to test thoroughly, the tester flags it as a **Contract Gap** in the report — they do NOT silently skip the test or peek at the source.
+
+### Test count and category coverage
+
+- **Minimum 20 tests per function** for unit tests, distributed across the 12-category taxonomy below. Functions with strings, side effects, or state typically need 30–40.
+- **Minimum 15 integration tests per feature**, **5 E2E tests per user-facing feature**, **1 contract test per consumer↔provider pair**. Below these counts means a category was skipped, not "sufficient".
+- **The 12 unit-test categories** every Test Writer must consider for every function:
+  1. **Happy path** — typical realistic inputs, exact output assertions (3+)
+  2. **Output structure & type** — type, shape, ordering, length (2+)
+  3. **Boundary values** — zero, one, max, min, off-by-one (3+)
+  4. **Empty / null / missing** — empty collection, `None`, default vs explicit (2+)
+  5. **Type abuse** — wrong type per parameter, verify documented exception (2+)
+  6. **Range / domain violations** — negatives, out-of-range enums, bad dates (2+)
+  7. **Unicode / encoding / special chars** — emoji, RTL, NULL bytes, very long (2+ if string-handling)
+  8. **Error contract** — every documented exception type, error message shape, no swallowing (3+)
+  9. **Idempotency / purity** — same input → same output, no input mutation (2+ if relevant)
+  10. **State and side effects** — exact-once semantics, cleanup on failure (2+ if stateful)
+  11. **Concurrency / time / randomness** — frozen clock, seeded RNG, no shared-state corruption (1+ if relevant)
+  12. **Adversarial / abuse** — SQL/path/command injection shapes, NaN, Inf, deeply nested, circular refs (2+)
+
+### Adversarial mindset
+
+- Before writing tests, run a **60-second adversarial brainstorm**: imagine the function/system being attacked by a hostile user, a confused user, a fuzzer, a security researcher, a sleep-deprived developer copy-pasting it, a regulator, and a clock that just changed time zones. Write tests for what each of them would break.
+- For integration / E2E: imagine flaky network, slow DB, duplicate webhook, partial outage of one downstream, malformed queue message, clock skew, retried request arriving twice, mid-deployment with old + new versions running side-by-side.
+- The Test Writer's value is the bugs the implementer didn't anticipate. If your tests look like the implementation's structure, you're doing it wrong.
+
+### Assertion strength
+
+- No test may pass if the function returns a constant default (`None`, `0`, `[]`, `""`). If it would, the assertion is too weak — strengthen it to assert exact value.
+- **Specific, not vague:** `assert result == [1, 2, 3]` — never `assert result is not None`.
+- The expected value must be what a **correct** implementation would return — not what "any" implementation would return.
+- Tests must fail before implementation exists (red phase) — verify against the stub.
+
+### Naming
+
+- Test names follow `test_<function>_<scenario>_<expected_result>` and read as specifications: `test_create_user_returns_201_when_valid_email`, `test_checkout_returns_402_when_card_declined_and_does_not_decrement_inventory`.
+- Parametrized tests must have descriptive IDs — not `test[0]`, `test[1]`.
+
+### Test file layout
+
+- Unit tests mirror source: `src/utils/foo.py` → `tests/utils/test_foo.py`.
+- Integration tests: `tests/integration/`.
+- E2E tests: `tests/e2e/`.
+- Contract tests: `tests/contracts/` (Pact files, Pact provider verifications).
+- Don't mix layers in one file — they have different runtime / dependency / size profiles.
+
+### General rules
+
+- Each test should test ONE thing — one logical assertion per behavior.
+- Use fixtures and factories for test data setup — avoid duplicating setup across tests.
+- Mock external dependencies (APIs, databases, file system) for unit tests — never make real network calls.
+- For integration tests, use **wire-level stubs** (WireMock, MSW, `responses`) — never code-level mocks. Wire-level stubs catch request-construction and response-parsing bugs.
+- Tests must be deterministic — no random data without seeds, no time-dependent assertions without frozen clocks.
+- Integration tests go in a separate directory or are clearly marked — don't mix with unit tests.
+- Coverage target: 80%+ for new code. 100% for critical paths (auth, payments, data integrity).
+- Tests should run in under 5 seconds for unit tests. Flag slow tests with markers.
+- Never test private/internal methods directly — test through the public API.
+- Don't test framework behavior — test YOUR logic.
+- Arrange-Act-Assert pattern: separate setup, execution, and verification with blank lines.
+- Test data should not depend on database state — each test creates its own data.
+- Use `pytest.raises` (Python) or `expect(...).toThrow` (TS) to test error conditions — never try/catch in tests.
+- Snapshot tests are allowed for serialized output (JSON, HTML) but must be reviewed on every update.
+- Never assert on object identity (===) when testing value equality — use deep equality.
+- Test timeout: unit tests ≤5s, integration tests ≤30s, E2E tests ≤5min. Flag slow tests with markers.
+- Test environment must be isolated — never share state between tests. Reset mocks after each test.
+- Use in-memory databases or containers for integration tests — never test against shared dev databases.
+- Flaky test policy: a test that fails intermittently must be fixed or quarantined within 24 hours — never ignored.
+- Code under test must not import test utilities — the dependency flows one way: tests → production code.
+- Test names should read as specifications: "test_create_user_returns_201_when_valid_email" tells the story.
 - Follow the Test Pyramid: write many fast unit tests, fewer integration tests, and minimal end-to-end tests — avoid the "ice cream cone" anti-pattern where most tests are slow E2E tests (Martin Fowler, Practical Test Pyramid)
 - Test observable behavior, not implementation details — tests should verify "given input X, output is Y", not internal method call sequences, so they survive refactoring without breaking (Martin Fowler, Practical Test Pyramid)
 - Avoid test duplication across pyramid levels: if a lower-level test already covers an edge case, don't duplicate it in a higher-level test — higher-level tests should only add confidence the lower levels can't provide (Martin Fowler, Avoid Test Duplication)

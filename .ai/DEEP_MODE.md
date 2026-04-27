@@ -74,8 +74,8 @@ The DEEP_MODE pipeline can be split across two sessions for overnight/batch plan
 
 | Phase | Prompt | Steps | Session |
 | --- | --- | --- | --- |
-| **Planning** | `/plan-only` | 1–12 (Analysis → Architecture → Approval) | Session 1 (overnight / batch) |
-| **Implementation** | `/implement-plan` | 13–22 (Scaffold → Test → Implement → Review → Docs) | Session 2 (fresh context) |
+| **Planning** | `/plan-only` | 1–14 (Analysis → Architecture → Approval) | Session 1 (overnight / batch) |
+| **Implementation** | `/implement-plan` | 15–25 (Scaffold → Test → Implement → Review → Docs) | Session 2 (fresh context) |
 
 ### How it works
 

@@ -1,3 +1,13 @@
++++
+id = "agents/incident-commander"
+title = "Incident Commander Agent Playbook"
+agents = ["incident-commander"]
+technologies = ["all"]
+category = "rule"
+tags = ["incident-commander", "incident-response", "sev1"]
+version = 1
++++
+
 # Incident Commander Playbook
 
 ## Severity Rubric

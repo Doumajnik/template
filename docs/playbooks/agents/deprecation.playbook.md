@@ -1,3 +1,13 @@
++++
+id = "agents/deprecation"
+title = "Deprecation Manager Agent Playbook"
+agents = ["deprecation"]
+technologies = ["all"]
+category = "rule"
+tags = ["deprecation", "migration", "api-lifecycle"]
+version = 1
++++
+
 # Deprecation Manager Playbook
 
 ## Timeline Defaults

@@ -1,3 +1,13 @@
++++
+id = "agents/vendor-evaluator"
+title = "Vendor Evaluator Agent Playbook"
+agents = ["vendor-evaluator"]
+technologies = ["all"]
+category = "rule"
+tags = ["vendor-evaluator", "build-vs-buy", "licensing", "lock-in"]
+version = 1
++++
+
 # Vendor Evaluator Playbook
 
 ## Scoring Rubric

@@ -1,3 +1,13 @@
++++
+id = "agents/consistency-check"
+title = "Consistency Check Agent Playbook"
+agents = ["consistency-check"]
+technologies = ["all"]
+category = "rule"
+tags = ["consistency-check", "drift", "audit"]
+version = 1
++++
+
 # Consistency Check Playbook
 
 > Rules and patterns for the Consistency Check Agent. The Librarian includes the relevant subset of this playbook in every Consistency Check context brief.
