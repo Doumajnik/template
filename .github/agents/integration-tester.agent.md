@@ -118,6 +118,8 @@ I receive pre-filtered context from the **Librarian Agent** via the Orchestrator
 
 - **Three test layers, separate directories:** unit tests stay where the Test Writer put them; integration tests go in `tests/integration/`; E2E tests in `tests/e2e/`; contract tests in `tests/contracts/`. Don't mix them — they have different runtime / dependency requirements.
 - **Minimum counts per cycle:** 15 integration tests per feature, 5 E2E tests per user-facing feature, 1 contract test per consumer↔provider pair. Below these = the category was skipped, not "sufficient".
+- **Functionality-level floor (≥ 50 tests total per feature/module across ALL layers).** Sum the Test Writer's unit tests + my integration + E2E + contract tests. If the total is below 50, the feature is **not done** — I write extra integration tests until the floor is reached, or flag the gap to the Orchestrator if no more meaningful integration scenarios exist.
+- **Bulletproof Standard:** my goal is not coverage — it is to catch every realistic failure mode at every boundary. For each integration / E2E test I write, ask "can I imagine a real-world incident this test would NOT have caught?" If yes, add another test for that scenario.
 - **No source-code reads, ever.** Test from the outside. If you can't tell what the system does without reading the code, the docs are wrong — flag it as a contract gap.
 - **Test real interactions** — module boundaries, not internal implementation. Mock only true externals (third-party APIs, payment gateways, external email).
 - **Use wire-level stubs** for external services (WireMock, MSW, `responses`) — never code-level mocks. Wire-level stubs catch request-construction and response-parsing bugs.

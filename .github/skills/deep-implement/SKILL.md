@@ -46,7 +46,7 @@ See [pipeline checklist](./references/pipeline-checklist.md) for the full checkl
 ### Phase 4 — Implementation
 
 12. **Scaffolder** — create file stubs with signatures and docstrings. Uses the UI Preview's component decomposition (if available) to create accurate frontend stubs. Mark scaffolding tasks ✅.
-13. **Test Writer** (one per function) — write 15+ tests per function that fail on stubs (red phase). Mark ✅.
+13. **Test Writer** (one per function) — write ≥10 tests per function across every applicable category of the 12-category taxonomy, edge cases first, that fail on stubs (red phase). Contributes to the ≥50-tests-per-functionality floor. Cannot read source — hard-enforced by Tool Guard. Mark ✅.
 14. **Worker** (one per function) — implement code, red-green loop until tests pass. Mark ✅.
 15. **Integration Tester** — write and run E2E/integration tests. Mark ✅.
 

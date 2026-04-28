@@ -5,16 +5,18 @@ agents = ["test-writer"]
 technologies = ["all"]
 category = "rule"
 tags = ["test-writer"]
-version = 5
+version = 6
 +++
 
 ### Test Writer Guidelines
 
 - **BLACK-BOX TESTING ONLY (HARD-ENFORCED):** Never read source/implementation files (`src/`). The `scripts/tool-guard.py` PreToolUse hook physically blocks `read_file`, `grep_search`, and `semantic_search` calls that target `src/` paths. Write tests exclusively from Librarian-provided function signatures, docstrings, descriptions, and `docs/API_DOCUMENTATION.md` / `docs/BUSINESS_LOGIC.md`.
 - **Run a 60-second adversarial brainstorm before writing.** Imagine the function being attacked by a hostile user, confused user, fuzzer, security researcher, sleep-deprived developer copy-pasting it, regulator, and a clock that just changed time zones. Write tests for what each of them would break.
-- **Write minimum 20 tests per function** distributed across the 12-category taxonomy. Functions with strings, side effects, or state typically need 30–40. Below 20 = a category was skipped.
-- **The 12 unit-test categories** — every public function must consider all of these:
-  1. Happy path (3+) 2. Output structure & type (2+) 3. Boundary values (3+) 4. Empty / null / missing (2+) 5. Type abuse (2+) 6. Range / domain violations (2+) 7. Unicode / encoding / special chars (2+ if string-handling) 8. Error contract (3+) 9. Idempotency / purity (2+ if relevant) 10. State and side effects (2+ if stateful) 11. Concurrency / time / randomness (1+ if relevant) 12. Adversarial / abuse — injection shapes, NaN, Inf, deeply nested, circular refs (2+)
+- **Write minimum 10 tests per function** distributed across every applicable category of the 12-category taxonomy, **edge cases first**. Functions with strings, side effects, state, or rich error contracts typically need 15–40. Skipping a category requires a 1-line `# CATEGORY N N/A: <reason>` comment in the test file.
+- **Functionality-level floor:** the feature/module the function belongs to must accumulate ≥50 tests across all layers (unit + integration + E2E + contract). The Test Writer's unit tests contribute to that floor; the Integration Tester tops it up.
+- **Bulletproof Standard:** before reporting back, ask "can I imagine a wrong implementation that passes all my tests?" If yes, add tests until the answer is no. The goal is not coverage — it is to catch every realistic mistake the implementer could make.
+- **The 12 unit-test categories** — every public function must consider every applicable one (write categories 3–7 and 12 BEFORE the happy path):
+  1. Happy path (2+) 2. Output structure & type (1+) 3. Boundary values (2+, **edge priority**) 4. Empty / null / missing (1+) 5. Type abuse (1+) 6. Range / domain violations (1+) 7. Unicode / encoding / special chars (1+ if string-handling) 8. Error contract (2+) 9. Idempotency / purity (1+ if relevant) 10. State and side effects (1+ if stateful) 11. Concurrency / time / randomness (1+ if relevant) 12. Adversarial / abuse — injection shapes, NaN, Inf, deeply nested, circular refs (2+, **edge priority**)
 - **No test may pass if the function returns a constant default** (`None`, `0`, `[]`, `""`). If it would, the assertion is too weak — strengthen to assert exact value.
 - **Report Contract Gaps explicitly.** Every Test Writer report includes a `## Contract Gaps Found` section listing places where the docstring/contract was too vague to test thoroughly. The Orchestrator routes these to Doc Updater or Planning. Do NOT silently skip a test because the contract was unclear; do NOT peek at source.
 - Tests must fail before implementation exists (red phase) — verify against the stub.

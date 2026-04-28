@@ -168,7 +168,7 @@ Phase 3.5 — STRUCTURE & CLEANUP ANALYSIS
 Phase 4 — TEST (safety net before ANY changes)
 ┌─────────────────────────────────────────┐
 │  🧪 Test Writer Agent (per source file) │
-│  15+ unit tests per function            │
+│  ≥10 unit tests per function           │
 │  → tests/ (mirrors src/)               │
 │                                         │
 │  🔗 Integration Tester Agent            │
@@ -249,7 +249,7 @@ After fixes — the verify loop:
 | Monitoring | `docs/MONITORING_REPORT.md` | Logging/health check/alerting gaps |
 | Architect (structure review) | `docs/STRUCTURE_REVIEW.md` | Current vs. proposed structure, file moves, difficulty ratings |
 | Cleanup (audit-only) | `docs/CLEANUP_REPORT.md` | Dead code, dead documents, dead dependencies with confidence levels |
-| Test Writer | `tests/**` | 15+ unit tests per function |
+| Test Writer | `tests/**` | ≥10 unit tests per function (≥50 per functionality) |
 | Integration Tester | `tests/integration/` | Cross-module flow tests |
 | Baseline | `.ai/plans/{date}_test-baseline.md` | Pass/fail counts, existing bugs |
 | Orchestrator | `.ai/plans/{date}_onboarding-improvements.md` | Prioritized fix plan (includes structure moves + cleanup items) |

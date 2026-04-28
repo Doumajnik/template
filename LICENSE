@@ -1,0 +1,123 @@
+PROPRIETARY LICENSE
+
+Copyright (c) 2026 Dominik Haspra <dominik.haspra@gmail.com>
+All rights reserved.
+
+================================================================================
+1. DEFINITIONS
+================================================================================
+
+"Software" means the contents of this repository, including but not limited to
+source code, documentation, agent definitions, prompt files, skills, playbooks,
+scripts, configuration, and any associated assets.
+
+"Author" means Dominik Haspra <dominik.haspra@gmail.com>, the copyright holder.
+
+"Personal Use" means use by an individual for non-commercial purposes such as
+learning, evaluation, personal projects, academic research, or open-source
+contributions back to this repository.
+
+"Business Use" means any use of the Software that is conducted for or on behalf
+of a commercial entity, generates revenue, supports commercial operations, is
+deployed in a production environment of a commercial product or service, or is
+used by an organization with more than five (5) people. This includes, without
+limitation, internal corporate use, integration into commercial products or
+services, use by consultants on client engagements, and use within SaaS or
+hosted offerings.
+
+================================================================================
+2. GRANT OF RIGHTS — PERSONAL USE
+================================================================================
+
+Subject to the terms of this License, the Author hereby grants any individual
+a worldwide, royalty-free, non-exclusive, non-transferable, revocable license
+to use, copy, modify, and create derivative works of the Software solely for
+Personal Use, provided that:
+
+  (a) this License file is included unmodified in all copies and derivative
+      works;
+  (b) the copyright notice above is preserved in all copies and derivative
+      works;
+  (c) any public derivative works (e.g. forks, public mirrors, blog posts
+      reproducing substantial portions) credit the Author and link to the
+      original repository.
+
+================================================================================
+3. BUSINESS USE — REQUIRES WRITTEN PERMISSION
+================================================================================
+
+Business Use of the Software is permitted, but ONLY with the prior written
+permission of the Author. To request a Business Use license, contact:
+
+    Dominik Haspra
+    dominik.haspra@gmail.com
+
+Business Use licenses may be granted on commercial terms agreed between the
+Author and the licensee. The Author may grant, refuse, condition, or revoke a
+Business Use license at sole discretion. Use of the Software for Business Use
+without a written license from the Author is a material breach of this License
+and an infringement of copyright.
+
+================================================================================
+4. RESTRICTIONS
+================================================================================
+
+Without prior written permission of the Author, no person or entity may:
+
+  (a) use the Software for Business Use as defined above;
+  (b) sublicense, sell, rent, lease, or otherwise commercially distribute the
+      Software or any derivative work;
+  (c) remove or alter any copyright notice, license file, or attribution in
+      the Software;
+  (d) use the Author's name, the project name, or any associated trademarks
+      to endorse or promote products or services derived from the Software.
+
+================================================================================
+5. CONTRIBUTIONS
+================================================================================
+
+Contributions submitted to this repository (e.g. via pull requests) are, unless
+the contributor specifies otherwise in writing at the time of submission,
+licensed to the Author under the same terms as this License, with the
+contributor granting the Author a perpetual, worldwide, royalty-free,
+sublicensable, irrevocable license to use, modify, distribute, and relicense
+the contribution as part of the Software.
+
+================================================================================
+6. NO WARRANTY
+================================================================================
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+================================================================================
+7. TERMINATION
+================================================================================
+
+This License terminates automatically upon any breach by the licensee. Upon
+termination, the licensee must cease all use of the Software and destroy all
+copies in their possession or control. Sections 5 (Contributions), 6 (No
+Warranty), and 8 (Governing Law) survive termination.
+
+================================================================================
+8. GOVERNING LAW
+================================================================================
+
+This License is governed by the laws of the jurisdiction of the Author's
+residence, without regard to conflict-of-laws principles. Any dispute arising
+out of or in connection with this License shall be resolved in the competent
+courts of that jurisdiction.
+
+================================================================================
+9. CONTACT
+================================================================================
+
+For Business Use licensing, custom licensing, partnerships, or any other
+inquiries:
+
+    Dominik Haspra
+    dominik.haspra@gmail.com

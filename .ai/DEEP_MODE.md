@@ -43,11 +43,11 @@ The orchestrator spawns agents in this sequence. This mirrors the Planning Seque
 
 13. **Scaffolder Agent** — creates file stubs with signatures and docstrings. Uses the UI Preview's component decomposition (if available) to create accurate frontend stubs. Marks scaffolding tasks ✅ in todo.
 
-14. **Test Writer Agent** per function — writes 15+ tests per function that fail on stubs (red). One instance per cohesive module or function group. Marks test tasks ✅ in todo.
+14. **Test Writer Agent** per function — writes ≥10 tests per function across every applicable category of the 12-category taxonomy that fail on stubs (red), edge cases first. Cannot read source — hard-enforced by Tool Guard. Contributes to the **≥50-tests-per-functionality** floor. One instance per cohesive module or function group. Marks test tasks ✅ in todo.
 
 15. **Worker Agent** per function — reads source code, implements, runs red-green loop until tests pass. One instance per cohesive module or function group. Marks each function ✅ in todo as it passes.
 
-16. **Integration Tester Agent** — writes and runs E2E/integration tests for multi-module flows. Marks ✅ in todo.
+16. **Integration Tester Agent** — writes black-box integration (15+ per feature, `tests/integration/`), E2E (5+ per user-facing feature, `tests/e2e/`), and contract tests (1+ per consumer↔provider pair, `tests/contracts/`). Cannot read source — hard-enforced by Tool Guard. Marks ✅ in todo.
 
 17. **Reviewer Agent** — checks the final result for quality, correctness, adherence to plan. Checks todo for skipped/incomplete tasks. Marks review ✅ in todo.
 

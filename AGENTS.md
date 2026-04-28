@@ -26,7 +26,7 @@ Your job: understand intent → read docs → decide which sub-agents to spawn �
 | **Architect** | Designs system architecture | `.github/agents/architect.agent.md` |
 | **Critic** | Reviews architecture for flaws | `.github/agents/critic.agent.md` |
 | **Scaffolder** | Creates file stubs with signatures and docstrings | `.github/agents/scaffolder.agent.md` |
-| **Test Writer** | Writes 20+ black-box tests per function across 12 categories (red phase) | `.github/agents/test-writer.agent.md` |
+| **Test Writer** | Writes ≥10 black-box tests per function across the 12-category taxonomy (red phase); contributes to the ≥50-tests-per-functionality floor | `.github/agents/test-writer.agent.md` |
 | **Worker** | Implements functions, runs red-green loop | `.github/agents/worker.agent.md` |
 | **Integration Tester** | Writes black-box integration / E2E / contract tests across module boundaries | `.github/agents/integration-tester.agent.md` |
 | **Reviewer** | Reviews for duplication, playbook compliance, and preference alignment | `.github/agents/reviewer.agent.md` |
@@ -66,6 +66,11 @@ Your job: understand intent → read docs → decide which sub-agents to spawn �
 | **Localization** | Audits and designs i18n/l10n — string externalization, ICU plurals, RTL, locale-aware formats | `.github/agents/localization.agent.md` |
 | **Vendor Evaluator** | Evaluates third-party libraries/services for fit, total cost, lock-in, license risk before adoption | `.github/agents/vendor-evaluator.agent.md` |
 | **UX Research** | Designs and synthesizes user research — usability tests, surveys, interview guides, persona development | `.github/agents/ux-research.agent.md` |
+| **Threat Modeling** | Designs STRIDE / OWASP threat models against the architecture BEFORE code is written. Pairs with Architect during planning | `.github/agents/threat-modeling.agent.md` |
+| **Mock Data Generator** | Designs and generates realistic test fixtures, seed datasets, and contract payloads for Test Writers and Integration Testers | `.github/agents/mock-data.agent.md` |
+| **Capacity Planner** | Models load, growth, tail behaviour, sizing, and SLO feasibility against the architecture BEFORE implementation | `.github/agents/capacity-planner.agent.md` |
+| **Analytics Instrumentation** | Designs business analytics — event taxonomy, KPIs, funnels, cohorts, experiment readiness. Distinct from Observability (technical telemetry) | `.github/agents/analytics-instrumentation.agent.md` |
+| **Doc-Site Generator** | Produces user-facing documentation — getting-started, tutorials, how-tos, reference, runbooks, migrations. Distinct from Doc Updater (internal docs) | `.github/agents/doc-site.agent.md` |
 
 When spawning a sub-agent, read its `.agent.md` file and include the relevant instructions in the prompt.
 
@@ -82,11 +87,18 @@ Which agents run in which pipeline. Use this when picking the right pipeline for
 | Librarian (impact / context) | ✅ every spawn | ✅ step 2 + every spawn | ✅ every spawn | ✅ every spawn (fast mode in SEV1) |
 | Research | ✅ step 3 | ✅ step 3 | — | ad-hoc |
 | Dependency install | ✅ step 4 | ✅ step 4 | — | — |
-| Architect | ✅ steps 5, 9, 12 | ✅ steps 5, 8, 12 | ✅ Phase 4a (structure review) | — |
+| Architect [design] | ✅ step 5 | ✅ step 5 | ✅ Phase 4a (structure review) | — |
+| Mock Data Generator | ✅ step 5a | ✅ step 4a (if entity changes) | — | — |
 | Observability Engineer | ✅ step 6 | ad-hoc | — | ✅ if telemetry gap blocks diagnosis |
+| Threat Modeling | ✅ step 6a (parallel to Observability) | ✅ step 5a (if auth/data flows touched) | ✅ Phase 3 (alongside Security) | ad-hoc |
+| Compliance [privacy-by-design] | ✅ step 6b (if user data) | ✅ step 5b (if user data) | ✅ Phase 3 | — |
+| Analytics Instrumentation | ✅ step 6c (if user-facing) | ✅ step 5c (if user-flow change) | ✅ Phase 3 (with Monitoring) | — |
 | Critic | ✅ steps 7, 10 | ✅ steps 6, 9 | — | — |
 | Cost / FinOps | ✅ step 7 (parallel) | ad-hoc | ad-hoc | — |
+| Capacity Planner | ✅ step 7a (parallel to Innovator) | ✅ step 5d (if traffic/data volume changes) | ad-hoc | — |
 | Innovator | ✅ step 8 | ✅ step 7 | — | — |
+| Architect [revision] | ✅ step 9 | ✅ step 8 | — | — |
+| Architect [plan-verification] | ✅ step 12 | ✅ step 12 | — | — |
 | Planning Agent | ✅ step 11 | ✅ step 10 | ✅ Phase 6 (improvement plan) | — |
 | Deprecation Manager | ad-hoc | ✅ step 11 (if removing public surface) | — | — |
 | UI Preview | ✅ step 13 (if UI) | ad-hoc | — | — |
@@ -94,7 +106,7 @@ Which agents run in which pipeline. Use this when picking the right pipeline for
 | UX Research | ✅ step 13 (if novel UX) | ad-hoc | — | — |
 | **User approval gate** | ✅ step 14 | ✅ step 13 | ✅ Phase 7 | — (Commander declares severity) |
 | Scaffolder | ✅ step 15 | — (files exist) | — | — |
-| Architect (scaffold review) | ✅ step 16 | — | — | — |
+| Architect [scaffold-review] | ✅ step 16 | — | — | — |
 | Test Writer | ✅ step 17 | ✅ step 14 | ✅ Phase 5a | ad-hoc (regression) |
 | Worker | ✅ step 18 | ✅ step 15 | post-onboarding fix loop | ✅ mitigation + permanent fix |
 | Integration Tester | ✅ step 19 | ✅ step 16 | ✅ Phase 5b | — |
@@ -104,6 +116,7 @@ Which agents run in which pipeline. Use this when picking the right pipeline for
 | Dependency / Type Safety / Error Handling / Monitoring | ad-hoc | ad-hoc | ✅ Phase 3 (parallel audits) | — |
 | Doc Updater | ✅ step 23 | ✅ step 20 | ✅ Phase 2 + post-incident | ✅ postmortem write-up |
 | Retrospective | ✅ step 24 | ✅ step 21 | — | ✅ postmortem (blameless) |
+| Doc-Site Generator | ✅ step 24a (parallel to Retrospective) | ✅ step 21a (if public surface change) | ad-hoc | ✅ runbook updates post-incident |
 | Cleanup | ✅ step 25 (dedup) | ✅ step 22 (dedup) | ✅ Phase 4b (audit-only) | — |
 | Incident Commander | — | — | — | ✅ owns the response |
 | Debug / Performance / Database / SQL Query | ad-hoc | ad-hoc | — | ✅ investigation arms |
@@ -133,7 +146,13 @@ flowchart TD
     CB -->|bottleneck brief| IN[Innovator Agent]
     IN -->|creative alternatives + bottleneck solutions| A
     A --> OBS[Observability Engineer — telemetry plan]
+    A --> TM[Threat Modeling — STRIDE + OWASP]
+    A --> AN[Analytics Instrumentation — KPIs + events]
+    A --> CP[Capacity Planner — load + sizing]
     OBS -->|SLOs + metrics/traces/logs| C[Critic — full review]
+    TM -->|threat model + mitigations| C
+    AN -->|KPI + event plan| C
+    CP -->|capacity plan + bottlenecks| C
     A <-->|adversarial loop ≤10 rounds| C
     C --> P[Planning Agent]
     P -->|plan + todos → .ai/| AV[Architect — plan verification]
@@ -164,6 +183,16 @@ flowchart TD
     CK3 -->|clean ✅| RT[Retrospective Agent — chunked]
     RT -->|per-chunk review + merge pass| CL[Cleanup Agent — dedup reports]
     CL -->|consolidated reports| Done([Done])
+    W -.->|refresh index after code change| LIB
+    S -.->|refresh index after scaffold| LIB
+
+    %% Sharding legend (per Parallel Sub-Agent Dispatch Core Rule):
+    %%   - Consistency Check (CK1/CK2/CK3): 5 parallel shards (Plan-vs-Code, Code-vs-Docs, Refs, Roster, Orphans) + 1 merge
+    %%   - Retrospective (RT): 1 instance per transcript chunk + 1 merge
+    %%   - Test Writer (TW), Worker (W): 1 instance per function
+    %%   - Discovery (D): 1 instance per top-level module on large codebases
+    %%   - Doc Updater (DU): 1 instance per affected docs subtree on large changes
+    %%   - Onboarding Phase 3 audits (Security/Code Quality/Dependency/Error Handling/Type Safety/Monitoring): 6 parallel
 
     style O fill:#4a90d9,color:#fff
     style U fill:#6c757d,color:#fff
@@ -177,6 +206,9 @@ flowchart TD
     style CK3 fill:#16a085,color:#fff
     style OBS fill:#2980b9,color:#fff
     style COST fill:#c0392b,color:#fff
+    style TM fill:#c0392b,color:#fff
+    style AN fill:#2980b9,color:#fff
+    style CP fill:#2980b9,color:#fff
 ```
 
 > The same three Consistency Check gates apply to the Change Pipeline and the Onboarding Pipeline. They are not redrawn separately — same agent, same gates, different pipeline body.
@@ -264,9 +296,14 @@ Splitting these into separate sessions keeps context windows small and allows pl
 3. **Research Agent** — researches the topic on the web (best practices, libraries, patterns, pitfalls). Uses the enriched spec as input. Produces a research brief with recommended approach and dependency list. Passes findings to the Architect.
 4. **Dependency mapping & install** — based on the Research Agent's findings, map out all required dependencies and install them upfront before any coding begins.
 5. **Architect** — designs architecture plan, using both the enriched spec and the Research Agent's brief as input.
+5a. **Mock Data Generator** — produces fixture builders + seed datasets + contract payloads for every domain entity in the plan. Test Writers and Integration Testers consume these in Phase B; producing them here keeps fixtures consistent across the suite. Skipped when the change introduces no new entities.
 6. **Observability Engineer** — designs the telemetry plan alongside the architecture: SLOs, metrics, traces, logs, dashboards, alerts. Output goes into the architecture plan so the Critic reviews it together with the design.
+6a. **Threat Modeling Agent** — runs in parallel with the Observability Engineer. Decomposes the architecture into trust boundaries + entry points, applies STRIDE per component, maps every finding to OWASP Top 10 / CWE, writes `docs/THREAT_MODEL.md`. CRITICAL/HIGH findings loop back to the Architect before the Critic's full review.
+6b. **Compliance Agent (privacy-by-design mode)** — runs in parallel with Threat Modeling whenever the system collects, stores, or processes user data. Reviews data flows for GDPR / CCPA / sector rules, lawful basis, retention, deletion, cross-border transfer, consent UX. Writes findings into `docs/COMPLIANCE_REPORT.md`. Distinct from the existing reactive compliance audit which still runs late in the cycle.
+6c. **Analytics Instrumentation Agent** — runs in parallel with Observability/Threat Modeling whenever the change is user-facing or has a measurable KPI. Designs the event taxonomy, KPIs, funnels, cohorts, experiment readiness; writes `docs/ANALYTICS_EVENTS.md`. Distinct from Observability (technical telemetry) and Monitoring (alerting).
 7. **Critic (bottleneck scan)** — preliminary pass in bottleneck scan mode: reviews the Architect's plan specifically for parallelism opportunities, sequential bottlenecks, and process separation issues. The **Cost / FinOps Agent** runs in parallel here and contributes a cost-bottleneck brief (over-provisioning, high-cardinality observability labels, expensive third-party calls). Both feed a focused brief to the Orchestrator, who passes it to the Innovator.
-8. **Innovator** — reviews the plan AND the Critic + Cost briefs. Proposes creative alternatives and outside-the-box ideas, especially for parallelism and optimization opportunities identified in the bottleneck scan. Reports back to Orchestrator.
+7a. **Capacity Planner** — runs in parallel with the Innovator. Models p50/p99 RPS, fan-out, tail amplification, working-set sizing, auto-scaling triggers, and SLO feasibility against the proposed architecture. Writes `docs/CAPACITY_PLAN.md`. CRITICAL bottlenecks (SLO physically unachievable, hot keys, unbounded queues) loop back to the Architect.
+8. **Innovator** — reviews the plan AND the Critic + Cost + Capacity briefs. Proposes creative alternatives and outside-the-box ideas, especially for parallelism and optimization opportunities identified in the bottleneck scan. Reports back to Orchestrator.
 9. **Architect (revision)** — Orchestrator feeds Innovator's best ideas, the Critic's bottleneck findings, and the Cost brief back to the Architect to consider incorporating.
 10. **Critic (full review)** — full adversarial review for flaws, duplication, over-engineering, and verifies that bottleneck and cost findings were addressed. Orchestrator mediates Architect↔Critic loop (max 10 rounds). All agents report back to Orchestrator — no direct handoffs.
 11. **Planning Agent** — reads docs, creates plan + todo file. The todo file (`.ai/todos/{YYYY-MM-DD}_{topic}.todo.md`) is the **living tracker** — every subsequent agent reads it, marks their task(s) 🔵 in-progress before starting and ✅ done when complete, and appends to its Progress Log.
@@ -278,7 +315,7 @@ Splitting these into separate sessions keeps context windows small and allows pl
 
 15. **Scaffolder** — creates file stubs. Uses the UI Preview's component decomposition (if available) to create accurate frontend stubs. Marks scaffolding tasks ✅ in todo.
 16. **Architect (scaffold review)** — quick verification that scaffolded files match the verified plan: correct file structure, function signatures, module boundaries, and completeness. If issues found → Scaffolder revises.
-17. **Test Writer** — writes 20+ black-box failing tests per function across the 12-category taxonomy (one instance per function). Cannot read source — hard-enforced by Tool Guard. Marks test tasks ✅ in todo.
+17. **Test Writer** — writes ≥10 black-box failing tests per function across every applicable category of the 12-category taxonomy, edge cases first (one instance per function). Cannot read source — hard-enforced by Tool Guard. Contributes to the **≥50-tests-per-functionality** floor (sum of unit + integration + E2E + contract). Marks test tasks ✅ in todo.
 18. **Worker** — implements code, red-green loop until tests pass (one instance per function). Marks each function ✅ in todo as it passes. Workers also implement the telemetry instrumentation designed by the Observability Engineer.
 19. **Integration Tester** — writes black-box integration tests (15+ per feature, in `tests/integration/`), E2E tests (5+ per user-facing feature, in `tests/e2e/`), and contract tests (1+ per consumer↔provider pair, in `tests/contracts/`). Cannot read source — works from `docs/API_DOCUMENTATION.md`, `docs/BUSINESS_LOGIC.md`, and the Librarian brief. Marks ✅ in todo.
 20. **Reviewer** — validates result. Checks todo for skipped/incomplete tasks. Marks review ✅ in todo.
@@ -286,6 +323,7 @@ Splitting these into separate sessions keeps context windows small and allows pl
 22. **Code Quality Agent** — scans for duplication/smells, appends to `docs/QUALITY_REPORT.md`. Marks ✅ in todo. If CRITICAL/HIGH → Workers fix → re-verify.
 23. **Doc Updater** — updates all docs, writes session summary, commits. Marks doc tasks ✅ in todo.
 24. **Retrospective Agent (chunked)** — the Orchestrator partitions the session transcript into chunks and spawns one Retrospective instance per chunk. Each reads its transcript slice deeply (every tool call, command, response, decision) and appends findings to `docs/RETROSPECTIVE_REPORT.md` and `docs/PLAYBOOK.md`. A final merge pass writes the session summary and cross-chunk patterns. Marks ✅ and sets todo status to ✅ Complete.
+24a. **Doc-Site Generator** — runs in parallel with the Retrospective. Produces user-facing documentation in `docs/site/` — getting-started, tutorials, how-tos, reference, runbooks, migration guides — for any public surface added or changed in this cycle. Skipped for purely internal changes.
 25. **Cleanup Agent (dedup pass)** — scans `docs/RETROSPECTIVE_REPORT.md`, `docs/PLAYBOOK.md`, and `.ai/lessons.md` for duplicate entries, overlapping rules, and superseded lessons. Consolidates and removes redundancy.
 
 Skip the full sequence for **truly trivial tasks** (questions, docs-only updates, simple lookups) — spawn only needed agent(s). **Even for trivial tasks, ALWAYS query the Librarian first** to get context before spawning any agent.
@@ -298,7 +336,9 @@ The **Consistency Check Agent** is dispatched at three phase boundaries inside t
 - **Gate 2 — after step 18** (Worker red-green loop, before Integration Tester): verify code ↔ plan ↔ scaffold consistency, telemetry instrumented as designed, todo state matches disk.
 - **Gate 3 — after step 23** (Doc Updater, before Retrospective): verify code ↔ docs consistency, no stale `CODE_INVENTORY` or `docs/files/` entries.
 
-At each gate: 🔴 CRITICAL or 🟡 HIGH findings block progress. The Orchestrator dispatches the listed fix-owner agents (Doc Updater / Refactor / Cleanup / Worker), then re-spawns the Consistency Check on the same scope. The pipeline only advances when the gate returns clean. 🟢/⚪ findings are logged but non-blocking.
+**Each gate is sharded — the Orchestrator spawns multiple Consistency Check instances in parallel**, one per drift category (Plan-vs-Code, Code-vs-Docs, Reference & Path Integrity, Roster & Pipeline, Orphan & Dead Files), then ONE merge instance that consolidates the sub-reports into a single `docs/CONSISTENCY_REPORT.md` entry. Per-category shards are mandatory once the project has ≥ 30 source files; below that threshold, a single instance is acceptable. See the **Parallel sub-agent dispatch** Core Rule for the general pattern.
+
+At each gate: 🔴 CRITICAL or 🟡 HIGH findings block progress. The Orchestrator dispatches the listed fix-owner agents (Doc Updater / Refactor / Cleanup / Worker) — fan out fixers in parallel when findings are independent — then re-spawns the Consistency Check shards on the same scope. The pipeline only advances when every shard returns clean. 🟢/⚪ findings are logged but non-blocking.
 
 > **IMPORTANT:** Modifications to existing code are NEVER trivial. Any request that changes existing behavior, refactors logic, or modifies existing files MUST go through the **Change Pipeline** below — no exceptions.
 
@@ -332,6 +372,11 @@ These agents are NOT part of the sequential pipeline. The Orchestrator spawns th
 - **Frontend Component** — builds accessible, performant UI components with design system compliance.
 - **Load Testing** — designs load test scenarios, writes test scripts, analyzes results against SLOs.
 - **Config Management** — audits and designs application configuration patterns, feature flags, and secret management.
+- **Threat Modeling** — design-time STRIDE / OWASP review when adding a new public endpoint, integration, or sensitive feature outside Planning Sequence.
+- **Mock Data Generator** — when a Test Writer or Integration Tester reports a missing fixture for an existing entity.
+- **Capacity Planner** — before adopting a new datastore, queue, or cache; before a major launch; after a sustained traffic-pattern shift.
+- **Analytics Instrumentation** — before launching a feature whose success metric is unclear or unmeasurable; when auditing existing instrumentation.
+- **Doc-Site Generator** — when the user requests a tutorial, runbook, or migration guide; before a public release.
 
 > **TURBO_MODE** (read from `.ai/PREFERENCES.md`): When ON, plan to function level, mark all `[delegatable]`, mass-spawn. When OFF, plan at phase level, spawn per phase.
 
@@ -370,7 +415,7 @@ When the user requests a **change** to existing code — modifying behavior, upd
 11. **Deprecation Manager** — if the change removes or replaces a public API, feature, or shared utility, designs the announce → warn → remove timeline and writes a migration guide. Updates `docs/DEPRECATION_LOG.md`. Skipped when the change is internal-only with no consumers.
 12. **Architect (plan verification)** — verifies the change plan faithfully translates the architecture: all affected modules, migration paths, regression strategies, and deprecation timeline accounted for. If issues found → Planning Agent revises.
 13. **User approval (MANDATORY GATE)** — present the full change plan, impact analysis, regression checklist, and deprecation entries (if any). Ask for explicit approval.
-14. **Test Writer** — writes/updates tests for the changed behavior AND regression tests for unchanged behavior that might be affected. Minimum 20 tests per changed function across the 12-category taxonomy. Cannot read source — hard-enforced by Tool Guard.
+14. **Test Writer** — writes/updates tests for the changed behavior AND regression tests for unchanged behavior that might be affected. Minimum **10 tests per changed function** across every applicable category of the 12-category taxonomy, edge cases first; the changed functionality must end up with **≥50 tests total** across all layers. Cannot read source — hard-enforced by Tool Guard.
 15. **Worker** — implements the change. Runs red-green loop. Must verify all existing tests still pass (not just new ones).
 16. **Integration Tester** — writes/runs E2E tests covering the change. Specifically tests the boundary between changed and unchanged code.
 17. **Reviewer** — validates the change. Specifically checks: no unintended side effects, regression checklist passes, all affected callers updated.
@@ -408,7 +453,7 @@ The full step-by-step procedure lives in [.github/prompts/onboard-project.prompt
 4. **Structure & Cleanup analysis** —
    - **4a:** Architect (structure-review mode) → `docs/STRUCTURE_REVIEW.md`.
    - **4b:** Cleanup (audit-only mode) → `docs/CLEANUP_REPORT.md` (dead code, dead docs, dead deps).
-5. **Test harness** — Test Writer (per source file, 20+ black-box tests/function across the 12-category taxonomy) + Integration Tester (15+ integration / 5+ E2E / 1+ contract per feature) capture current behavior as a safety net. Both run black-box — no source reads. Run full suite, save `.ai/plans/{date}_test-baseline.md` with pass/fail/skip counts.
+5. **Test harness** — Test Writer (per source file, ≥10 black-box tests/function across the 12-category taxonomy, edge cases first) + Integration Tester (15+ integration / 5+ E2E / 1+ contract per feature). Every functionality must reach the **≥50-tests-per-functionality** floor across all layers. Both run black-box — no source reads. Run full suite, save `.ai/plans/{date}_test-baseline.md` with pass/fail/skip counts.
 6. **Improvement plan** — Planning Agent synthesizes all reports + baseline into `.ai/plans/{date}_onboarding-improvements.md` prioritized Critical / High / Medium / Low + dead-asset removal list.
 7. **Present to user** — show discovery, structure review, dead-asset counts, test baseline, top-5 actions, and the full improvement plan. Ask for approval before any fix work.
 
@@ -460,6 +505,42 @@ This pipeline is **distinct from Autonomous Bug Fixing**. Bug fixing is for know
 ### Consistency Check Gate (mandatory)
 
 A single gate runs **after step 7** (postmortem hand-off): verifies incident doc ↔ timeline ↔ action items ↔ runbook updates consistency. No stale references to mitigations that were rolled back.
+
+> **Why one gate, not three:** SEV1 speed exception. Mitigation correctness is verified by **live telemetry in real time**, not by a static gate — a 3-gate pattern would slow down the response without adding signal that telemetry is not already providing. SEV2 / SEV3 may opt into the standard 3-gate pattern at the Commander's discretion when the timeline allows.
+
+### Incident Response Diagram
+
+```mermaid
+flowchart TD
+    U([Incident reported]) --> O{Orchestrator}
+    O -->|fast-mode brief| LIB[Librarian — cached briefs OK]
+    LIB --> IC[Incident Commander]
+    IC -->|severity + comms template| O
+    IC --> M[Mitigation: rollback / flag-off / failover / shed]
+    M --> W1[Worker applies mitigation]
+    W1 --> TEL{Telemetry stable?}
+    TEL -->|no, escalate| M
+    TEL -->|yes| INV[Investigate in parallel]
+    INV --> DBG[Debug]
+    INV --> PERF[Performance]
+    INV --> SEC[Security]
+    INV --> DB[Database / SQL Query]
+    INV --> OBS[Observability — if gap]
+    DBG & PERF & SEC & DB & OBS -->|hypotheses + evidence| IC
+    IC -->|root cause confirmed| CP[Change Pipeline from step 2]
+    CP -->|permanent fix shipped| RES{Stable for SEV window?}
+    RES -->|no| INV
+    RES -->|yes| PM[Postmortem: Retrospective + Doc Updater]
+    PM --> CK[Consistency Check — single gate]
+    CK --> Done([Resolved])
+
+    style O fill:#4a90d9,color:#fff
+    style IC fill:#c0392b,color:#fff
+    style LIB fill:#27ae60,color:#fff
+    style CK fill:#16a085,color:#fff
+    style Done fill:#6c757d,color:#fff
+    style U fill:#6c757d,color:#fff
+```
 
 ### Communication during the incident
 
@@ -534,7 +615,7 @@ These short phrases trigger full pipelines — no extra explanation needed from 
 |---|---|
 | **"onboard"** or **"onboard this project"** | Run the full onboarding pipeline from `.github/prompts/onboard-project.prompt.md` — discover, document, audit, test, plan, present. |
 | **"change"**, **"modify"**, or **"update"** + description | Run the Change Pipeline — full planning with impact analysis before any code is touched. |
-| **"incident"**, **"down"**, **"outage"**, **"prod is broken"** | Spawn Incident Commander immediately — follows the Incident Response Pipeline below. |
+| **"incident"**, **"down"**, **"outage"**, **"prod is broken"** | Run `/incident-response` from `.github/prompts/incident-response.prompt.md` — spawn Incident Commander immediately and follow the Incident Response Pipeline. |
 | **"evaluate"** + library/service name | Spawn Vendor Evaluator — build-vs-buy, license, lock-in, total cost. |
 | **"deprecate"** + symbol/endpoint | Spawn Deprecation Manager — announce → warn → remove timeline + migration guide. |
 | **"cost"** or **"how much does X cost"** | Spawn Cost / FinOps for an ad-hoc cost review. |
@@ -587,7 +668,7 @@ The user can stop the pipeline at any time by saying "abort", "stop", or "cancel
 - **Read files** instead of running terminal commands when possible.
 - Anti-duplication, extraction, and decomposition rules: see `docs/PLAYBOOK.md`.
 - Markdown formatting rules (blank lines around lists, fences, headings): see `docs/PLAYBOOK.md`.
-- Testing rules (15+ per function): see `.github/agents/test-writer.agent.md`.
+- Testing rules (≥10 per function, ≥50 per functionality, edge cases first): see `.github/agents/test-writer.agent.md`.
 - API documentation rules: see `docs/API_DOCUMENTATION.md` header.
 - DEEP_MODE pipeline details: see `.ai/DEEP_MODE.md`.
 - Tracing rules: see `.ai/TRACE_TEMPLATE.md`.
@@ -602,6 +683,24 @@ The user can stop the pipeline at any time by saying "abort", "stop", or "cancel
 - **Tool restrictions enforced.** `.ai/TOOL_MANIFEST.md` defines which tools each agent may use. The Librarian includes a `### Tool Restrictions` section in every context brief. A `PreToolUse` hook (`scripts/tool-guard.py`) hard-blocks denied tool calls at runtime. When adding new tool restrictions, update the manifest and the hook script.
 - **The Lounge.** `.ai/lounge/` is a shared space for all agents and subagents. Any agent can drop a note, quote, observation, or high score there whenever they want — no permission needed.
 - **Numeric stability of pipeline step numbers.** Pipeline step numbers (Planning Sequence 1–25, Change Pipeline 1–22, Onboarding Pipeline Phase 1–7, Incident Response Pipeline 1–7) are **stable identifiers** referenced from prompt files, agent docs, dispatch logs, and lessons. Do NOT renumber existing steps when inserting a new one. Instead, insert with a letter suffix (e.g., `13a`, `13b`) immediately after the nearest preceding step. Renumbering is allowed only as part of a planned major-version restructure of AGENTS.md, in which case all dependent files (prompt files, agent docs, the Cross-Pipeline Step Matrix) must be updated in the same commit.
+- **Parallel sub-agent dispatch (fan-out / sharding).** A single sub-agent instance is the default, but the Orchestrator MUST fan out into **multiple parallel instances** of the same agent whenever the work splits cleanly along an independent axis. Examples:
+  - **Consistency Check** → one instance per drift category (Plan-vs-Code, Code-vs-Docs, Reference Integrity, Roster, Orphan Files), each writing a sub-report; a final merge instance consolidates findings.
+  - **Retrospective** → one instance per transcript chunk, plus a merge instance (already specified).
+  - **Onboarding Phase 3 audits** → Security, Code Quality, Dependency, Error Handling, Type Safety, Monitoring all spawned in parallel (already specified).
+  - **Test Writer** → one instance per function (already specified — explicit form of this rule).
+  - **Worker** → one instance per function (already specified).
+  - **Discovery** on a large new codebase → one instance per top-level module/directory.
+  - **Doc Updater** on a large change → one instance per affected docs subtree (e.g., `docs/files/`, `docs/API_DOCUMENTATION.md`, `docs/BUSINESS_LOGIC.md`).
+  - **Reviewer** on a multi-feature change → one instance per feature.
+  - **Code Quality / Security** on a large surface → one instance per module or per CWE family.
+
+  Rules for fan-out:
+  1. The shards MUST be independent — no shared mutable state, no ordering dependency between shards.
+  2. Each shard receives its OWN Librarian context brief (scoped to its slice). The Librarian-first rule still holds.
+  3. The Orchestrator spawns the shards via parallel `runSubagent` calls (single tool call block), not sequentially.
+  4. After all shards report, the Orchestrator spawns ONE merge instance of the same agent (or Cleanup, when dedup is the merge job) to consolidate sub-reports into a single canonical artifact.
+  5. The dispatch log records every shard separately (`Consistency Check #1: roster`, `Consistency Check #2: refs`, …, `Consistency Check #merge`).
+  6. Sharding is mandatory when the single-instance work would exceed the model's context window or take >5 min wall-clock; otherwise it is encouraged whenever the work is naturally independent.
 
 ---
 

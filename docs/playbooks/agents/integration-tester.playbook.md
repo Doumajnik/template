@@ -5,7 +5,7 @@ agents = ["integration-tester"]
 technologies = ["all"]
 category = "rule"
 tags = ["integration-tester"]
-version = 5
+version = 6
 +++
 
 ### Integration Tester Guidelines
@@ -13,6 +13,8 @@ version = 5
 - **BLACK-BOX TESTING ONLY (HARD-ENFORCED):** Never read source/implementation files (`src/`). The `scripts/tool-guard.py` PreToolUse hook physically blocks `read_file`, `grep_search`, and `semantic_search` calls that target `src/` paths. Work exclusively from `docs/API_DOCUMENTATION.md`, `docs/BUSINESS_LOGIC.md`, the Librarian's context brief, the existing `tests/` directory, and the running system as a black box.
 - **Three test layers, separate directories:** integration tests in `tests/integration/`, E2E tests in `tests/e2e/`, contract tests in `tests/contracts/`. Don't mix — they have different runtime / dependency profiles.
 - **Minimum counts per cycle:** 15 integration tests per feature, 5 E2E tests per user-facing feature, 1 contract test per consumer↔provider pair. Below = the category was skipped, not "sufficient".
+- **Functionality-level floor (≥50 tests per feature/module across ALL layers).** Sum the Test Writer's unit tests + integration + E2E + contract tests for the feature. If the total is below 50, the feature is **not done** — write extra integration scenarios until the floor is reached, or flag the gap to the Orchestrator if no more meaningful integration scenarios exist.
+- **Bulletproof Standard:** for each test written, ask "can I imagine a real-world incident this would NOT have caught?" If yes, add another test for that scenario.
 - **Run a 60-second adversarial brainstorm before writing.** Imagine flaky network, slow DB, duplicate webhook, partial outage of one downstream, malformed queue message, clock skew, retried request arriving twice, mid-deployment with old + new versions running side-by-side. Write tests for what each of those would break.
 - **Integration test categories** (cover all): data flow across boundaries (3+), error propagation (3+), schema/contract correctness (2+), idempotency at boundaries (2+), failure modes — timeout / 5xx / malformed / unavailable (3+), configuration variations — missing/invalid/partial (2+).
 - **E2E test categories** (cover all): critical happy path, critical error path, critical recovery path with transient failure, cross-feature interaction, data integrity across restart.

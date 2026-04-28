@@ -25,21 +25,24 @@ description: "Testing conventions, TDD rules, and test quality standards. Use wh
 
 ### Test count and category coverage
 
-- **Minimum 20 tests per function** for unit tests, distributed across the 12-category taxonomy below. Functions with strings, side effects, or state typically need 30–40.
+- **Minimum 10 tests per function** for unit tests, distributed across every applicable category of the 12-category taxonomy below. Functions with strings, side effects, state, or rich error contracts typically need 15–40. Skipping a category requires a 1-line `# CATEGORY N N/A: <reason>` comment.
+- **Minimum 50 tests per functionality (feature/module)** summed across ALL layers (unit + integration + E2E + contract). The feature is not done until the total reaches 50. With a typical 4–5-function feature, the unit-test floor (10/function) already gets you to 40–50; integration and E2E push it past the line.
 - **Minimum 15 integration tests per feature**, **5 E2E tests per user-facing feature**, **1 contract test per consumer↔provider pair**. Below these counts means a category was skipped, not "sufficient".
+- **Bulletproof Standard:** the goal is not coverage — it is to **catch every mistake the implementer could make**. For each test you write, ask "can I imagine a wrong implementation that still passes this?" If yes, the assertion is too weak — strengthen it or add another test.
+- **Edge cases first.** Write categories 3–7 and 12 (boundaries, empty/null, type abuse, range, unicode, adversarial) **before** the happy path. Bugs live at the edges, not in the middle.
 - **The 12 unit-test categories** every Test Writer must consider for every function:
-  1. **Happy path** — typical realistic inputs, exact output assertions (3+)
-  2. **Output structure & type** — type, shape, ordering, length (2+)
-  3. **Boundary values** — zero, one, max, min, off-by-one (3+)
-  4. **Empty / null / missing** — empty collection, `None`, default vs explicit (2+)
-  5. **Type abuse** — wrong type per parameter, verify documented exception (2+)
-  6. **Range / domain violations** — negatives, out-of-range enums, bad dates (2+)
-  7. **Unicode / encoding / special chars** — emoji, RTL, NULL bytes, very long (2+ if string-handling)
-  8. **Error contract** — every documented exception type, error message shape, no swallowing (3+)
-  9. **Idempotency / purity** — same input → same output, no input mutation (2+ if relevant)
-  10. **State and side effects** — exact-once semantics, cleanup on failure (2+ if stateful)
+  1. **Happy path** — typical realistic inputs, exact output assertions (2+)
+  2. **Output structure & type** — type, shape, ordering, length (1+)
+  3. **Boundary values** — zero, one, max, min, off-by-one (2+, **edge priority**)
+  4. **Empty / null / missing** — empty collection, `None`, default vs explicit (1+)
+  5. **Type abuse** — wrong type per parameter, verify documented exception (1+)
+  6. **Range / domain violations** — negatives, out-of-range enums, bad dates (1+)
+  7. **Unicode / encoding / special chars** — emoji, RTL, NULL bytes, very long (1+ if string-handling)
+  8. **Error contract** — every documented exception type, error message shape, no swallowing (2+)
+  9. **Idempotency / purity** — same input → same output, no input mutation (1+ if relevant)
+  10. **State and side effects** — exact-once semantics, cleanup on failure (1+ if stateful)
   11. **Concurrency / time / randomness** — frozen clock, seeded RNG, no shared-state corruption (1+ if relevant)
-  12. **Adversarial / abuse** — SQL/path/command injection shapes, NaN, Inf, deeply nested, circular refs (2+)
+  12. **Adversarial / abuse** — SQL/path/command injection shapes, NaN, Inf, deeply nested, circular refs (2+, **edge priority**)
 
 ### Adversarial mindset
 

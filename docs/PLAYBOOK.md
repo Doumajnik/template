@@ -170,8 +170,10 @@ Before writing or modifying code, always ask: **does this belong here?**
 
 <!-- How we test. What tools. What coverage expectations. -->
 
-- **Test-first (red-green loop).** Tests are written before implementation. Test Writer Agent writes 15+ failing tests, Worker Agent implements until they pass.
-- **15+ tests per public function.** Covering: happy path (multiple inputs), edge cases, boundary values, empty/null/missing inputs, invalid types, large inputs, error conditions, negative logic, idempotency, combination inputs, regression cases.
+- **Test-first (red-green loop).** Tests are written before implementation. Test Writer Agent writes ≥10 failing tests per function across the 12-category taxonomy (edge cases first); the functionality must reach ≥50 tests across all layers. Worker Agent implements until they pass.
+- **≥ 10 tests per public function across every applicable category of the 12-category taxonomy, edge cases first.** Categories: happy path, structure / shape, boundary values, empty/null/missing inputs, type abuse, range / overflow, unicode / encoding, error contract, idempotency, state transitions, time / concurrency, adversarial inputs. Skipping a category requires a 1-line `# CATEGORY N N/A: <reason>` comment.
+- **≥ 50 tests per functionality (feature/module)** summed across all layers (unit + integration + E2E + contract). The feature is not done until the total reaches 50.
+- **Bulletproof Standard:** before tests are accepted, ask "can I imagine a wrong implementation that passes all of these?" If yes, the suite is incomplete — add more.
 - **Unit tests mirror `src/` structure.** `src/services/user-service.ts` → `tests/services/user-service.test.ts`.
 - **Integration tests** for multi-module flows, written by Integration Tester Agent.
 - **Run tests automatically.** Agents never pause to ask permission to run tests.

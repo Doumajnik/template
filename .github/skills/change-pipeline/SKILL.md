@@ -90,7 +90,7 @@ See [change checklist](./references/change-checklist.md) for the full checklist 
 11. **Test Writer** (one per changed function) — writes/updates tests for:
     - The changed behavior (new expected outcomes)
     - Regression tests for unchanged behavior that might be affected
-    - Minimum 20 tests per changed function across the 12-category taxonomy
+    - Minimum 10 tests per changed function across every applicable category of the 12-category taxonomy, edge cases first; the changed functionality must reach ≥50 tests total across all layers
     - Mark ✅ in todo.
 
 12. **Worker** (one per changed function) — implements the change:

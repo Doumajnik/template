@@ -109,7 +109,7 @@ Before anything gets cleaned up or fixed, **write thorough tests for every exist
 Spawn **one Test Writer Agent per source file** (or per key module for large projects). Each writes tests for every public function in that file.
 
 **Coverage targets:**
-- Every public function gets 15+ tests
+- Every public function gets ≥10 tests across every applicable category of the 12-category taxonomy, edge cases first; every functionality reaches ≥50 tests total across all layers
 - Happy path with multiple realistic inputs
 - Edge cases: empty input, boundary values, single-element, large input, unicode
 - Error handling: invalid types, out-of-range, missing args
