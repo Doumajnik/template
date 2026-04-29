@@ -17,60 +17,66 @@ Your job: understand intent → read docs → decide which sub-agents to spawn �
 
 ---
 
-## Sub-Agent Roster (ALL use AGENT_MODEL — see `.ai/PREFERENCES.md`)
+## Sub-Agent Roster
 
-| Agent | Responsibility | Detailed instructions |
-| --- | --- | --- |
-| **Discovery** | Reads new data/codebases, produces summaries in `docs/discoveries/` | `.github/agents/discovery.agent.md` |
-| **Planning** | Creates plans in `.ai/plans/` and todos in `.ai/todos/` | `.github/agents/planner.agent.md` |
-| **Architect** | Designs system architecture | `.github/agents/architect.agent.md` |
-| **Critic** | Reviews architecture for flaws | `.github/agents/critic.agent.md` |
-| **Scaffolder** | Creates file stubs with signatures and docstrings | `.github/agents/scaffolder.agent.md` |
-| **Test Writer** | Writes ≥10 black-box tests per function across the 12-category taxonomy (red phase); contributes to the ≥50-tests-per-functionality floor | `.github/agents/test-writer.agent.md` |
-| **Worker** | Implements functions, runs red-green loop | `.github/agents/worker.agent.md` |
-| **Integration Tester** | Writes black-box integration / E2E / contract tests across module boundaries | `.github/agents/integration-tester.agent.md` |
-| **Reviewer** | Reviews for duplication, playbook compliance, and preference alignment | `.github/agents/reviewer.agent.md` |
-| **Doc Updater** | Updates all docs, commits with conventional messages | `.github/agents/doc-updater.agent.md` |
-| **Innovator** | Generates creative, unconventional solutions and alternatives | `.github/agents/innovator.agent.md` |
-| **Research** | Investigates questions via web research, codebase search, and docs | `.github/agents/research.agent.md` |
-| **Security** | Audits project for security vulnerabilities, appends to persistent report | `.github/agents/security.agent.md` |
-| **Code Quality** | Scans for suboptimal code, duplication, and code smells | `.github/agents/code-quality.agent.md` |
-| **Refactor** | Restructures existing code without changing behavior | `.github/agents/refactor.agent.md` |
-| **Debug** | Diagnoses bugs from error logs, stack traces, and failing tests. Applies fixes | `.github/agents/debug.agent.md` |
-| **Performance** | Profiles bottlenecks, algorithmic complexity, and memory issues | `.github/agents/performance.agent.md` |
-| **Database** | Designs schemas, writes migrations, optimizes queries | `.github/agents/database.agent.md` |
-| **SQL Query** | Writes, reviews, and optimizes SQL queries. Analyzes EXPLAIN plans, detects N+1 patterns | `.github/agents/sql-query.agent.md` |
-| **Monitoring** | Audits observability — logging, health checks, alerting. Reports gaps — Workers implement | `.github/agents/monitoring.agent.md` |
-| **Dependency** | Audits dependency trees for outdated packages and license compliance | `.github/agents/dependency.agent.md` |
-| **Cleanup** | Removes dead code, unused imports, and stale files | `.github/agents/cleanup.agent.md` |
-| **Accessibility** | Reviews UI/frontend code for WCAG compliance | `.github/agents/accessibility.agent.md` |
-| **Compliance** | Audits for license compliance, data privacy, and regulatory requirements | `.github/agents/compliance.agent.md` |
-| **Consistency Check** | Audits for drift between plans, code, docs, agent rosters, and references. Spawned at every phase boundary; reports findings — other agents apply fixes | `.github/agents/consistency-check.agent.md` |
-| **Retrospective** | Reviews full session transcript in chunks — every tool call, command, and response. Spawned per-chunk to avoid missing details. Updates Playbook | `.github/agents/retrospective.agent.md` |
-| **Migration** | Handles framework upgrades, API version bumps, language migrations | `.github/agents/migration.agent.md` |
-| **API Design** | Designs API contracts, generates OpenAPI specs, validates endpoints | `.github/agents/api-design.agent.md` |
-| **Error Handling** | Audits error handling for silent catches, missing context. Reports findings — Workers fix | `.github/agents/error-handling.agent.md` |
-| **Type Safety** | Audits type coverage, finds unsafe casts, validates schema consistency. Reports findings — Workers fix | `.github/agents/type-safety.agent.md` |
-| **Git / Release** | Manages changelogs, semantic versioning, release notes, tag creation | `.github/agents/git-release.agent.md` |
-| **Librarian** | Maintains knowledge index, serves context briefs to all agents (query + index modes) | `.github/agents/librarian.agent.md` |
-| **Prompt Engineer** | Deeply analyzes feature requests, produces enriched specs for the pipeline | `.github/agents/prompt-engineer.agent.md` |
-| **UI Preview** | Generates HTML/CSS preview mockups from plans for user approval before scaffolding | `.github/agents/ui-preview.agent.md` |
-| **Frontend Component** | Builds accessible, performant UI components with proper state management and design system compliance | `.github/agents/frontend-component.agent.md` |
-| **Load Testing** | Designs load test scenarios, analyzes results, validates SLOs. Reports bottlenecks — Workers implement fixes | `.github/agents/load-testing.agent.md` |
-| **Config Management** | Audits and designs application configuration patterns — env vars, feature flags, secrets management | `.github/agents/config-management.agent.md` |
-| **Data Engineer** | Designs ETL/ELT pipelines, warehouse models, schema evolution, and data lineage. Owns the analytical data plane | `.github/agents/data-engineer.agent.md` |
-| **Observability Engineer** | Designs telemetry upfront — metrics, traces, logs, SLOs, dashboards. Pairs with Architect during planning | `.github/agents/observability.agent.md` |
-| **Cost / FinOps** | Profiles cloud spend, weighs cost in architecture, identifies optimizations. Joins Critic in bottleneck-scan rounds | `.github/agents/cost-finops.agent.md` |
-| **Incident Commander** | Triages live production incidents — orders investigation, coordinates response, hands off to Retrospective | `.github/agents/incident-commander.agent.md` |
-| **Deprecation Manager** | Owns the deprecation timeline (announce → warn → remove) for public APIs, features, shared utilities | `.github/agents/deprecation.agent.md` |
-| **Localization** | Audits and designs i18n/l10n — string externalization, ICU plurals, RTL, locale-aware formats | `.github/agents/localization.agent.md` |
-| **Vendor Evaluator** | Evaluates third-party libraries/services for fit, total cost, lock-in, license risk before adoption | `.github/agents/vendor-evaluator.agent.md` |
-| **UX Research** | Designs and synthesizes user research — usability tests, surveys, interview guides, persona development | `.github/agents/ux-research.agent.md` |
-| **Threat Modeling** | Designs STRIDE / OWASP threat models against the architecture BEFORE code is written. Pairs with Architect during planning | `.github/agents/threat-modeling.agent.md` |
-| **Mock Data Generator** | Designs and generates realistic test fixtures, seed datasets, and contract payloads for Test Writers and Integration Testers | `.github/agents/mock-data.agent.md` |
-| **Capacity Planner** | Models load, growth, tail behaviour, sizing, and SLO feasibility against the architecture BEFORE implementation | `.github/agents/capacity-planner.agent.md` |
-| **Analytics Instrumentation** | Designs business analytics — event taxonomy, KPIs, funnels, cohorts, experiment readiness. Distinct from Observability (technical telemetry) | `.github/agents/analytics-instrumentation.agent.md` |
-| **Doc-Site Generator** | Produces user-facing documentation — getting-started, tutorials, how-tos, reference, runbooks, migrations. Distinct from Doc Updater (internal docs) | `.github/agents/doc-site.agent.md` |
+The **Model** column below is the **single source of truth** for which model each sub-agent uses. The frontmatter `model:` field in every `.agent.md` file MUST match this table. To change a model: edit the table, then run `python scripts/update-agent-model.py` (or `.\scripts\update-agent-model.ps1`) to propagate the change into the agent files. Tier guidance and `AGENT_MODEL` default live in `.ai/PREFERENCES.md`.
+
+<!-- AGENT_MODEL_TABLE_START -->
+
+| Agent | Responsibility | Model | Detailed instructions |
+| --- | --- | --- | --- |
+| **Discovery** | Reads new data/codebases, produces summaries in `docs/discoveries/` | Claude Sonnet 4.6 | `.github/agents/discovery.agent.md` |
+| **Planning** | Creates plans in `.ai/plans/` and todos in `.ai/todos/` | Claude Opus 4.7 | `.github/agents/planner.agent.md` |
+| **Architect** | Designs system architecture | Claude Opus 4.7 | `.github/agents/architect.agent.md` |
+| **Critic** | Reviews architecture for flaws | Claude Opus 4.6 | `.github/agents/critic.agent.md` |
+| **Scaffolder** | Creates file stubs with signatures and docstrings | Claude Opus 4.7 | `.github/agents/scaffolder.agent.md` |
+| **Test Writer** | Writes ≥12 black-box tests per function across the 12-category taxonomy with per-category floors (≥2 standard, ≥3 boundary + adversarial); contributes to the ≥50-tests-per-functionality floor | Claude Sonnet 4.6 | `.github/agents/test-writer.agent.md` |
+| **Worker** | Implements functions, runs red-green loop | Claude Sonnet 4.6 | `.github/agents/worker.agent.md` |
+| **Integration Tester** | Writes black-box integration / E2E / contract tests across module boundaries | Claude Sonnet 4.6 | `.github/agents/integration-tester.agent.md` |
+| **Reviewer** | Reviews for duplication, playbook compliance, and preference alignment | Claude Opus 4.6 | `.github/agents/reviewer.agent.md` |
+| **Doc Updater** | Updates all docs, commits with conventional messages | Claude Sonnet 4.6 | `.github/agents/doc-updater.agent.md` |
+| **Innovator** | Generates creative, unconventional solutions and alternatives | Claude Opus 4.7 | `.github/agents/innovator.agent.md` |
+| **Research** | Investigates questions via web research, codebase search, and docs | Claude Sonnet 4.6 | `.github/agents/research.agent.md` |
+| **Security** | Audits project for security vulnerabilities, appends to persistent report | Claude Opus 4.6 | `.github/agents/security.agent.md` |
+| **Code Quality** | Scans for suboptimal code, duplication, and code smells | Claude Sonnet 4.6 | `.github/agents/code-quality.agent.md` |
+| **Refactor** | Restructures existing code without changing behavior | Claude Sonnet 4.6 | `.github/agents/refactor.agent.md` |
+| **Debug** | Diagnoses bugs from error logs, stack traces, and failing tests. Applies fixes | Claude Opus 4.6 | `.github/agents/debug.agent.md` |
+| **Performance** | Profiles bottlenecks, algorithmic complexity, and memory issues | Claude Sonnet 4.6 | `.github/agents/performance.agent.md` |
+| **Database** | Designs schemas, writes migrations, optimizes queries | Claude Sonnet 4.6 | `.github/agents/database.agent.md` |
+| **SQL Query** | Writes, reviews, and optimizes SQL queries. Analyzes EXPLAIN plans, detects N+1 patterns | Claude Sonnet 4.6 | `.github/agents/sql-query.agent.md` |
+| **Monitoring** | Audits observability — logging, health checks, alerting. Reports gaps — Workers implement | Claude Sonnet 4.6 | `.github/agents/monitoring.agent.md` |
+| **Dependency** | Audits dependency trees for outdated packages and license compliance | Claude Sonnet 4.6 | `.github/agents/dependency.agent.md` |
+| **Cleanup** | Removes dead code, unused imports, and stale files | Claude Sonnet 4.6 | `.github/agents/cleanup.agent.md` |
+| **Accessibility** | Reviews UI/frontend code for WCAG compliance | Claude Sonnet 4.6 | `.github/agents/accessibility.agent.md` |
+| **Compliance** | Audits for license compliance, data privacy, and regulatory requirements | Claude Sonnet 4.6 | `.github/agents/compliance.agent.md` |
+| **Consistency Check** | Audits for drift between plans, code, docs, agent rosters, and references. Spawned at every phase boundary; reports findings — other agents apply fixes | Claude Opus 4.6 | `.github/agents/consistency-check.agent.md` |
+| **Retrospective** | Reviews full session transcript in chunks — every tool call, command, and response. Spawned per-chunk to avoid missing details. Updates Playbook | Claude Opus 4.6 | `.github/agents/retrospective.agent.md` |
+| **Migration** | Handles framework upgrades, API version bumps, language migrations | Claude Sonnet 4.6 | `.github/agents/migration.agent.md` |
+| **API Design** | Designs API contracts, generates OpenAPI specs, validates endpoints | Claude Sonnet 4.6 | `.github/agents/api-design.agent.md` |
+| **Error Handling** | Audits error handling for silent catches, missing context. Reports findings — Workers fix | Claude Sonnet 4.6 | `.github/agents/error-handling.agent.md` |
+| **Type Safety** | Audits type coverage, finds unsafe casts, validates schema consistency. Reports findings — Workers fix | Claude Sonnet 4.6 | `.github/agents/type-safety.agent.md` |
+| **Git / Release** | Manages changelogs, semantic versioning, release notes, tag creation | Claude Sonnet 4.6 | `.github/agents/git-release.agent.md` |
+| **Librarian** | Maintains knowledge index, serves context briefs to all agents (query + index modes) | Claude Sonnet 4.6 | `.github/agents/librarian.agent.md` |
+| **Prompt Engineer** | Deeply analyzes feature requests, produces enriched specs for the pipeline | Claude Opus 4.7 | `.github/agents/prompt-engineer.agent.md` |
+| **UI Preview** | Generates HTML/CSS preview mockups from plans for user approval before scaffolding | Claude Sonnet 4.6 | `.github/agents/ui-preview.agent.md` |
+| **Frontend Component** | Builds accessible, performant UI components with proper state management and design system compliance | Claude Sonnet 4.6 | `.github/agents/frontend-component.agent.md` |
+| **Load Testing** | Designs load test scenarios, analyzes results, validates SLOs. Reports bottlenecks — Workers implement fixes | Claude Sonnet 4.6 | `.github/agents/load-testing.agent.md` |
+| **Config Management** | Audits and designs application configuration patterns — env vars, feature flags, secrets management | Claude Sonnet 4.6 | `.github/agents/config-management.agent.md` |
+| **Data Engineer** | Designs ETL/ELT pipelines, warehouse models, schema evolution, and data lineage. Owns the analytical data plane | Claude Sonnet 4.6 | `.github/agents/data-engineer.agent.md` |
+| **Observability Engineer** | Designs telemetry upfront — metrics, traces, logs, SLOs, dashboards. Pairs with Architect during planning | Claude Opus 4.6 | `.github/agents/observability.agent.md` |
+| **Cost / FinOps** | Profiles cloud spend, weighs cost in architecture, identifies optimizations. Joins Critic in bottleneck-scan rounds | Claude Sonnet 4.6 | `.github/agents/cost-finops.agent.md` |
+| **Incident Commander** | Triages live production incidents — orders investigation, coordinates response, hands off to Retrospective | Claude Opus 4.6 | `.github/agents/incident-commander.agent.md` |
+| **Deprecation Manager** | Owns the deprecation timeline (announce → warn → remove) for public APIs, features, shared utilities | Claude Sonnet 4.6 | `.github/agents/deprecation.agent.md` |
+| **Localization** | Audits and designs i18n/l10n — string externalization, ICU plurals, RTL, locale-aware formats | Claude Sonnet 4.6 | `.github/agents/localization.agent.md` |
+| **Vendor Evaluator** | Evaluates third-party libraries/services for fit, total cost, lock-in, license risk before adoption | Claude Sonnet 4.6 | `.github/agents/vendor-evaluator.agent.md` |
+| **UX Research** | Designs and synthesizes user research — usability tests, surveys, interview guides, persona development | Claude Sonnet 4.6 | `.github/agents/ux-research.agent.md` |
+| **Threat Modeling** | Designs STRIDE / OWASP threat models against the architecture BEFORE code is written. Pairs with Architect during planning | Claude Opus 4.6 | `.github/agents/threat-modeling.agent.md` |
+| **Mock Data Generator** | Designs and generates realistic test fixtures, seed datasets, and contract payloads for Test Writers and Integration Testers | Claude Sonnet 4.6 | `.github/agents/mock-data.agent.md` |
+| **Capacity Planner** | Models load, growth, tail behaviour, sizing, and SLO feasibility against the architecture BEFORE implementation | Claude Opus 4.6 | `.github/agents/capacity-planner.agent.md` |
+| **Analytics Instrumentation** | Designs business analytics — event taxonomy, KPIs, funnels, cohorts, experiment readiness. Distinct from Observability (technical telemetry) | Claude Sonnet 4.6 | `.github/agents/analytics-instrumentation.agent.md` |
+| **Doc-Site Generator** | Produces user-facing documentation — getting-started, tutorials, how-tos, reference, runbooks, migrations. Distinct from Doc Updater (internal docs) | Claude Sonnet 4.6 | `.github/agents/doc-site.agent.md` |
+
+<!-- AGENT_MODEL_TABLE_END -->
 
 When spawning a sub-agent, read its `.agent.md` file and include the relevant instructions in the prompt.
 
@@ -254,18 +260,48 @@ Before spawning ANY working agent, the Orchestrator MUST:
 
 ## Session Startup (ALWAYS do first)
 
-1. `.ai/PREFERENCES.md` — coding style, TURBO_MODE, DEEP_MODE settings.
+1. `.ai/PREFERENCES.md` — coding style, TURBO_MODE, DEEP_MODE, BUDGET_MODE settings.
 2. `docs/PLAYBOOK.md` — architecture decisions, patterns, and code rules.
 3. `docs/CODE_INVENTORY.md` — what already exists.
 4. `docs/discoveries/` — summaries of previously analyzed data.
 5. `.ai/lessons.md` — lessons learned from past corrections. Review for patterns relevant to the current task.
 6. Latest `.ai/sessions/` — recent context.
 7. Check `.ai/plans/` for in-progress plans (status 🟢). Ask user if they want to resume.
-8. **Check for incomplete todos** — scan `.ai/todos/` for files with remaining ⬜ tasks. If found, present them to the user and ask whether to resume or start fresh.
+8. **Check for incomplete todos** — scan `.ai/todos/` for files with remaining `- [ ]` tasks. If found, present them to the user and ask whether to resume or start fresh.
 9. **Check for retrospective action items** — read the latest entry in `docs/RETROSPECTIVE_REPORT.md` for any action items. If found, add them to the new session's todo file so they're tracked.
 10. **Create a dispatch log** — copy `.ai/DISPATCH_LOG_TEMPLATE.md` to `.ai/sessions/{YYYY-MM-DD}_{topic}.dispatch.md`. Fill in the session date and topic. If continuing a previous session, add a `Continues from: {previous dispatch log}` header to chain the logs. All sub-agent calls during this session are logged here.
 11. **Create a session transcript (optional)** — copy `.ai/SESSION_TRANSCRIPT_TEMPLATE.md` to `.ai/sessions/{YYYY-MM-DD}_{topic}.transcript.md`. This is an optional full audit trail with a live workflow diagram. If you find transcripts are not being maintained, the dispatch log is sufficient — skip this step.
 12. **Refresh knowledge index** — spawn Librarian in index mode if source code has changed since last session.
+13. **Pick the right pipeline checklist** — see [Orchestrator Pipeline Checklists](#orchestrator-pipeline-checklists) below. Copy the matching checklist from `.ai/checklists/` into the session todo file and tick each box as the pipeline progresses.
+
+---
+
+## Orchestrator Pipeline Checklists
+
+The Orchestrator is a dispatcher running a long, branching pipeline. To stay reliable — especially on weaker models — it MUST work from an explicit checklist instead of remembering the steps from prose. Pre-built checklists live in `.ai/checklists/`:
+
+| Trigger | Checklist | Pipeline |
+| --- | --- | --- |
+| New feature, greenfield, non-trivial work | `.ai/checklists/planning.checklist.md` | [Planning Sequence](#planning-sequence-non-trivial-tasks) (steps 1–25, 3 gates) |
+| Modify / update / refactor existing code | `.ai/checklists/change.checklist.md` | [Change Pipeline](#change-pipeline-modifications-to-existing-code) (steps 1–22, 3 gates) |
+| `"onboard"` / project audit | `.ai/checklists/onboarding.checklist.md` | [Onboarding Pipeline](#onboarding-pipeline-existing-project-audit) (Phases 1–7, 3 gates) |
+| `"incident"` / `"down"` / `"outage"` | `.ai/checklists/incident.checklist.md` | [Incident Response](#incident-response-pipeline-live-production-issues) (Phases 1–7, 1 gate) |
+| `"budget"` / `"quick"` / `"prototype"` or `BUDGET_MODE: ON` | `.ai/checklists/budget.checklist.md` | [Budget Pipeline](#budget-pipeline-budget_mode-on) (12 steps, 1 gate) |
+
+### Orchestrator todo discipline
+
+1. **At session start**, after Step 13 above, copy the chosen checklist into `.ai/todos/{YYYY-MM-DD}_{topic}.todo.md` **at the top** of the file. Keep the heading and intro intact. Sub-agents append their own per-task rows underneath.
+2. **Tick boxes as you go.** The Orchestrator owns these boxes — sub-agents don't touch them. Use:
+   - `- [ ]` not started
+   - `- [~]` in progress (one at a time, just like agent todos)
+   - `- [x]` done
+   - `- [!]` blocked / needs attention (must be resolved before the pipeline advances)
+3. **Skipped steps stay in the list.** Mark them `- [x] ~~Step text~~ — N/A: <reason>` so the audit trail shows the choice was deliberate. Never silently delete a step.
+4. **Mid-pipeline pivots:** if the user changes direction or a Circuit Breaker fires, append a horizontal rule + `## Pipeline restart` heading + the new checklist underneath the old one. Don't overwrite history.
+5. **End of session:** the checklist must be either fully ticked or have explicit `- [!]` blockers + plan status 🟡 Paused. A checklist with silent `- [ ]` boxes is an incomplete session.
+6. **Consistency Check (Roster & Pipeline shard) verifies** that the steps in the checklist match the steps in the matching pipeline section of this file. If a pipeline step is added, removed, or renumbered, the matching checklist file in `.ai/checklists/` MUST be updated in the same commit.
+
+Why this exists: a weaker model (or a tired one) drops steps from a 25-step pipeline. The checklist makes "did I run Threat Modeling in parallel with Observability?" visible to both the model AND the user. The user can read the todo file at any moment and answer "where are we in the pipeline?".
 
 ---
 
@@ -315,7 +351,7 @@ Splitting these into separate sessions keeps context windows small and allows pl
 
 15. **Scaffolder** — creates file stubs. Uses the UI Preview's component decomposition (if available) to create accurate frontend stubs. Marks scaffolding tasks ✅ in todo.
 16. **Architect (scaffold review)** — quick verification that scaffolded files match the verified plan: correct file structure, function signatures, module boundaries, and completeness. If issues found → Scaffolder revises.
-17. **Test Writer** — writes ≥10 black-box failing tests per function across every applicable category of the 12-category taxonomy, edge cases first (one instance per function). Cannot read source — hard-enforced by Tool Guard. Contributes to the **≥50-tests-per-functionality** floor (sum of unit + integration + E2E + contract). Marks test tasks ✅ in todo.
+17. **Test Writer** — writes ≥12 black-box failing tests per function across every applicable category of the 12-category taxonomy with per-category floors (≥2 standard categories, ≥3 for boundary and adversarial), edge cases first (one instance per function). Cannot read source — hard-enforced by Tool Guard. Contributes to the **≥50-tests-per-functionality** floor (sum of unit + integration + E2E + contract). Marks test tasks ✅ in todo.
 18. **Worker** — implements code, red-green loop until tests pass (one instance per function). Marks each function ✅ in todo as it passes. Workers also implement the telemetry instrumentation designed by the Observability Engineer.
 19. **Integration Tester** — writes black-box integration tests (15+ per feature, in `tests/integration/`), E2E tests (5+ per user-facing feature, in `tests/e2e/`), and contract tests (1+ per consumer↔provider pair, in `tests/contracts/`). Cannot read source — works from `docs/API_DOCUMENTATION.md`, `docs/BUSINESS_LOGIC.md`, and the Librarian brief. Marks ✅ in todo.
 20. **Reviewer** — validates result. Checks todo for skipped/incomplete tasks. Marks review ✅ in todo.
@@ -341,6 +377,69 @@ The **Consistency Check Agent** is dispatched at three phase boundaries inside t
 At each gate: 🔴 CRITICAL or 🟡 HIGH findings block progress. The Orchestrator dispatches the listed fix-owner agents (Doc Updater / Refactor / Cleanup / Worker) — fan out fixers in parallel when findings are independent — then re-spawns the Consistency Check shards on the same scope. The pipeline only advances when every shard returns clean. 🟢/⚪ findings are logged but non-blocking.
 
 > **IMPORTANT:** Modifications to existing code are NEVER trivial. Any request that changes existing behavior, refactors logic, or modifies existing files MUST go through the **Change Pipeline** below — no exceptions.
+
+---
+
+## Budget Pipeline (BUDGET_MODE: ON)
+
+When `BUDGET_MODE` is ON in `.ai/PREFERENCES.md`, the Orchestrator runs this stripped-down pipeline instead of the full Planning Sequence. Use for prototypes, throwaway experiments, hackathons, and "just make it work" tasks where the full review surface is not justified.
+
+**BUDGET_MODE forces DEEP_MODE OFF.** The two are mutually exclusive. If both are ON in PREFERENCES.md, BUDGET_MODE wins for that session and the Orchestrator notes the conflict in the dispatch log.
+
+### Steps (essentials only)
+
+1. **Prompt Engineer (light)** — produces a one-page spec; skips deep adversarial questioning. `[ASK USER]` items still surface.
+2. **Discovery** — only if new data is involved (ask first, same as full pipeline).
+3. **Research** — only if a dependency choice is unclear; otherwise skipped and the Architect uses trained knowledge.
+4. **Architect (single pass)** — designs the architecture in one shot. **No Critic loop, no Innovator round.**
+5. **Planning Agent** — produces plan + todo file.
+6. **User approval (MANDATORY)** — same gate as full pipeline. Cannot be skipped even in BUDGET_MODE.
+7. **Scaffolder** — creates file stubs.
+8. **Test Writer** — writes ≥5 black-box tests per function (relaxed from ≥10). Edge cases first. Cannot read source — hard-enforced by Tool Guard.
+9. **Worker** — implements code, red-green loop until tests pass.
+10. **Reviewer** — validates result. Checks todo for skipped/incomplete tasks.
+11. **Doc Updater** — updates `docs/CODE_INVENTORY.md` and `docs/files/{path}.md` for changed files only. Skips `docs/BUSINESS_LOGIC.md` updates unless the architecture changed.
+12. **Consistency Check (single gate)** — one gate at the end (not three). Single instance, not sharded. Verifies plan ↔ code ↔ docs.
+
+### What is intentionally skipped
+
+| Skipped | Why it's safe to skip in budget mode |
+| --- | --- |
+| Innovator | No creative-alternative round — take the first reasonable design |
+| Critic (bottleneck + full review) | No adversarial loop — trust the Architect's first pass |
+| Observability Engineer | No upfront telemetry plan — add later if the prototype graduates |
+| Threat Modeling | No STRIDE — prototypes are not production attack surface |
+| Compliance (privacy-by-design) | No data-flow audit — prototypes should not collect real user data |
+| Analytics Instrumentation | No KPI plan — prototypes don't ship to users |
+| Capacity Planner | No load model — prototypes serve one user (you) |
+| Cost / FinOps | No cost review |
+| Mock Data Generator | Test Writer writes its own minimal fixtures inline |
+| Integration Tester | Unit tests only — no E2E / contract layers |
+| Security Agent | No OWASP audit — add when graduating to production |
+| Code Quality Agent | No smell scan — add when refactoring for production |
+| Retrospective | No transcript review |
+| Doc-Site Generator | No user-facing docs — prototypes don't have users |
+| Cleanup (dedup pass) | No report consolidation |
+| Consistency Check Gates 1 & 2 | Only the final gate (3) runs |
+| UI Preview / Localization / UX Research | No design preview round — prototypes iterate on screen |
+
+### When BUDGET_MODE is the wrong choice
+
+Do NOT use BUDGET_MODE when:
+
+- The change touches authentication, authorization, payments, or user data — Threat Modeling and Security are mandatory.
+- The system is already in production — use the Change Pipeline instead.
+- You're onboarding an existing project — use the Onboarding Pipeline.
+- You're responding to a live incident — use the Incident Response Pipeline.
+- Multiple users will rely on the output — the savings are not worth the regression risk.
+
+### Quick command
+
+| User says | What to do |
+| --- | --- |
+| **"budget"**, **"quick"**, or **"prototype"** + description | Run the Budget Pipeline (override BUDGET_MODE for this session). |
+
+---
 
 ### Ad-Hoc Agents (spawned as needed)
 
@@ -415,7 +514,7 @@ When the user requests a **change** to existing code — modifying behavior, upd
 11. **Deprecation Manager** — if the change removes or replaces a public API, feature, or shared utility, designs the announce → warn → remove timeline and writes a migration guide. Updates `docs/DEPRECATION_LOG.md`. Skipped when the change is internal-only with no consumers.
 12. **Architect (plan verification)** — verifies the change plan faithfully translates the architecture: all affected modules, migration paths, regression strategies, and deprecation timeline accounted for. If issues found → Planning Agent revises.
 13. **User approval (MANDATORY GATE)** — present the full change plan, impact analysis, regression checklist, and deprecation entries (if any). Ask for explicit approval.
-14. **Test Writer** — writes/updates tests for the changed behavior AND regression tests for unchanged behavior that might be affected. Minimum **10 tests per changed function** across every applicable category of the 12-category taxonomy, edge cases first; the changed functionality must end up with **≥50 tests total** across all layers. Cannot read source — hard-enforced by Tool Guard.
+14. **Test Writer** — writes/updates tests for the changed behavior AND regression tests for unchanged behavior that might be affected. Minimum **12 tests per changed function** across every applicable category of the 12-category taxonomy with per-category floors (≥2 standard, ≥3 boundary + adversarial), edge cases first; the changed functionality must end up with **≥50 tests total** across all layers. Cannot read source — hard-enforced by Tool Guard.
 15. **Worker** — implements the change. Runs red-green loop. Must verify all existing tests still pass (not just new ones).
 16. **Integration Tester** — writes/runs E2E tests covering the change. Specifically tests the boundary between changed and unchanged code.
 17. **Reviewer** — validates the change. Specifically checks: no unintended side effects, regression checklist passes, all affected callers updated.
@@ -453,7 +552,7 @@ The full step-by-step procedure lives in [.github/prompts/onboard-project.prompt
 4. **Structure & Cleanup analysis** —
    - **4a:** Architect (structure-review mode) → `docs/STRUCTURE_REVIEW.md`.
    - **4b:** Cleanup (audit-only mode) → `docs/CLEANUP_REPORT.md` (dead code, dead docs, dead deps).
-5. **Test harness** — Test Writer (per source file, ≥10 black-box tests/function across the 12-category taxonomy, edge cases first) + Integration Tester (15+ integration / 5+ E2E / 1+ contract per feature). Every functionality must reach the **≥50-tests-per-functionality** floor across all layers. Both run black-box — no source reads. Run full suite, save `.ai/plans/{date}_test-baseline.md` with pass/fail/skip counts.
+5. **Test harness** — Test Writer (per source file, ≥12 black-box tests/function across the 12-category taxonomy with per-category floors (≥2 standard, ≥3 boundary + adversarial), edge cases first) + Integration Tester (15+ integration / 5+ E2E / 1+ contract per feature). Every functionality must reach the **≥50-tests-per-functionality** floor across all layers. Both run black-box — no source reads. Run full suite, save `.ai/plans/{date}_test-baseline.md` with pass/fail/skip counts.
 6. **Improvement plan** — Planning Agent synthesizes all reports + baseline into `.ai/plans/{date}_onboarding-improvements.md` prioritized Critical / High / Medium / Low + dead-asset removal list.
 7. **Present to user** — show discovery, structure review, dead-asset counts, test baseline, top-5 actions, and the full improvement plan. Ask for approval before any fix work.
 
@@ -622,6 +721,7 @@ These short phrases trigger full pipelines — no extra explanation needed from 
 | **"plan only"** or **"plan"** + description | Run `/plan-only` — Phase A only (steps 1–14). Produces spec, research brief, plan, todo, UI preview — stops at User Approval. |
 | **"implement plan"** + path | Run `/implement-plan` — Phase B (steps 15–25). Picks up from a Phase A plan and runs scaffold → test → implement → review → docs → retrospective. |
 | **"plan and implement"** + description | Run `/plan-and-implement` — Phase A + Phase B in a single session (full Planning Sequence steps 1–25). Use only when context is short and the task is small enough to fit a single chat. For larger tasks prefer `/plan-only` overnight then `/implement-plan` in a fresh session. |
+| **"budget"**, **"quick"**, or **"prototype"** + description | Run the **Budget Pipeline** — essentials only (12 steps, single Consistency Check). Overrides BUDGET_MODE for this session. See [Budget Pipeline](#budget-pipeline-budget_mode-on). |
 | **"abort"**, **"stop"**, or **"cancel"** | Pipeline Abort (see below). |
 
 ---

@@ -1,7 +1,7 @@
 ---
 name: Consistency Check
 description: Audits the project for drift between plans, code, docs, agent rosters, file references, and naming conventions. Spawned at every phase boundary (planning → implementation → review → done), often **fanned out into multiple parallel instances**, one per drift category. Produces a report — other agents apply fixes.
-model: Claude Sonnet 4.6
+model: Claude Opus 4.6
 tools: ['search', 'read', 'edit']
 ---
 

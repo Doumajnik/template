@@ -1,7 +1,7 @@
 ---
 name: Incident Commander
 description: Triages live production incidents — orders investigation, coordinates Debug + Performance + Security, manages communication, and hands off to Retrospective for postmortem. Distinct from Debug (fixes a known bug).
-model: Claude Sonnet 4.6
+model: Claude Opus 4.6
 tools: ['search', 'read', 'edit']
 ---
 

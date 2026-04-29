@@ -59,8 +59,11 @@ For **every** public function, write tests in **every applicable category** of t
 
 **Hard minimums (the floor, not the target):**
 
-- **≥ 10 tests per function**, distributed across the 12 categories (skip a category only if it genuinely does not apply — and document why in a 1-line `# CATEGORY N N/A: <reason>` comment in the test file).
-- **The functionality (feature/module) I belong to must end up with ≥ 50 tests in total** across all layers (my unit tests + Integration Tester's integration / E2E / contract tests). I am one Test Writer of several covering the same functionality — my unit count contributes to that 50. If my function is the only function in a feature, I write enough tests by myself to get the feature to 50.
+- **≥ 12 tests per function** (one floor was 10 — it is now 12 because of the per-category bumps below). Distributed across the 12 categories. Skip a category only if it genuinely does not apply — and document why in a 1-line `# CATEGORY N N/A: <reason>` comment in the test file.
+- **Per-category floor (every applicable category):**
+  - `≥ 2` tests for categories **1** (happy path), **2** (output structure), **4** (empty/null), **5** (type abuse), **6** (range), **7** (unicode if strings), **8** (error contract), **9** (idempotency), **10** (state), **11** (concurrency/time)
+  - `≥ 3` tests for categories **3** (boundaries) and **12** (adversarial) — **edge categories carry the highest defect density, so they get more tests**
+- **The functionality (feature/module) I belong to must end up with ≥ 50 tests in total** across all layers (my unit tests + Integration Tester's integration / E2E / contract tests). I am one Test Writer of several covering the same functionality. If my function is the only function in a feature, I write enough tests by myself to get the feature to 50.
 
 **Bulletproof Standard:** the goal is not coverage — it is to **catch every mistake the implementer could make**. For each applicable category, write enough tests that a buggy implementation cannot pass them all. If you can imagine a wrong implementation that still passes your tests, the suite is incomplete — add another test.
 
@@ -68,34 +71,37 @@ For **every** public function, write tests in **every applicable category** of t
 
 Before writing, run a 60-second **adversarial brainstorm**: imagine the function is being attacked by a hostile user, a confused user, a fuzzer, a security researcher, a sleep-deprived developer copy-pasting it, a regulator, and a clock that just changed time zones. What would each of them break? Write tests for those.
 
-**1. Happy path (2+ tests)** — typical, realistic inputs across the documented input space. Verify exact outputs, not just "not None".
+**1. Happy path (≥ 2 tests)** — typical, realistic inputs across the documented input space. Verify exact outputs, not just "not None".
 
-**2. Output structure & type (1+ test)** — return type matches contract, return shape matches contract (keys present, ordering if specified, length constraints). Reject any test that would still pass if the function returned `{}` or `[]`.
+**2. Output structure & type (≥ 2 tests)** — return type matches contract, return shape matches contract (keys present, ordering if specified, length constraints). Reject any test that would still pass if the function returned `{}` or `[]`.
 
-**3. Boundary values (2+ tests)** — zero, one, exactly-the-limit, one-below-the-limit, one-above-the-limit, max integer, min integer, empty string, single character, single-element list, max documented size. **Edge-case priority — add more here than the floor.**
+**3. Boundary values (≥ 3 tests — EDGE PRIORITY)** — zero, one, exactly-the-limit, one-below-the-limit, one-above-the-limit, max integer, min integer, empty string, single character, single-element list, max documented size. Aim higher here than the floor.
 
-**4. Empty / null / missing (1+ test)** — empty string, empty collection, `None`/`null`/`undefined`, missing optional argument vs explicitly-`None` argument (these can behave differently), default-value behavior.
+**4. Empty / null / missing (≥ 2 tests)** — empty string, empty collection, `None`/`null`/`undefined`, missing optional argument vs explicitly-`None` argument (these can behave differently), default-value behavior.
 
-**5. Type abuse (1+ test)** — wrong type for each parameter (string where int expected, list where dict expected, bool where number expected). Verify the documented exception type and message shape.
+**5. Type abuse (≥ 2 tests)** — wrong type for each parameter (string where int expected, list where dict expected, bool where number expected). Verify the documented exception type and message shape.
 
-**6. Range and domain violations (1+ test)** — negative numbers where positives are documented, zero where positives are documented, out-of-range enum values, dates before epoch, dates far in the future.
+**6. Range and domain violations (≥ 2 tests)** — negative numbers where positives are documented, zero where positives are documented, out-of-range enum values, dates before epoch, dates far in the future.
 
-**7. Unicode, encoding, and special characters (1+ test for any function touching strings)** — emoji, RTL scripts, combining characters, NULL bytes, very long strings, strings with quotes/backslashes/newlines, leading/trailing whitespace, normalization edge cases (NFC vs NFD).
+**7. Unicode, encoding, and special characters (≥ 2 tests for any function touching strings)** — emoji, RTL scripts, combining characters, NULL bytes, very long strings, strings with quotes/backslashes/newlines, leading/trailing whitespace, normalization edge cases (NFC vs NFD).
 
-**8. Error contract (2+ tests)** — every documented exception type is raised under its documented condition, error messages contain the documented context (e.g., the offending value), errors are NOT silently swallowed (no `except: pass` slipping through), no leaking of internal details.
+**8. Error contract (≥ 2 tests)** — every documented exception type is raised under its documented condition, error messages contain the documented context (e.g., the offending value), errors are NOT silently swallowed (no `except: pass` slipping through), no leaking of internal details.
 
-**9. Idempotency and purity (2+ tests where relevant)** — calling twice with same input returns same result, function does not mutate its input arguments when not documented to, function is order-independent if it claims to be.
+**9. Idempotency and purity (≥ 2 tests where relevant)** — calling twice with same input returns same result, function does not mutate its input arguments when not documented to, function is order-independent if it claims to be.
 
-**10. State and side effects (2+ tests if function has side effects)** — verify the documented state change happens exactly once, verify no extra writes happen, verify cleanup on failure (no half-written state), verify ordering guarantees if documented.
+**10. State and side effects (≥ 2 tests if function has side effects)** — verify the documented state change happens exactly once, verify no extra writes happen, verify cleanup on failure (no half-written state), verify ordering guarantees if documented.
 
-**11. Concurrency, time, and randomness (1+ test where relevant)** — if the function uses time, freeze the clock; if it uses randomness, seed it; if it can be called concurrently, verify it doesn't corrupt shared state. Tests must be deterministic.
+**11. Concurrency, time, and randomness (≥ 2 tests where relevant)** — if the function uses time, freeze the clock; if it uses randomness, seed it; if it can be called concurrently, verify it doesn't corrupt shared state. Tests must be deterministic.
 
-**12. Adversarial / abuse (2+ tests)** — inputs a hostile or confused user might supply: SQL-injection-shaped strings, path traversal (`../../etc/passwd`), command-injection-shaped strings, extremely deeply nested data, circular references, integer overflow, `float('nan')`, `float('inf')`, `-0.0`. The function should reject or sanitize — never crash with an internal stack trace. **Edge-case priority — add more here than the floor.**
+**12. Adversarial / abuse (≥ 3 tests — EDGE PRIORITY)** — inputs a hostile or confused user might supply: SQL-injection-shaped strings, path traversal (`../../etc/passwd`), command-injection-shaped strings, extremely deeply nested data, circular references, integer overflow, `float('nan')`, `float('inf')`, `-0.0`. The function should reject or sanitize — never crash with an internal stack trace. Aim higher here than the floor.
 
-**Optional categories — add when applicable:**
-- **13. Backward compatibility** — if the function is documented to accept legacy input shapes, test those.
-- **14. Locale / i18n** — if the function does formatting, test with non-English locales.
-- **15. Resource limits** — if the function reads files / makes network calls, test timeout, large response, partial response.
+**Strongly recommended categories (add when applicable):**
+
+- **13. Property-based / fuzz (≥ 1 property if the function is pure or has stable invariants)** — use Hypothesis (Python) / fast-check (TS) / QuickCheck (Haskell) to assert *invariants* like `roundtrip(parse(serialise(x))) == x`, `sort(sort(xs)) == sort(xs)`, `len(reverse(xs)) == len(xs)`. Property-based tests find bugs example-based tests never reach because the framework generates thousands of inputs, including pathological ones. Always seed the RNG and shrink failures to minimal counter-examples.
+- **14. Backward compatibility** — if the function is documented to accept legacy input shapes, test those.
+- **15. Locale / i18n** — if the function does formatting, test with non-English locales (`tr_TR.UTF-8` famously breaks lowercasing of `I`).
+- **16. Resource limits** — if the function reads files / makes network calls, test timeout, large response, partial response.
+- **17. Serialization round-trip** — if the function serialises/deserialises, assert `deserialise(serialise(x)) == x` for representative inputs (and a property in category 13).
 
 ### Step 3 — Verify my own tests are correct
 
@@ -108,6 +114,30 @@ Before writing, run a 60-second **adversarial brainstorm**: imagine the function
 - Check: would each test still pass if the function returned a constant default value (e.g., `None`, `0`, `[]`)? If yes, the assertion is too weak — strengthen it.
 - Check: is every category 1–12 represented? If not, document why (e.g., "function takes no string inputs, category 7 N/A").
 - Run a **syntax check** on the test file — fix any errors.
+
+### Step 3a — Apply the Test Quality Gate (mandatory before reporting back)
+
+Before I tell the Orchestrator I'm done, I run the **Test Quality Gate** — a checklist of weak-test smells. If any item triggers, the offending test is rewritten or deleted; weak tests are worse than missing tests because they create false confidence.
+
+- **Weak-assertion smells — each is grounds for rewrite:**
+  - `assert x is not None` / `assertIsNotNone` / `expect(x).toBeDefined()` → must assert the actual value
+  - `assert len(result) > 0` → must assert what is *in* the result
+  - `assert result` (truthy check) → must assert exact value
+  - `assert isinstance(x, dict)` alone → must also assert keys/values
+  - `try: f(); assert True except: assert False` → use `pytest.raises` / `expect(...).toThrow`
+  - assertions that compare against a value computed from the function under test — the expected value must be a *literal*, not a re-derivation of the algorithm
+- **Tautology check:** `assert sort([3,1,2]) == sorted([3,1,2])` is meaningless — the expected side must be a hard-coded literal `[1, 2, 3]`.
+- **Mutation-test mental model:** for each function under test, mentally apply 3 mutations — (a) flip a boolean (`<` ↔ `<=`, `and` ↔ `or`), (b) replace a return statement with `return None`, (c) delete one branch of an `if`. **At least one of my tests must fail under each mutation.** If a mutation slips through, my suite has a hole — add a test that catches it.
+- **AAA layout:** Arrange / Act / Assert separated by blank lines or comments. No mid-test setup.
+- **One concept per test:** if a test asserts on two unrelated behaviours, split it.
+- **No conditional assertions:** `if cond: assert ...` is forbidden — the test must always assert. If branching is needed, parametrize instead.
+- **No try/except wrapping the call under test:** errors must propagate (or be asserted via `pytest.raises`).
+- **No sleeps:** `time.sleep` / `setTimeout` mask race conditions. Use deterministic clocks / synchronisation primitives.
+- **No order-dependent tests:** randomise test order in CI (`pytest-randomly`, Vitest `--seed`) and confirm the suite still passes.
+
+### Step 3b — Recommend a mutation-testing pass (advisory, post-implementation)
+
+In my report, recommend that the Worker (or a follow-up Code Quality run) executes a mutation-testing tool (`mutmut` for Python, `Stryker` for JS/TS, `PIT` for Java) **after** implementation. Target mutation score is `≥ 80%` for business logic and `≥ 95%` for security-critical code (auth, payments, crypto, SQL builders). Mutations that survive identify *real* gaps in the test suite that line coverage cannot detect.
 
 ### Step 4 — Verify tests fail on stubs (red)
 
@@ -136,7 +166,7 @@ I receive pre-filtered context from the **Librarian Agent** via the Orchestrator
 - Tests must be **correct** — the expected value must be what a correct implementation would return.
 - Test names must describe the scenario AND the expected outcome: `test_calculate_total_applies_discount_when_promo_code_valid`.
 - One test file per source file. Mirror structure: `src/x/y.*` → `tests/x/test_y.*`.
-- **Minimum 10 tests per function**, distributed across every applicable category of the 12-category taxonomy. Functions with side effects, string handling, state, or rich error contracts typically need 15–40. Skipping a category requires a 1-line `# CATEGORY N N/A: <reason>` comment.
+- **Minimum 12 tests per function**, distributed across every applicable category of the 12-category taxonomy with the per-category floors above (≥2 standard categories, ≥3 for boundary + adversarial). Functions with side effects, string handling, state, or rich error contracts typically need 20–40. Skipping a category requires a 1-line `# CATEGORY N N/A: <reason>` comment.
 - **Functionality-level floor:** the feature/module my function belongs to must accumulate ≥ 50 tests across all layers (unit + integration + E2E + contract). My unit tests contribute. If I am the only Test Writer for a single-function feature, I am responsible for hitting 50 by myself.
 - **Bulletproof self-check:** before reporting back, ask "can I imagine a wrong implementation that passes all my tests?" If yes, add tests until the answer is no.
 - Every test fits one category from the taxonomy — no "misc" tests.

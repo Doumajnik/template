@@ -31,7 +31,7 @@ Execute the full plan-critique-implement pipeline as defined in the Planning Seq
 > **Todo tracking:** From this point on, every agent reads the todo file, marks its tasks as 🔵 in-progress before starting, marks them ✅ done when complete, and appends to the Progress Log. The todo file is the **single source of truth** for what's done and what remains.
 
 11. **Scaffolder** — create file stubs with signatures and docstrings. Mark scaffolding tasks ✅ in todo.
-12. **Test Writer** (one per function) — write ≥10 tests per function across every applicable category of the 12-category taxonomy, edge cases first, that fail on stubs (red phase). Contributes to the ≥50-tests-per-functionality floor. Cannot read source — hard-enforced by Tool Guard. Mark test tasks ✅ in todo.
+12. **Test Writer** (one per function) — write ≥12 tests per function across every applicable category of the 12-category taxonomy with per-category floors (≥2 standard, ≥3 boundary + adversarial), edge cases first, that fail on stubs (red phase). Contributes to the ≥50-tests-per-functionality floor. Cannot read source — hard-enforced by Tool Guard. Mark test tasks ✅ in todo.
 13. **Worker** (one per function) — implement code, red-green loop until tests pass. Mark each function ✅ in todo as it passes.
 14. **Integration Tester** — write and run E2E/integration tests for multi-module flows. Mark ✅ in todo.
 15. **Reviewer** — validate code quality, correctness, plan adherence. If fail → Worker fixes. Mark ✅ in todo.

@@ -25,24 +25,45 @@ description: "Testing conventions, TDD rules, and test quality standards. Use wh
 
 ### Test count and category coverage
 
-- **Minimum 10 tests per function** for unit tests, distributed across every applicable category of the 12-category taxonomy below. Functions with strings, side effects, state, or rich error contracts typically need 15–40. Skipping a category requires a 1-line `# CATEGORY N N/A: <reason>` comment.
-- **Minimum 50 tests per functionality (feature/module)** summed across ALL layers (unit + integration + E2E + contract). The feature is not done until the total reaches 50. With a typical 4–5-function feature, the unit-test floor (10/function) already gets you to 40–50; integration and E2E push it past the line.
+- **Minimum 12 tests per function** for unit tests, distributed across every applicable category of the 12-category taxonomy below. Functions with strings, side effects, state, or rich error contracts typically need 20–40. Skipping a category requires a 1-line `# CATEGORY N N/A: <reason>` comment.
+- **Per-category floors** (every applicable category):
+  - `≥ 2` tests for categories **1, 2, 4, 5, 6, 7, 8, 9, 10, 11**
+  - `≥ 3` tests for categories **3** (boundaries) and **12** (adversarial) — highest defect density
+- **Minimum 50 tests per functionality (feature/module)** summed across ALL layers (unit + integration + E2E + contract). The feature is not done until the total reaches 50. With a typical 4–5-function feature, the unit-test floor (12/function) already gets you past 50.
 - **Minimum 15 integration tests per feature**, **5 E2E tests per user-facing feature**, **1 contract test per consumer↔provider pair**. Below these counts means a category was skipped, not "sufficient".
 - **Bulletproof Standard:** the goal is not coverage — it is to **catch every mistake the implementer could make**. For each test you write, ask "can I imagine a wrong implementation that still passes this?" If yes, the assertion is too weak — strengthen it or add another test.
 - **Edge cases first.** Write categories 3–7 and 12 (boundaries, empty/null, type abuse, range, unicode, adversarial) **before** the happy path. Bugs live at the edges, not in the middle.
 - **The 12 unit-test categories** every Test Writer must consider for every function:
-  1. **Happy path** — typical realistic inputs, exact output assertions (2+)
-  2. **Output structure & type** — type, shape, ordering, length (1+)
-  3. **Boundary values** — zero, one, max, min, off-by-one (2+, **edge priority**)
-  4. **Empty / null / missing** — empty collection, `None`, default vs explicit (1+)
-  5. **Type abuse** — wrong type per parameter, verify documented exception (1+)
-  6. **Range / domain violations** — negatives, out-of-range enums, bad dates (1+)
-  7. **Unicode / encoding / special chars** — emoji, RTL, NULL bytes, very long (1+ if string-handling)
-  8. **Error contract** — every documented exception type, error message shape, no swallowing (2+)
-  9. **Idempotency / purity** — same input → same output, no input mutation (1+ if relevant)
-  10. **State and side effects** — exact-once semantics, cleanup on failure (1+ if stateful)
-  11. **Concurrency / time / randomness** — frozen clock, seeded RNG, no shared-state corruption (1+ if relevant)
-  12. **Adversarial / abuse** — SQL/path/command injection shapes, NaN, Inf, deeply nested, circular refs (2+, **edge priority**)
+  1. **Happy path** — typical realistic inputs, exact output assertions (≥2)
+  2. **Output structure & type** — type, shape, ordering, length (≥2)
+  3. **Boundary values** — zero, one, max, min, off-by-one (≥3, **edge priority**)
+  4. **Empty / null / missing** — empty collection, `None`, default vs explicit (≥2)
+  5. **Type abuse** — wrong type per parameter, verify documented exception (≥2)
+  6. **Range / domain violations** — negatives, out-of-range enums, bad dates (≥2)
+  7. **Unicode / encoding / special chars** — emoji, RTL, NULL bytes, very long (≥2 if string-handling)
+  8. **Error contract** — every documented exception type, error message shape, no swallowing (≥2)
+  9. **Idempotency / purity** — same input → same output, no input mutation (≥2 if relevant)
+  10. **State and side effects** — exact-once semantics, cleanup on failure (≥2 if stateful)
+  11. **Concurrency / time / randomness** — frozen clock, seeded RNG, no shared-state corruption (≥2 if relevant)
+  12. **Adversarial / abuse** — SQL/path/command injection shapes, NaN, Inf, deeply nested, circular refs (≥3, **edge priority**)
+- **Strongly recommended extras** when applicable: **13.** property-based / fuzz tests (Hypothesis / fast-check / QuickCheck) with `≥1` invariant for any pure function; **14.** backward compatibility for legacy input shapes; **15.** locale / i18n with non-English locales; **16.** resource limits (timeout, large/partial responses) for I/O; **17.** serialisation round-trips (`deserialise(serialise(x)) == x`).
+
+### Test quality gate (run before declaring tests done)
+
+Weak tests are worse than missing tests — they create false confidence. Every test author runs this gate before reporting back:
+
+- **Forbidden weak assertions** (rewrite or delete):
+  - `assert x is not None` / `assertIsNotNone` / `expect(x).toBeDefined()` alone
+  - `assert len(result) > 0` alone
+  - `assert result` (truthy check) when an exact value is expected
+  - `assert isinstance(x, dict)` alone — must also assert keys and values
+  - `try: f(); assert True except: assert False` — use `pytest.raises` / `expect(...).toThrow` instead
+  - `assert f(input) == g(input)` where `g` re-derives the expected output — expected side must be a hard-coded literal
+- **Mutation mental model:** for each function, mentally apply (a) flip a boolean operator, (b) replace a return with `return None`, (c) delete one branch — at least one test must fail per mutation. If none fail, add a test.
+- **Recommended mutation tooling:** run `mutmut` (Python) / `Stryker` (JS/TS) / `PIT` (Java) after green. Target mutation score: `≥ 80%` for business logic, `≥ 95%` for security-critical code (auth, payments, crypto, SQL builders).
+- **AAA layout:** Arrange / Act / Assert visually separated. No conditional assertions (`if cond: assert ...`). No try/except wrapping the call under test. No `time.sleep` or `setTimeout` to mask races.
+- **Test order randomisation:** enable `pytest-randomly` (Python) / Vitest `--seed` (TS) in CI — order-dependent tests reveal hidden state leaks.
+- **Coverage gates:** line coverage ≥ 80% on new code, branch coverage ≥ 75%, mutation score ≥ 80% (≥ 95% security-critical). Coverage alone is insufficient — use it as a *floor*, not a target.
 
 ### Adversarial mindset
 

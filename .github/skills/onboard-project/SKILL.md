@@ -79,7 +79,7 @@ Each item includes: file path, line number, description, confidence (certain/lik
 
 Before anything gets cleaned up or fixed, write thorough tests for every existing function.
 
-**4a — Unit Tests (Test Writer Agent):** Spawn one Test Writer Agent per source file. Each writes ≥10 tests per public function across every applicable category of the 12-category taxonomy, edge cases first. Every functionality must reach ≥50 tests total across all layers. Cannot read source — hard-enforced by Tool Guard.
+**4a — Unit Tests (Test Writer Agent):** Spawn one Test Writer Agent per source file. Each writes ≥12 tests per public function across every applicable category of the 12-category taxonomy with per-category floors (≥2 standard, ≥3 boundary + adversarial), edge cases first. Every functionality must reach ≥50 tests total across all layers. Cannot read source — hard-enforced by Tool Guard.
 
 **4b — Integration Tests (Integration Tester Agent):** Spawn for cross-module flows.
 

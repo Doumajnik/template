@@ -40,7 +40,7 @@ description: Resume implementation from a saved plan (produced by /plan-only). R
 
 ### Phase 2 — Test Writing
 
-9. **Test Writer Agent** (one per function/module) — write ≥10 tests per function across every applicable category of the 12-category taxonomy, edge cases first, that fail on stubs (red phase). Contributes to the ≥50-tests-per-functionality floor. Cannot read source — hard-enforced by Tool Guard.
+9. **Test Writer Agent** (one per function/module) — write ≥12 tests per function across every applicable category of the 12-category taxonomy with per-category floors (≥2 standard, ≥3 boundary + adversarial), edge cases first, that fail on stubs (red phase). Contributes to the ≥50-tests-per-functionality floor. Cannot read source — hard-enforced by Tool Guard.
    - Follow the test structure from `docs/PLAYBOOK.md`
    - Mark test-writing tasks ✅ in the todo file.
 

@@ -43,7 +43,7 @@ The orchestrator spawns agents in this sequence. This mirrors the Planning Seque
 
 13. **Scaffolder Agent** — creates file stubs with signatures and docstrings. Uses the UI Preview's component decomposition (if available) to create accurate frontend stubs. Marks scaffolding tasks ✅ in todo.
 
-14. **Test Writer Agent** per function — writes ≥10 tests per function across every applicable category of the 12-category taxonomy that fail on stubs (red), edge cases first. Cannot read source — hard-enforced by Tool Guard. Contributes to the **≥50-tests-per-functionality** floor. One instance per cohesive module or function group. Marks test tasks ✅ in todo.
+14. **Test Writer Agent** per function — writes ≥12 tests per function across every applicable category of the 12-category taxonomy with per-category floors (≥2 standard, ≥3 boundary + adversarial) that fail on stubs (red), edge cases first. Cannot read source — hard-enforced by Tool Guard. Contributes to the **≥50-tests-per-functionality** floor. One instance per cohesive module or function group. Marks test tasks ✅ in todo.
 
 15. **Worker Agent** per function — reads source code, implements, runs red-green loop until tests pass. One instance per cohesive module or function group. Marks each function ✅ in todo as it passes.
 

@@ -115,7 +115,7 @@ Each agent has one `.github/agents/{slug}.agent.md` (system prompt) paired with 
 | **Critic** | Adversarial review of architecture and plans. Bottleneck-scan and full-review modes. |
 | **Planning** | Function-level plans + todo files in `.ai/plans/` and `.ai/todos/`. |
 | **Scaffolder** | Creates file stubs with signatures and docstrings. |
-| **Test Writer** | Black-box (cannot read source). Writes ≥10 unit tests per function across the 12-category taxonomy, edge cases first. Contributes to the ≥50-tests-per-functionality floor. |
+| **Test Writer** | Black-box (cannot read source). Writes ≥12 unit tests per function across the 12-category taxonomy with per-category floors (≥2 standard, ≥3 boundary + adversarial), edge cases first. Contributes to the ≥50-tests-per-functionality floor. |
 | **Mock Data Generator** | Single supplier of test fixtures, seed data, contract payloads. Realistic, schema-validated, locale-aware, deterministic. |
 | **Worker** | Implements functions. Runs the red-green loop. |
 | **Integration Tester** | Black-box. Writes 15+ integration / 5+ E2E / 1+ contract tests per feature in `tests/integration/`, `tests/e2e/`, `tests/contracts/`. Tops up the ≥50-tests-per-functionality floor. |

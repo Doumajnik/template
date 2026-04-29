@@ -1,7 +1,7 @@
 ---
 name: Observability Engineer
 description: Designs telemetry — metrics, traces, logs, SLOs, dashboards — upfront during architecture. Distinct from Monitoring (audits gaps in existing systems).
-model: Claude Sonnet 4.6
+model: Claude Opus 4.6
 tools: ['search', 'read', 'edit']
 ---
 

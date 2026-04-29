@@ -19,7 +19,7 @@
 ## Implementation Deliverables
 
 - [ ] File stubs created by Scaffolder
-- [ ] ≥10 tests per function across the 12-category taxonomy by Test Writer (red phase), edge cases first
+- [ ] ≥12 tests per function across the 12-category taxonomy with per-category floors (≥2 standard, ≥3 boundary + adversarial) by Test Writer (red phase), edge cases first
 - [ ] ≥50 tests per functionality summed across unit + integration + E2E + contract layers
 - [ ] All functions implemented by Worker (green phase)
 - [ ] Integration/E2E tests written and passing

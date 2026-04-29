@@ -170,7 +170,7 @@ Before writing or modifying code, always ask: **does this belong here?**
 
 <!-- How we test. What tools. What coverage expectations. -->
 
-- **Test-first (red-green loop).** Tests are written before implementation. Test Writer Agent writes ≥10 failing tests per function across the 12-category taxonomy (edge cases first); the functionality must reach ≥50 tests across all layers. Worker Agent implements until they pass.
+- **Test-first (red-green loop).** Tests are written before implementation. Test Writer Agent writes ≥12 failing tests per function across the 12-category taxonomy with per-category floors (≥2 standard, ≥3 for boundary and adversarial), edge cases first; the functionality must reach ≥50 tests across all layers. Worker Agent implements until they pass.
 - **≥ 10 tests per public function across every applicable category of the 12-category taxonomy, edge cases first.** Categories: happy path, structure / shape, boundary values, empty/null/missing inputs, type abuse, range / overflow, unicode / encoding, error contract, idempotency, state transitions, time / concurrency, adversarial inputs. Skipping a category requires a 1-line `# CATEGORY N N/A: <reason>` comment.
 - **≥ 50 tests per functionality (feature/module)** summed across all layers (unit + integration + E2E + contract). The feature is not done until the total reaches 50.
 - **Bulletproof Standard:** before tests are accepted, ask "can I imagine a wrong implementation that passes all of these?" If yes, the suite is incomplete — add more.
