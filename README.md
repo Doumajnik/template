@@ -1,6 +1,6 @@
 # Agentic Project Template
 
-A repository template that gives AI coding agents a **50-agent roster**, **four named pipelines**, **black-box testing**, **persistent memory**, and **adversarial review** out of the box. Designed for use with GitHub Copilot, Cursor, Windsurf, Claude Code, Codex, and any other tool that reads `AGENTS.md` or `.github/copilot-instructions.md`.
+A repository template that gives AI coding agents a **53-agent roster**, **seven named pipelines**, **black-box testing**, **persistent memory**, and **adversarial review** out of the box. Designed for use with GitHub Copilot, Cursor, Windsurf, Claude Code, Codex, and any other tool that reads `AGENTS.md` or `.github/copilot-instructions.md`.
 
 > **License:** Proprietary. Personal use is free; **business use requires written permission from the author.** See [LICENSE](LICENSE).
 
@@ -11,8 +11,8 @@ A repository template that gives AI coding agents a **50-agent roster**, **four 
 This is **not** an application. It is a structured set of markdown files — agent definitions, prompts, playbooks, skills, instructions, and protocols — that together turn a generic AI coding assistant into a disciplined, auditable, multi-agent software engineering team:
 
 - **One Orchestrator** — pure dispatcher, never writes code itself.
-- **50 specialised sub-agents** — Architect, Critic, Test Writer, Worker, Security, Threat Modeling, Cost/FinOps, Capacity Planner, Incident Commander, etc. Each is invoked for a single responsibility.
-- **Four named pipelines** — Planning Sequence (greenfield, 25 steps), Change Pipeline (modifications, 22 steps), Onboarding Pipeline (existing project audit, 7 phases), Incident Response Pipeline (live production, 7 phases). Plus two special modes: Budget Pipeline (12 steps, for prototypes) and Super Greedy Pipeline (40+ steps, for unlimited LLM resources / maximum quality).
+- **53 specialised sub-agents** — Architect, Critic, Test Writer, Worker, Security, Threat Modeling, Cost/FinOps, Capacity Planner, Incident Commander, Knowledge Maintainer, Self-Reflection, etc. Each is invoked for a single responsibility.
+- **Seven named pipelines** — Planning Sequence (greenfield, 25 steps), Change Pipeline (modifications, 22 steps), Onboarding Pipeline (existing project audit, 7 phases), Incident Response Pipeline (live production, 7 phases), Budget Pipeline (12 steps, for prototypes), Super Greedy Pipeline (40+ steps, for unlimited LLM resources / maximum quality), and Maintenance Pipeline (8 steps, for keeping playbooks/skills/checklists current).
 - **Three Consistency Check gates** at every phase boundary, with hard-enforced re-verification after fixes (5 gates in Super Greedy mode).
 - **Black-box testing** — Test Writer and Integration Tester are physically blocked from reading source code by a PreToolUse hook. They write tests against documented contracts only.
 
@@ -32,6 +32,9 @@ The full source of truth is [AGENTS.md](AGENTS.md). The Copilot-specific entry p
    - `plan and implement` *describe-the-task* — full Planning Sequence in one session
    - `change` *describe-the-change* — Change Pipeline with impact analysis
    - `incident` / `down` / `outage` — Incident Response Pipeline
+   - `budget` / `quick` / `prototype` — Budget Pipeline (essentials only)
+   - `greedy` / `max quality` / `unlimited` — Super Greedy Pipeline (maximum quality)
+   - `maintain` / `update playbooks` / `refresh skills` — Maintenance Pipeline
 5. **Read the dispatch log** afterwards in `.ai/sessions/{date}_{topic}.dispatch.md` — every sub-agent call is logged for audit.
 
 ---
@@ -40,8 +43,8 @@ The full source of truth is [AGENTS.md](AGENTS.md). The Copilot-specific entry p
 
 | Capability | Where it lives |
 | --- | --- |
-| 50 specialised agents | `.github/agents/{name}.agent.md` (one per agent) |
-| 50 paired playbooks | `docs/playbooks/agents/{name}.playbook.md` |
+| 53 specialised agents | `.github/agents/{name}.agent.md` (one per agent) |
+| 53 paired playbooks | `docs/playbooks/agents/{name}.playbook.md` |
 | Shared playbooks (telemetry, cost-aware design, etc.) | `docs/playbooks/shared/` |
 | Slash commands | `.github/prompts/*.prompt.md` |
 | Skills (loaded on-demand by trigger) | `.github/skills/{skill}/SKILL.md` |
@@ -67,6 +70,7 @@ The full source of truth is [AGENTS.md](AGENTS.md). The Copilot-specific entry p
 | **Incident Response Pipeline** | Live production incident | Declare → stabilise → investigate (Debug + Performance + Security + Database) → root cause → permanent fix (Change Pipeline) → resolution → blameless postmortem | 7 phases |
 | **Budget Pipeline** | `"budget"` / `"quick"` / `"prototype"` | Spec → architecture (single pass, no Critic) → plan → approval → scaffold → test (≥5/fn) → implement → review → docs | 12 steps, 1 gate |
 | **Super Greedy Pipeline** | `"greedy"` / `"max quality"` / `"unlimited"` | Multi-model Council on all decisions → N-version programming → continuous auditing → mutation testing → cross-file coherence → adversarial red-teaming | 40+ steps, 5 gates |
+| **Maintenance Pipeline** | `"maintain"` / `"update playbooks"` / `"refresh skills"` | Freshness scan → self-reflection filter → research (parallel) → knowledge maintainer (parallel) → consistency check → validate → cleanup → report | 8 steps, 1 gate |
 
 Each pipeline has **three Consistency Check gates** that block progress until drift between plan, code, docs, and test harness is resolved (Budget has 1 gate; Super Greedy has 5). See [AGENTS.md](AGENTS.md) for the full step-by-step flow and the canonical workflow diagram.
 
@@ -94,7 +98,7 @@ TEMPLATE_README.md                 # Template documentation (full agent list, cu
 
 .github/
 ├── copilot-instructions.md        # Thin pointer to AGENTS.md
-├── agents/         (50 .agent.md) # Per-agent system prompts
+├── agents/         (53 .agent.md) # Per-agent system prompts
 ├── prompts/        (slash commands) # /plan-only, /implement-plan, /onboard-project, etc.
 ├── skills/         (skill bundles) # On-demand domain knowledge
 ├── instructions/   (lang scoped)  # Python, TypeScript, Go, Rust, .NET, Django, FastAPI, etc.
@@ -130,7 +134,7 @@ docs/
 ├── discoveries/                    # Structured summaries of analysed data/codebases
 ├── files/                          # Per-file documentation (one MD per source file)
 └── playbooks/
-    ├── agents/   (50 playbooks)    # Per-agent rules included in every Librarian brief
+    ├── agents/   (53 playbooks)    # Per-agent rules included in every Librarian brief
     ├── shared/                     # Cross-agent rules (telemetry, cost-aware design, etc.)
     └── technologies/               # Language/framework conventions
 
@@ -152,7 +156,7 @@ feedback/                           # Optional template-improvement feedback col
 
 ## Documentation
 
-- **[AGENTS.md](AGENTS.md)** — single source of truth: orchestrator identity, 50-agent roster, all pipelines (Planning, Change, Onboarding, Incident, Budget, Super Greedy), Cross-Pipeline Step Matrix, Consistency Check gates, Core Rules.
+- **[AGENTS.md](AGENTS.md)** — single source of truth: orchestrator identity, 53-agent roster, all pipelines (Planning, Change, Onboarding, Incident, Budget, Super Greedy, Maintenance), Cross-Pipeline Step Matrix, Consistency Check gates, Core Rules.
 - **[CLAUDE.md](CLAUDE.md)** — Claude Code entry point (pointer to AGENTS.md + Claude Code–specific config).
 - **[TEMPLATE_README.md](TEMPLATE_README.md)** — detailed template documentation: full agent list, slash commands, customisation guide.
 - **[.github/copilot-instructions.md](.github/copilot-instructions.md)** — Copilot entry point (pointer to AGENTS.md).

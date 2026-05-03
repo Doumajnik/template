@@ -8,7 +8,7 @@ Full documentation of the agent template — what's in it, how it's organised, h
 
 ## Architecture in one paragraph
 
-The Orchestrator is a **pure dispatcher** — it reads docs, decides which sub-agents to spawn, and reports results. It never writes code. Every concrete action is delegated to one of **50 specialised sub-agents** through `runSubagent`. Every sub-agent spawn is **preceded by a Librarian context-brief query** (the single context gateway). Work flows through one of **four named pipelines** (Planning, Change, Onboarding, Incident), each with **three Consistency Check gates** that block progress until drift is resolved. Tests are written **black-box** by Test Writer and Integration Tester — `scripts/tool-guard.py` physically blocks them from reading `src/` paths.
+The Orchestrator is a **pure dispatcher** — it reads docs, decides which sub-agents to spawn, and reports results. It never writes code. Every concrete action is delegated to one of **53 specialised sub-agents** through `runSubagent`. Every sub-agent spawn is **preceded by a Librarian context-brief query** (the single context gateway). Work flows through one of **seven named pipelines** (Planning, Change, Onboarding, Incident, Budget, Super Greedy, Maintenance), each with **Consistency Check gates** that block progress until drift is resolved. Tests are written **black-box** by Test Writer and Integration Tester — `scripts/tool-guard.py` physically blocks them from reading `src/` paths.
 
 ---
 
@@ -97,7 +97,7 @@ flowchart TD
 
 ---
 
-## Sub-Agent Roster (50)
+## Sub-Agent Roster (53)
 
 Each agent has one `.github/agents/{slug}.agent.md` (system prompt) paired with one `docs/playbooks/agents/{slug}.playbook.md` (versioned rules included in every Librarian brief).
 
@@ -124,6 +124,7 @@ Each agent has one `.github/agents/{slug}.agent.md` (system prompt) paired with 
 | **Retrospective** | Reviews the full session transcript in chunks; updates the Playbook. |
 | **Cleanup** | Removes dead code, unused imports, stale files. Onboarding audit-only mode. |
 | **Consistency Check** | Audits drift between plans, code, docs, agent rosters, references. Spawned at every phase boundary. |
+| **Self-Reflection** | Two-pass quality scoring on agent outputs. Scores 0-10, re-ranks, filters noise. Applied after audit agents. |
 
 ### Quality and security
 
@@ -176,6 +177,8 @@ Each agent has one `.github/agents/{slug}.agent.md` (system prompt) paired with 
 | **Vendor Evaluator** | Build-vs-buy, license, lock-in, total cost — before adoption. |
 | **Doc-Site Generator** | User-facing docs — getting-started, tutorials, how-tos, reference, runbooks, migrations. Distinct from Doc Updater (internal docs). |
 | **Git / Release** | Changelogs, semantic versioning, release notes, tag creation. |
+| **Knowledge Maintainer** | Periodically researches web and updates playbooks, skills, checklists. One instance per target file. |
+| **Freshness Scanner** | Detects stale docs, outdated versions, broken links, structural drift. Produces report — other agents fix. |
 
 ---
 
@@ -200,13 +203,13 @@ Each lives in `.github/prompts/*.prompt.md`. Invoke with the leading slash in ch
 | `/design-api` | Ad-hoc | Spawn API Design Agent — produce / review OpenAPI / GraphQL contracts. |
 | `/debug-issue` | Ad-hoc | Spawn Debug Agent autonomously on a known failure. |
 
-In addition, **Quick Commands** (defined in [AGENTS.md](AGENTS.md)) trigger pipelines without slash syntax: `onboard`, `change`, `incident`, `down`, `outage`, `evaluate`, `deprecate`, `cost`, `plan only`, `implement plan`, `plan and implement`, `abort`.
+In addition, **Quick Commands** (defined in [AGENTS.md](AGENTS.md)) trigger pipelines without slash syntax: `onboard`, `change`, `incident`, `down`, `outage`, `evaluate`, `deprecate`, `cost`, `plan only`, `implement plan`, `plan and implement`, `budget`, `greedy`, `maintain`, `abort`.
 
 ---
 
 ## Pipelines
 
-The four pipelines are the only top-level workflows. See [AGENTS.md](AGENTS.md) for full step-by-step prose and the canonical Mermaid workflow diagram.
+The seven pipelines are the top-level workflows. See [AGENTS.md](AGENTS.md) for full step-by-step prose and the canonical Mermaid workflow diagram.
 
 | Pipeline | Steps | Phase boundaries (Consistency Check gates) |
 | --- | --- | --- |
@@ -214,6 +217,9 @@ The four pipelines are the only top-level workflows. See [AGENTS.md](AGENTS.md) 
 | **Change Pipeline** | 1–22 — modifications to existing code | After step 12, after step 15, after step 20 |
 | **Onboarding Pipeline** | 7 phases — read-only audit of an existing project | After Phase 2, after Phase 5, after Phase 6 |
 | **Incident Response Pipeline** | 7 phases — live production incidents owned by Incident Commander | After Phase 7 (postmortem) |
+| **Budget Pipeline** | 12 steps — essentials only for prototypes | After step 12 (single gate) |
+| **Super Greedy Pipeline** | 40+ steps — multi-model consensus, N-version programming, max quality | After steps 12, 18, 20, 23, 24 (5 gates) |
+| **Maintenance Pipeline** | 8 steps — updates playbooks, skills, checklists, instruction files | After step 5 (single gate) |
 
 Planning Sequence Phase B (steps 17–25) and Change Pipeline (steps 14–22) share an identical **Implementation Core** — Test Writer → Worker → Integration Tester → Reviewer → Security → Code Quality → Doc Updater → Retrospective → Cleanup. Maintain in lockstep.
 
@@ -344,13 +350,13 @@ See [README.md](README.md#project-structure) for the full tree. Highlights:
 ```text
 AGENTS.md            — single source of truth (read first)
 LICENSE              — proprietary; business use requires permission
-.github/agents/      — 50 agent system prompts
+.github/agents/      — 53 agent system prompts
 .github/prompts/     — slash commands
 .github/skills/      — on-demand domain knowledge
 .github/instructions/— language/framework rules
 .ai/                 — agent memory (preferences, sessions, plans, todos, lessons)
 docs/                — project documentation + playbooks + reports
-docs/playbooks/agents/   — 50 paired playbooks
+docs/playbooks/agents/   — 53 paired playbooks
 docs/playbooks/shared/   — cross-cutting playbooks
 scripts/             — setup, hooks, tool-guard, playbook validator
 ```

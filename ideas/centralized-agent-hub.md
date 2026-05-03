@@ -3,7 +3,7 @@
 ## The Problem
 
 Currently this template must be copied into EVERY project. That means:
-- 50 agent files duplicated per repo
+- 53 agent files duplicated per repo
 - Updates require syncing across all projects
 - Each project carries ~500KB of markdown infrastructure
 - Drift between projects is inevitable
@@ -20,7 +20,7 @@ Currently this template must be copied into EVERY project. That means:
 
 ~/agent-hub/                        # ONE COPY of the template (this repo)
 ├── AGENTS.md                       # The single source of truth
-├── .github/agents/                 # 50 agent definitions
+├── .github/agents/                 # 53 agent definitions
 ├── .github/instructions/           # Language-scoped rules
 ├── .github/skills/                 # Domain skills
 ├── .ai/LLM_COUNCIL.md             # Council protocol
@@ -114,7 +114,7 @@ agent-init  # Creates minimal CLAUDE.md + .ai/ structure
 
 | Content | Location | Why |
 | --- | --- | --- |
-| Agent definitions (50 `.agent.md`) | Hub (global) | Same across all projects |
+| Agent definitions (53 `.agent.md`) | Hub (global) | Same across all projects |
 | Playbooks | Hub (global) | Shared patterns |
 | Pipeline checklists | Hub (global) | Same workflow everywhere |
 | Language instructions | Hub (global) | Same conventions |
