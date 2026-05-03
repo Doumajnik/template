@@ -1,6 +1,6 @@
 ﻿# Repository System Instructions (Copilot)
 
-> **This file is a thin pointer.** The single source of truth for the orchestrator identity, the sub-agent roster, every pipeline (Planning, Change, Discovery, Onboarding, Trivial), the Context Gateway protocol, the Consistency Check gates, and all Core Rules lives in [AGENTS.md](../AGENTS.md) at the repository root.
+> **This file is a thin pointer.** The single source of truth for the orchestrator identity, the sub-agent roster, every pipeline (Planning, Change, Discovery, Onboarding, Budget, Super Greedy, Incident Response, Maintenance), the Context Gateway protocol, the Consistency Check gates, and all Core Rules lives in [AGENTS.md](../AGENTS.md) at the repository root.
 >
 > Copilot reads this file automatically because of its location in `.github/`. Other tools (Cursor, Windsurf, Claude Code, Codex) read `AGENTS.md` directly. Keeping the content in **one place** prevents drift between the two files.
 
@@ -11,10 +11,10 @@
 **Read [AGENTS.md](../AGENTS.md) in full at session start.** It contains:
 
 - The Orchestrator identity and pure-dispatcher rule
-- The full Sub-Agent Roster (37 agents) with paths to each `.agent.md`
+- The full Sub-Agent Roster (53 agents) with paths to each `.agent.md`
 - The canonical workflow diagram (Full Planning Sequence) with all three Consistency Check gates
 - Session Startup checklist
-- Discovery, Planning, Change, and Onboarding pipelines
+- Discovery, Planning, Change, Onboarding, Budget, Super Greedy, Incident Response, and Maintenance pipelines
 - Context Gateway Protocol (Librarian-first rule)
 - Documentation Hierarchy
 - Role Separation rules

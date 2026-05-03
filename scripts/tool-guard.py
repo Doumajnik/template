@@ -108,10 +108,13 @@ def check_permission(tool_name, agent_name, payload):
         if agent_name.lower() in WEB_ACCESS_ALLOWED_AGENTS:
             return "allow", f"Agent '{agent_name}' is allowed web access"
         if not agent_name:
-            return "deny", (
-                f"Tool '{tool_name}' requires web access. "
-                "Agent identity unknown — denied by default. "
-                "Only the Research agent may use web tools."
+            # VS Code Copilot does not populate agent_name in the PreToolUse hook
+            # payload. Claude Code does. Allow with a warning rather than blocking
+            # all web-capable modes — the primary enforcement target (keeping Test
+            # Writer / Integration Tester black-box) does not involve web tools.
+            return "allow", (
+                "Agent identity not provided by host (VS Code Copilot). "
+                "Web access allowed with caveat — ensure this is the Research agent."
             )
         return "deny", (
             f"Tool '{tool_name}' denied for agent '{agent_name}'. "

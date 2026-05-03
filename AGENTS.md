@@ -75,6 +75,9 @@ The **Model** column below is the **single source of truth** for which model eac
 | **Capacity Planner** | Models load, growth, tail behaviour, sizing, and SLO feasibility against the architecture BEFORE implementation | Claude Opus 4.6 | `.github/agents/capacity-planner.agent.md` |
 | **Analytics Instrumentation** | Designs business analytics — event taxonomy, KPIs, funnels, cohorts, experiment readiness. Distinct from Observability (technical telemetry) | Claude Sonnet 4.6 | `.github/agents/analytics-instrumentation.agent.md` |
 | **Doc-Site Generator** | Produces user-facing documentation — getting-started, tutorials, how-tos, reference, runbooks, migrations. Distinct from Doc Updater (internal docs) | Claude Sonnet 4.6 | `.github/agents/doc-site.agent.md` |
+| **Knowledge Maintainer** | Periodically researches web and updates playbooks, skills, checklists, instruction files to keep them current. One instance per target file | Claude Sonnet 4.6 | `.github/agents/knowledge-maintainer.agent.md` |
+| **Freshness Scanner** | Detects stale docs, outdated versions, broken links, drift in instruction files. Produces freshness report — other agents fix | Claude Sonnet 4.6 | `.github/agents/freshness-scanner.agent.md` |
+| **Self-Reflection** | Two-pass quality scoring on agent outputs. Scores findings 0-10, re-ranks, filters low-confidence items. Applied after audit agents | Claude Opus 4.6 | `.github/agents/self-reflection.agent.md` |
 
 <!-- AGENT_MODEL_TABLE_END -->
 
@@ -86,47 +89,57 @@ When spawning a sub-agent, read its `.agent.md` file and include the relevant in
 
 Which agents run in which pipeline. Use this when picking the right pipeline for a request, or when adding a new agent and deciding where it slots in.
 
-| Agent / Step | Planning Sequence | Change Pipeline | Onboarding Pipeline | Incident Response |
-| --- | :---: | :---: | :---: | :---: |
-| Prompt Engineer | ✅ step 1 | ✅ step 1 | — | — (incident doc is the spec) |
-| Discovery | ✅ step 2 (if new data) | ✅ step 2 (impact, large scope) | ✅ Phase 1 | — |
-| Librarian (impact / context) | ✅ every spawn | ✅ step 2 + every spawn | ✅ every spawn | ✅ every spawn (fast mode in SEV1) |
-| Research | ✅ step 3 | ✅ step 3 | — | ad-hoc |
-| Dependency install | ✅ step 4 | ✅ step 4 | — | — |
-| Architect [design] | ✅ step 5 | ✅ step 5 | ✅ Phase 4a (structure review) | — |
-| Mock Data Generator | ✅ step 5a | ✅ step 4a (if entity changes) | — | — |
-| Observability Engineer | ✅ step 6 | ad-hoc | — | ✅ if telemetry gap blocks diagnosis |
-| Threat Modeling | ✅ step 6a (parallel to Observability) | ✅ step 5a (if auth/data flows touched) | ✅ Phase 3 (alongside Security) | ad-hoc |
-| Compliance [privacy-by-design] | ✅ step 6b (if user data) | ✅ step 5b (if user data) | ✅ Phase 3 | — |
-| Analytics Instrumentation | ✅ step 6c (if user-facing) | ✅ step 5c (if user-flow change) | ✅ Phase 3 (with Monitoring) | — |
-| Critic | ✅ steps 7, 10 | ✅ steps 6, 9 | — | — |
-| Cost / FinOps | ✅ step 7 (parallel) | ad-hoc | ad-hoc | — |
-| Capacity Planner | ✅ step 7a (parallel to Innovator) | ✅ step 5d (if traffic/data volume changes) | ad-hoc | — |
-| Innovator | ✅ step 8 | ✅ step 7 | — | — |
-| Architect [revision] | ✅ step 9 | ✅ step 8 | — | — |
-| Architect [plan-verification] | ✅ step 12 | ✅ step 12 | — | — |
-| Planning Agent | ✅ step 11 | ✅ step 10 | ✅ Phase 6 (improvement plan) | — |
-| Deprecation Manager | ad-hoc | ✅ step 11 (if removing public surface) | — | — |
-| UI Preview | ✅ step 13 (if UI) | ad-hoc | — | — |
-| Localization | ✅ step 13 (if user-facing UI) | ad-hoc | ✅ Phase 3 (audit) | — |
-| UX Research | ✅ step 13 (if novel UX) | ad-hoc | — | — |
-| **User approval gate** | ✅ step 14 | ✅ step 13 | ✅ Phase 7 | — (Commander declares severity) |
-| Scaffolder | ✅ step 15 | — (files exist) | — | — |
-| Architect [scaffold-review] | ✅ step 16 | — | — | — |
-| Test Writer | ✅ step 17 | ✅ step 14 | ✅ Phase 5a | ad-hoc (regression) |
-| Worker | ✅ step 18 | ✅ step 15 | post-onboarding fix loop | ✅ mitigation + permanent fix |
-| Integration Tester | ✅ step 19 | ✅ step 16 | ✅ Phase 5b | — |
-| Reviewer | ✅ step 20 | ✅ step 17 | — | — |
-| Security | ✅ step 21 | ✅ step 18 | ✅ Phase 3 | ✅ if breach suspected |
-| Code Quality | ✅ step 22 | ✅ step 19 | ✅ Phase 3 | — |
-| Dependency / Type Safety / Error Handling / Monitoring | ad-hoc | ad-hoc | ✅ Phase 3 (parallel audits) | — |
-| Doc Updater | ✅ step 23 | ✅ step 20 | ✅ Phase 2 + post-incident | ✅ postmortem write-up |
-| Retrospective | ✅ step 24 | ✅ step 21 | — | ✅ postmortem (blameless) |
-| Doc-Site Generator | ✅ step 24a (parallel to Retrospective) | ✅ step 21a (if public surface change) | ad-hoc | ✅ runbook updates post-incident |
-| Cleanup | ✅ step 25 (dedup) | ✅ step 22 (dedup) | ✅ Phase 4b (audit-only) | — |
-| Incident Commander | — | — | — | ✅ owns the response |
-| Debug / Performance / Database / SQL Query | ad-hoc | ad-hoc | — | ✅ investigation arms |
-| **Consistency Check gates** | after steps 12, 18, 23 | after steps 12, 15, 20 | after Phases 2, 5, 6 | after Phase 7 (postmortem) |
+| Agent / Step | Planning Sequence | Change Pipeline | Onboarding Pipeline | Incident Response | Super Greedy Pipeline |
+| --- | :---: | :---: | :---: | :---: | :---: |
+| Prompt Engineer | ✅ step 1 | ✅ step 1 | — | — (incident doc is the spec) | ✅ step 1 (ALL Tier 1 models + Council) |
+| Discovery | ✅ step 2 (if new data) | ✅ step 2 (impact, large scope) | ✅ Phase 1 | — | ✅ step 2 (if new data) |
+| Librarian (impact / context) | ✅ every spawn | ✅ step 2 + every spawn | ✅ every spawn | ✅ every spawn (fast mode in SEV1) | ✅ every spawn |
+| Research | ✅ step 3 | ✅ step 3 | — | ad-hoc | ✅ step 3 (2+ models) |
+| Dependency install | ✅ step 4 | ✅ step 4 | — | — | ✅ step 4 |
+| Architect [design] | ✅ step 5 | ✅ step 5 | ✅ Phase 4a (structure review) | — | ✅ step 5 (ALL Tier 1 + Council) |
+| Mock Data Generator | ✅ step 5a | ✅ step 4a (if entity changes) | — | — | ✅ step 5a |
+| Observability Engineer | ✅ step 6 | ad-hoc | — | ✅ if telemetry gap blocks diagnosis | ✅ step 6 |
+| Threat Modeling | ✅ step 6a (parallel to Observability) | ✅ step 5a (if auth/data flows touched) | ✅ Phase 3 (alongside Security) | ad-hoc | ✅ step 6a (2+ models) + step 21a (post-impl) |
+| Compliance [privacy-by-design] | ✅ step 6b (if user data) | ✅ step 5b (if user data) | ✅ Phase 3 | — | ✅ step 6b (if user data) |
+| Analytics Instrumentation | ✅ step 6c (if user-facing) | ✅ step 5c (if user-flow change) | ✅ Phase 3 (with Monitoring) | — | ✅ step 6c (if user-facing) |
+| Critic | ✅ steps 7, 10 | ✅ steps 6, 9 | — | — | ✅ steps 7, 10 (2+ models, max 15 rounds) |
+| Cost / FinOps | ✅ step 7 (parallel) | ad-hoc | ad-hoc | — | ✅ step 7 (parallel) |
+| Capacity Planner | ✅ step 7a (parallel to Innovator) | ✅ step 5d (if traffic/data volume changes) | ad-hoc | — | ✅ step 6d (2+ models) |
+| Innovator | ✅ step 8 | ✅ step 7 | — | — | ✅ step 8 (ALL Tier 1 + Council) |
+| Architect [revision] | ✅ step 9 | ✅ step 8 | — | — | ✅ step 9 |
+| Architect [plan-verification] | ✅ step 12 | ✅ step 12 | — | — | ✅ step 12 (2+ models, must reach consensus) |
+| Planning Agent | ✅ step 11 | ✅ step 10 | ✅ Phase 6 (improvement plan) | — | ✅ step 11 |
+| Deprecation Manager | ad-hoc | ✅ step 11 (if removing public surface) | — | — | ad-hoc |
+| UI Preview | ✅ step 13 (if UI) | ad-hoc | — | — | ✅ step 13 (if UI) |
+| Localization | ✅ step 13 (if user-facing UI) | ad-hoc | ✅ Phase 3 (audit) | — | ✅ step 13 (if user-facing UI) |
+| UX Research | ✅ step 13 (if novel UX) | ad-hoc | — | — | ✅ step 13 (if novel UX) |
+| **User approval gate** | ✅ step 14 | ✅ step 13 | ✅ Phase 7 | — (Commander declares severity) | ✅ step 14 |
+| Scaffolder | ✅ step 15 | — (files exist) | — | — | ✅ step 15 |
+| Architect [scaffold-review] | ✅ step 16 | — | — | — | ✅ step 16 |
+| Test Writer | ✅ step 17 | ✅ step 14 | ✅ Phase 5a | ad-hoc (regression) | ✅ step 17 (2 models + Council merge, ≥25/fn) |
+| Worker | ✅ step 18 | ✅ step 15 | post-onboarding fix loop | ✅ mitigation + permanent fix | ✅ step 18 (N-version: 2–3 models for critical) |
+| Integration Tester | ✅ step 19 | ✅ step 16 | ✅ Phase 5b | — | ✅ step 19 (2 models, raised floors) |
+| Reviewer | ✅ step 20 | ✅ step 17 | — | — | ✅ step 20 (ALL Tier 1 + Council, union) |
+| Security | ✅ step 21 | ✅ step 18 | ✅ Phase 3 | ✅ if breach suspected | ✅ steps 7a + continuous + step 21 (2+ models) |
+| Code Quality | ✅ step 22 | ✅ step 19 | ✅ Phase 3 | — | ✅ continuous + step 22 (2 models) |
+| Dependency / Type Safety / Error Handling / Monitoring | ad-hoc | ad-hoc | ✅ Phase 3 (parallel audits) | — | ✅ continuous audit (after every impl step) |
+| Performance | ad-hoc | ad-hoc | — | ✅ investigation arms | ✅ step 18b (per-function) + step 22a (full) |
+| Load Testing | ad-hoc | ad-hoc | — | — | ✅ step 22c (mandatory) |
+| Accessibility | ad-hoc | ad-hoc | — | — | ✅ step 13 (pre) + step 22b (WCAG AAA) |
+| Adversarial Red Team | — | — | — | — | ✅ steps 1a, 17a (spec + tests) |
+| Cross-File Coherence Review | — | — | — | — | ✅ steps 20a, 24 (twice) |
+| Mutation Testing | — | — | — | — | ✅ step 19a (≥90% kill rate) |
+| LLM Council (meta-review) | — | — | — | — | ✅ step 25a |
+| Doc Updater | ✅ step 23 | ✅ step 20 | ✅ Phase 2 + post-incident | ✅ postmortem write-up | ✅ step 23 |
+| Retrospective | ✅ step 24 | ✅ step 21 | — | ✅ postmortem (blameless) | ✅ step 25 (chunked) |
+| Doc-Site Generator | ✅ step 24a (parallel to Retrospective) | ✅ step 21a (if public surface change) | ad-hoc | ✅ runbook updates post-incident | ✅ step 23a |
+| Cleanup | ✅ step 25 (dedup) | ✅ step 22 (dedup) | ✅ Phase 4b (audit-only) | — | ✅ step 26 (dedup) |
+| Incident Commander | — | — | — | ✅ owns the response | — |
+| Debug / Performance / Database / SQL Query | ad-hoc | ad-hoc | — | ✅ investigation arms | ad-hoc |
+| Freshness Scanner | ad-hoc | — | ✅ Phase 3 (structural drift) | — | ad-hoc |
+| Knowledge Maintainer | ad-hoc | — | — | — | ad-hoc |
+| Self-Reflection | ad-hoc | ad-hoc | — | — | ✅ after every audit agent |
+| **Consistency Check gates** | after steps 12, 18, 23 | after steps 12, 15, 20 | after Phases 2, 5, 6 | after Phase 7 (postmortem) | 5 gates: after steps 12, 18, 20, 23, 24 |
 
 > **Note on shared Implementation Core:** Planning Sequence steps 17–25 (Test Writer → … → Cleanup) and Change Pipeline steps 14–22 are intentionally identical — same agents, same order. Planning prefixes Scaffolder + Architect scaffold review (steps 15–16). Maintain the two in lockstep until a future refactor extracts them into a shared "Implementation Core" subsection.
 
@@ -287,6 +300,8 @@ The Orchestrator is a dispatcher running a long, branching pipeline. To stay rel
 | `"onboard"` / project audit | `.ai/checklists/onboarding.checklist.md` | [Onboarding Pipeline](#onboarding-pipeline-existing-project-audit) (Phases 1–7, 3 gates) |
 | `"incident"` / `"down"` / `"outage"` | `.ai/checklists/incident.checklist.md` | [Incident Response](#incident-response-pipeline-live-production-issues) (Phases 1–7, 1 gate) |
 | `"budget"` / `"quick"` / `"prototype"` or `BUDGET_MODE: ON` | `.ai/checklists/budget.checklist.md` | [Budget Pipeline](#budget-pipeline-budget_mode-on) (12 steps, 1 gate) |
+| `"greedy"` / `"max quality"` / `"super greedy"` / `"unlimited"` or `GREEDY_MODE: ON` | `.ai/checklists/greedy.checklist.md` | [Super Greedy Pipeline](#super-greedy-pipeline-greedy_mode-on) (40+ steps, 5 gates) |
+| `"maintain"` / `"update playbooks"` / `"refresh skills"` / `"check freshness"` | `.ai/checklists/maintenance.checklist.md` | [Maintenance Pipeline](#maintenance-pipeline-knowledge-infrastructure-upkeep) (8 steps, 1 gate) |
 
 ### Orchestrator todo discipline
 
@@ -384,7 +399,7 @@ At each gate: 🔴 CRITICAL or 🟡 HIGH findings block progress. The Orchestrat
 
 When `BUDGET_MODE` is ON in `.ai/PREFERENCES.md`, the Orchestrator runs this stripped-down pipeline instead of the full Planning Sequence. Use for prototypes, throwaway experiments, hackathons, and "just make it work" tasks where the full review surface is not justified.
 
-**BUDGET_MODE forces DEEP_MODE OFF.** The two are mutually exclusive. If both are ON in PREFERENCES.md, BUDGET_MODE wins for that session and the Orchestrator notes the conflict in the dispatch log.
+**BUDGET_MODE forces DEEP_MODE OFF.** The two are mutually exclusive. If both are ON in PREFERENCES.md, BUDGET_MODE wins for that session and the Orchestrator notes the conflict in the dispatch log. **BUDGET_MODE is also mutually exclusive with GREEDY_MODE** — if both are ON, GREEDY_MODE wins and the Orchestrator notes the conflict.
 
 ### Steps (essentials only)
 
@@ -441,7 +456,217 @@ Do NOT use BUDGET_MODE when:
 
 ---
 
-### Ad-Hoc Agents (spawned as needed)
+## Super Greedy Pipeline (GREEDY_MODE: ON)
+
+When `GREEDY_MODE` is ON in `.ai/PREFERENCES.md`, the Orchestrator runs this **maximum-quality pipeline** that leverages unlimited LLM resources. Designed for Claude Code unlimited plans or equivalent setups where token cost is not a constraint. Uses 10–50× more LLM calls than the standard Planning Sequence.
+
+**GREEDY_MODE forces DEEP_MODE ON.** The two are complementary. GREEDY_MODE is **mutually exclusive with BUDGET_MODE**. If both are ON, GREEDY_MODE wins and the Orchestrator notes the conflict in the dispatch log.
+
+### Core Concepts
+
+#### 1. Model Discovery (Phase 0)
+
+At session start, the Orchestrator queries the LLM provider API to discover all available models. It records them in `.ai/sessions/{date}_available-models.md` and assigns them to three tiers:
+
+| Tier | Purpose | Typical models |
+| --- | --- | --- |
+| **Tier 1 (deepest reasoning)** | Architecture, planning, security decisions, council votes | Claude Opus 4, GPT-4o, Gemini 2.5 Pro |
+| **Tier 2 (strong execution)** | Implementation, testing, reviews | Claude Sonnet 4, GPT-4.1, Gemini 2.5 Flash |
+| **Tier 3 (fast validation)** | Linting, formatting, quick checks, mutation testing | Claude Haiku, GPT-4.1 mini, Gemini Flash Lite |
+
+The tier assignment is recorded in the available-models file. If only one provider/model is available, all tiers collapse to that model (the pipeline still runs — multi-dispatch means multiple independent invocations of the same model with different system prompts and temperatures).
+
+#### 2. LLM Council (multi-model consensus)
+
+The **LLM Council** is a meta-pattern, not a single agent. For critical decisions (architecture, security, planning), the same task is dispatched to **all Tier 1 models independently**. A synthesis step then:
+
+1. Collects all outputs.
+2. Identifies areas of **consensus** (all models agree → high confidence).
+3. Identifies areas of **disagreement** (models differ → requires deeper analysis).
+4. For disagreements: runs a **debate round** — each model sees the others' arguments and responds. Max 3 debate rounds.
+5. Produces a **Council Decision** document with: chosen approach, confidence score (unanimous/majority/split), dissenting opinions preserved as `[ALTERNATIVE]` blocks.
+
+The Council pattern is applied at these steps: Prompt Engineer (spec), Architect (design), Critic (full review), Reviewer (implementation review), Security (audit), and the final Cross-File Coherence Review.
+
+#### 3. N-Version Programming
+
+For **critical functions** (security-sensitive, data-integrity, business-critical as flagged by the Architect), the Worker step dispatches to 2–3 models independently. Each produces an implementation. The LLM Council then:
+
+1. Runs all test suites against all implementations.
+2. Compares outputs for behavioral equivalence.
+3. Selects the best implementation OR synthesizes a hybrid.
+4. Documents WHY one was chosen over others.
+
+Non-critical functions use single-model dispatch with immediate review.
+
+#### 4. Continuous Auditing
+
+Unlike the standard pipeline (3 gates), GREEDY_MODE runs **Security + Code Quality + Type Safety + Error Handling** as a mini-audit pack after EVERY implementation step. This catches issues within minutes of introduction, not at phase boundaries.
+
+#### 5. Adversarial Red Team
+
+A dedicated adversarial pass that:
+- Reviews specs for ambiguity and missing requirements.
+- Reviews test suites asking "can I imagine a wrong implementation that passes?"
+- Reviews implementations asking "how would I break this?"
+- Reviews security asking "what did the Security Agent miss?"
+- Runs after steps 1, 17, 18, and 21.
+
+#### 6. Cross-File Coherence Review
+
+A dedicated review that examines **every source file against every other source file** for:
+- Naming consistency (same concept → same name everywhere)
+- Pattern adherence (if file A uses pattern X, file B should too)
+- Import conventions (consistent import style/ordering)
+- Error handling patterns (consistent error types, logging, recovery)
+- Logging patterns (consistent log levels, format, context)
+- Type usage (consistent type definitions, no drift between files)
+- API style (consistent parameter ordering, naming, response shapes)
+
+Runs twice: once after implementation (step 20a) and once as final validation (step 24).
+
+#### 7. Mutation Testing
+
+After all tests pass, run a mutation testing framework (mutmut for Python, Stryker for JS/TS, pitest for Java) to verify the test suite actually detects real bugs. Target: **≥90% mutation kill rate**. If below 90%, loop back to Test Writer to add defeating tests.
+
+### Steps (full pipeline)
+
+#### Phase 0 — Session Bootstrap + Model Discovery
+
+1. Standard session startup (read PREFERENCES, PLAYBOOK, lessons, etc.)
+2. **Model Discovery** — query provider API, enumerate available models, record in `.ai/sessions/{date}_available-models.md`
+3. **Assign Council Tiers** — categorize models into Tier 1/2/3
+4. Spawn Librarian in index mode
+
+#### Phase A — Planning (multi-model consensus)
+
+1. **Prompt Engineer** (ALL Tier 1 models) → LLM Council synthesizes best spec
+1a. **Adversarial Red Team** → stress-test the spec for ambiguities, contradictions, missing requirements
+2. **Discovery** (if new data — ask first)
+3. **Research** (2+ models) → unified research brief
+4. **Dependency install**
+5. **Architect** (ALL Tier 1 models independently) → LLM Council evaluates, scores, merges → unified design
+5a. **Mock Data Generator** (if new entities)
+6. **Observability Engineer** → telemetry plan
+6a. **Threat Modeling** (2+ models) → independent STRIDE analyses merged
+6b. **Compliance** (if user data)
+6c. **Analytics Instrumentation** (if user-facing)
+6d. **Capacity Planner** (2+ models) → independent load models merged
+7. **Critic (bottleneck scan)** + **Cost / FinOps**
+7a. **Security (pre-implementation audit)** → review architecture for security design flaws
+8. **Innovator** (ALL Tier 1 models) → LLM Council selects/combines alternatives
+9. **Architect (revision)** → incorporate Council-selected innovations
+10. **Critic (full review)** (2+ models) → Architect↔Critic loop (max **15 rounds**, extended)
+10a. **Continuous Audit Checkpoint** — Security + Code Quality + Type Safety review architecture plan
+11. **Planning Agent** → plan + todo file
+12. **Architect (plan verification)** (2+ models) → independent verification, must reach consensus
+- **🛑 Gate 1 — Consistency Check (5 shards + merge)**
+13. **UI Preview** + **Localization** + **UX Research** + **Accessibility (pre-scaffold)** (if UI)
+14. **🛑 USER APPROVAL GATE**
+
+#### Phase B — Implementation (N-version, continuous audit)
+
+15. **Scaffolder** → file stubs
+16. **Architect (scaffold review)** → verify stubs
+16a. **Continuous Audit Checkpoint** — Security + Type Safety review interfaces
+17. **Test Writer** (each function dispatched to 2 models) → ≥25 tests/function, LLM Council merges suites
+17a. **Adversarial Red Team** → "can a wrong impl pass?" → adds defeating tests
+18. **Worker** (N-version for critical functions: 2–3 models; single for non-critical) → LLM Council selects best
+18a. **Continuous Audit Checkpoint** — Security + Code Quality + Error Handling + Type Safety per function
+18b. **Performance** → profile every function for algorithmic complexity
+- **🛑 Gate 2 — Consistency Check (5 shards + merge)**
+- Refresh Librarian index
+19. **Integration Tester** (2 models) → 20+ integration / 10+ E2E / 3+ contract (raised floors)
+19a. **Mutation Testing** → verify ≥90% mutation kill rate, loop to Test Writer if below
+20. **Reviewer** (ALL Tier 1 models) → LLM Council consolidates (union of findings)
+20a. **Cross-File Coherence Review** → every file vs every other file
+- **🛑 Gate 3 — Consistency Check (5 shards + merge)**
+21. **Security (full audit)** (2+ models) → union of findings
+21a. **Threat Modeling (post-implementation)** → verify mitigations correctly implemented
+22. **Code Quality** (2 models) → union of findings
+22a. **Performance (full profiling)** → benchmarks, memory, regressions
+22b. **Accessibility** (if UI) → WCAG AAA compliance
+22c. **Load Testing** → scenarios against SLOs
+23. **Doc Updater**
+23a. **Doc-Site Generator** → user-facing docs
+- **🛑 Gate 4 — Consistency Check (5 shards + merge)**
+24. **Cross-File Coherence Review (final)** → re-run on finalized codebase, fix remaining drift
+- **🛑 Gate 5 — Consistency Check (final, 5 shards + merge)**
+25. **Retrospective** (chunked)
+25a. **LLM Council (meta-review)** → reviews Retrospective findings, adds cross-model perspective
+26. **Cleanup** (dedup pass)
+
+#### Phase C — Quality Scorecard
+
+At pipeline end, the Orchestrator produces `.ai/sessions/{date}_quality-scorecard.md`:
+
+| Metric | Target | Actual |
+| --- | --- | --- |
+| Security findings (CRITICAL/HIGH) | 0 | — |
+| Code quality findings (CRITICAL/HIGH) | 0 | — |
+| Type safety coverage | 100% (no `any`, no unsafe casts) | — |
+| Error handling audit | 0 silent catches | — |
+| Test mutation kill rate | ≥90% | — |
+| Cross-file coherence drift | 0 findings | — |
+| Performance (O(n²)+ hotspots) | 0 unjustified | — |
+| Load test SLOs | all met | — |
+| Accessibility (if UI) | WCAG AAA | — |
+| LLM Council consensus | unanimous on all critical | — |
+| Tests per function | ≥25 | — |
+| Tests per functionality | ≥100 | — |
+
+### What is unique to GREEDY_MODE (not in standard pipeline)
+
+| Feature | Standard Pipeline | Super Greedy Pipeline |
+| --- | --- | --- |
+| Model dispatch | 1 model per agent | 2–3 models per critical agent, LLM Council synthesis |
+| N-version programming | — | Critical functions implemented by 2–3 models |
+| Adversarial Red Team | — | Runs after spec, tests, impl, and security |
+| Cross-File Coherence Review | — | Full review twice (after impl + final) |
+| Mutation testing | — | ≥90% kill rate required |
+| Continuous auditing | 3 gates only | Mini-audit pack after every impl step |
+| Consistency Check gates | 3 | 5 |
+| Architect↔Critic rounds | max 10 | max 15 |
+| Test floor per function | ≥12 | ≥25 |
+| Test floor per functionality | ≥50 | ≥100 |
+| Integration test floor | 15+ / 5+ E2E / 1+ contract | 20+ / 10+ E2E / 3+ contract |
+| Security audits | 1 (post-impl) | 3 (pre-impl architecture + continuous + post-impl) |
+| Performance profiling | ad-hoc | Mandatory per-function + full profiling |
+| Load testing | ad-hoc | Mandatory |
+| Quality Scorecard | — | Mandatory output artifact |
+| Model Discovery | — | Session start: enumerate + tier-assign |
+| Accessibility standard | WCAG AA | WCAG AAA |
+
+### When GREEDY_MODE is the right choice
+
+Use GREEDY_MODE when:
+
+- You have an **unlimited LLM plan** (Claude Code Pro, enterprise agreements, etc.)
+- The code is **mission-critical** (payments, medical, aviation, infrastructure)
+- **Maximum confidence** is required (regulatory compliance, audit trail)
+- You're building a **library/SDK others depend on** (correctness > speed)
+- The **cost of a bug** vastly exceeds the cost of extra LLM calls
+- You want a **reference implementation** that sets quality standards
+
+### When GREEDY_MODE is the wrong choice
+
+Do NOT use GREEDY_MODE when:
+
+- You have **metered LLM billing** — the cost will be enormous
+- The task is a **prototype** or **throwaway** — use Budget Pipeline
+- You're under **time pressure** — this pipeline is thorough, not fast
+- The codebase is **simple or small** — overkill for a utility script
+- You're in an **incident** — use Incident Response Pipeline (speed > perfection)
+
+### Quick command
+
+| User says | What to do |
+| --- | --- |
+| **"greedy"**, **"max quality"**, **"super greedy"**, or **"unlimited"** + description | Run the Super Greedy Pipeline (override GREEDY_MODE for this session). |
+
+---
+
+## Ad-Hoc Agents (spawned as needed)
 
 These agents are NOT part of the sequential pipeline. The Orchestrator spawns them on-demand based on user requests or specific needs. **The Librarian MUST still be queried before spawning any ad-hoc agent** — no exceptions:
 
@@ -476,6 +701,9 @@ These agents are NOT part of the sequential pipeline. The Orchestrator spawns th
 - **Capacity Planner** — before adopting a new datastore, queue, or cache; before a major launch; after a sustained traffic-pattern shift.
 - **Analytics Instrumentation** — before launching a feature whose success metric is unclear or unmeasurable; when auditing existing instrumentation.
 - **Doc-Site Generator** — when the user requests a tutorial, runbook, or migration guide; before a public release.
+- **Knowledge Maintainer** — when a specific playbook/skill/checklist needs a targeted update outside the Maintenance Pipeline.
+- **Freshness Scanner** — ad-hoc staleness check on a subset of files (e.g., "are my Python instructions current?").
+- **Self-Reflection** — after any audit agent produces a findings list to filter noise and re-rank by impact.
 
 > **TURBO_MODE** (read from `.ai/PREFERENCES.md`): When ON, plan to function level, mark all `[delegatable]`, mass-spawn. When OFF, plan at phase level, spawn per phase.
 
@@ -647,6 +875,95 @@ The Commander produces three updates: **initial** (acknowledge), **mitigated** (
 
 ---
 
+## Maintenance Pipeline (knowledge infrastructure upkeep)
+
+Run when the user says **"maintain"**, **"update playbooks"**, **"refresh skills"**, **"check freshness"**, or on a scheduled cadence. This pipeline keeps the template's own knowledge infrastructure current — playbooks, skills, checklists, and instruction files.
+
+**This pipeline does NOT modify source code or tests.** It only updates documentation, rules, and agent knowledge.
+
+### When to Run
+
+- **Scheduled:** every 2–4 weeks, or after a major framework release
+- **On demand:** user says "maintain" or "update playbooks"
+- **Post-retrospective:** when the Retrospective Agent identifies stale patterns
+- **Post-onboarding:** after integrating a new project (existing patterns may conflict)
+
+### Steps
+
+1. **Freshness Scanner** — scans all playbooks, skills, checklists, and instruction files for staleness. Produces `docs/FRESHNESS_REPORT.md` with prioritized findings (versions, broken links, structural drift, content age).
+
+2. **Self-Reflection (filter)** — scores the Freshness Report findings. Drops noise (score <5). Re-ranks by impact. Ensures only genuinely stale items proceed to updates.
+
+3. **Research (parallel, one per technology)** — for each technology/framework flagged as stale, spawns a Research Agent to fetch current best practices, latest versions, and community consensus shifts. Each writes to `docs/discoveries/{date}_{tech}.maintenance-research.md`.
+
+4. **Knowledge Maintainer (parallel, one per target file)** — for each file flagged by the Freshness Scanner (after Self-Reflection filtering), spawns a Knowledge Maintainer instance. Each:
+   - Reads the target file
+   - Reads the relevant Research brief
+   - Applies targeted edits (add, update, remove rules)
+   - Increments the version number
+   - Reports changes back
+
+5. **Consistency Check (single instance)** — verifies no contradictions introduced across files. Checks:
+   - Agent files reference correct playbook versions
+   - Cross-references between playbooks still resolve
+   - Checklist steps still match pipeline sections in AGENTS.md
+   - No conflicting rules between shared + agent playbooks
+
+6. **Self-Reflection (validate)** — second pass. Reviews all Knowledge Maintainer changes in aggregate. Scores each change for correctness + value. Flags any that seem wrong or uncertain for human review.
+
+7. **Cleanup (dedup)** — removes duplicate rules that may have been added by parallel Knowledge Maintainer instances. Consolidates overlapping patterns.
+
+8. **Report to user** — presents a summary: files updated, versions bumped, rules added/removed/changed, any items flagged for human review.
+
+### Consistency Check Gate
+
+A single gate runs **after step 5**. Findings block step 6+ until resolved.
+
+### What This Pipeline Covers
+
+| Target | Count | Update strategy |
+| --- | --- | --- |
+| Agent playbooks | `docs/playbooks/agents/*.playbook.md` | One KM instance per file |
+| Shared playbooks | `docs/playbooks/shared/*.playbook.md` | One KM instance per file |
+| Technology playbooks | `docs/playbooks/technologies/*.playbook.md` | One KM instance per file |
+| Language instructions | `.github/instructions/*.instructions.md` | One KM instance per file |
+| Skills | `.github/skills/*/SKILL.md` | One KM instance per skill |
+| Checklists | `.ai/checklists/*.checklist.md` | One KM instance per file |
+
+### Maintenance Pipeline Diagram
+
+```mermaid
+flowchart TD
+    U([User: "maintain" / scheduled]) --> O{Orchestrator}
+    O -->|scan everything| FS[Freshness Scanner]
+    FS -->|freshness report| SR1[Self-Reflection — filter noise]
+    SR1 -->|filtered findings| O
+    O -->|parallel: one per tech| R1[Research #1]
+    O -->|parallel: one per tech| R2[Research #2]
+    O -->|parallel: one per tech| RN[Research #N]
+    R1 & R2 & RN -->|research briefs| O
+    O -->|parallel: one per file| KM1[Knowledge Maintainer #1]
+    O -->|parallel: one per file| KM2[Knowledge Maintainer #2]
+    O -->|parallel: one per file| KMN[Knowledge Maintainer #N]
+    KM1 & KM2 & KMN -->|change reports| CK{{Consistency Check}}
+    CK -->|drift found| FIX[Knowledge Maintainer fixes]
+    FIX --> CK
+    CK -->|clean ✅| SR2[Self-Reflection — validate changes]
+    SR2 -->|flagged items| O
+    O --> CL[Cleanup — dedup rules]
+    CL --> Done([Report to user])
+
+    style O fill:#4a90d9,color:#fff
+    style U fill:#6c757d,color:#fff
+    style Done fill:#6c757d,color:#fff
+    style FS fill:#e67e22,color:#fff
+    style SR1 fill:#8e44ad,color:#fff
+    style SR2 fill:#8e44ad,color:#fff
+    style CK fill:#16a085,color:#fff
+```
+
+---
+
 ## Documentation Hierarchy (read in this order)
 
 1. `docs/discoveries/` — analyzed data summaries. Read FIRST for recently discovered data.
@@ -722,6 +1039,8 @@ These short phrases trigger full pipelines — no extra explanation needed from 
 | **"implement plan"** + path | Run `/implement-plan` — Phase B (steps 15–25). Picks up from a Phase A plan and runs scaffold → test → implement → review → docs → retrospective. |
 | **"plan and implement"** + description | Run `/plan-and-implement` — Phase A + Phase B in a single session (full Planning Sequence steps 1–25). Use only when context is short and the task is small enough to fit a single chat. For larger tasks prefer `/plan-only` overnight then `/implement-plan` in a fresh session. |
 | **"budget"**, **"quick"**, or **"prototype"** + description | Run the **Budget Pipeline** — essentials only (12 steps, single Consistency Check). Overrides BUDGET_MODE for this session. See [Budget Pipeline](#budget-pipeline-budget_mode-on). |
+| **"greedy"**, **"max quality"**, **"super greedy"**, or **"unlimited"** + description | Run the **Super Greedy Pipeline** — maximum quality with multi-model consensus, N-version programming, continuous auditing, and cross-file coherence reviews. Overrides GREEDY_MODE for this session. See [Super Greedy Pipeline](#super-greedy-pipeline-greedy_mode-on). |
+| **"maintain"**, **"update playbooks"**, **"refresh skills"**, or **"check freshness"** | Run the **Maintenance Pipeline** — scan for staleness, research updates, apply targeted edits to all playbooks/skills/checklists in one sweep. See [Maintenance Pipeline](#maintenance-pipeline-knowledge-infrastructure-upkeep). |
 | **"abort"**, **"stop"**, or **"cancel"** | Pipeline Abort (see below). |
 
 ---

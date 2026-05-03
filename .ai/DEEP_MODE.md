@@ -4,6 +4,8 @@
 > DEEP_MODE is **permanently ON** for this project — every task goes through this pipeline.
 > Reference file — the orchestrator reads this when planning any task.
 > All agents below use the model defined by `AGENT_MODEL` in `.ai/PREFERENCES.md`.
+>
+> **Note:** When `GREEDY_MODE: ON`, DEEP_MODE is still ON but the pipeline is superseded by the [Super Greedy Pipeline](../AGENTS.md#super-greedy-pipeline-greedy_mode-on) which extends DEEP_MODE with multi-model consensus, N-version programming, continuous auditing, and cross-file coherence reviews. See `.ai/LLM_COUNCIL.md` for the Council protocol.
 
 ---
 

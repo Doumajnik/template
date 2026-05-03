@@ -12,6 +12,8 @@ At session startup, after detecting which pipeline the user's request maps to, t
    - User says "onboard", "audit this project" → [onboarding.checklist.md](onboarding.checklist.md)
    - User says "incident", "down", "outage", "prod is broken" → [incident.checklist.md](incident.checklist.md)
    - User says "budget", "quick", "prototype", or `BUDGET_MODE: ON` → [budget.checklist.md](budget.checklist.md)
+   - User says "greedy", "max quality", "super greedy", "unlimited", or `GREEDY_MODE: ON` → [greedy.checklist.md](greedy.checklist.md)
+   - User says "maintain", "update playbooks", "refresh skills", "check freshness" → [maintenance.checklist.md](maintenance.checklist.md)
 2. Copy the chosen checklist into the session's todo file (`.ai/todos/{YYYY-MM-DD}_{topic}.todo.md`) **above** any other todos. Keep the heading and intro text intact.
 3. Mark each checkbox as it progresses:
    - `- [ ]` — not started

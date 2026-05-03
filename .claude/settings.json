@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Edit",
+      "MultiEdit",
+      "Write",
+      "Bash",
+      "Task",
+      "WebSearch"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Grep|Glob",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python scripts/tool-guard.py pre \"$TOOL_NAME\" \"$TOOL_INPUT\""
+          }
+        ]
+      }
+    ]
+  },
+  "model": "claude-sonnet-4-20250514"
+}

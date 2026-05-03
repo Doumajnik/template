@@ -12,8 +12,8 @@ This is **not** an application. It is a structured set of markdown files — age
 
 - **One Orchestrator** — pure dispatcher, never writes code itself.
 - **50 specialised sub-agents** — Architect, Critic, Test Writer, Worker, Security, Threat Modeling, Cost/FinOps, Capacity Planner, Incident Commander, etc. Each is invoked for a single responsibility.
-- **Four named pipelines** — Planning Sequence (greenfield, 25 steps), Change Pipeline (modifications, 22 steps), Onboarding Pipeline (existing project audit, 7 phases), Incident Response Pipeline (live production, 7 phases).
-- **Three Consistency Check gates** at every phase boundary, with hard-enforced re-verification after fixes.
+- **Four named pipelines** — Planning Sequence (greenfield, 25 steps), Change Pipeline (modifications, 22 steps), Onboarding Pipeline (existing project audit, 7 phases), Incident Response Pipeline (live production, 7 phases). Plus two special modes: Budget Pipeline (12 steps, for prototypes) and Super Greedy Pipeline (40+ steps, for unlimited LLM resources / maximum quality).
+- **Three Consistency Check gates** at every phase boundary, with hard-enforced re-verification after fixes (5 gates in Super Greedy mode).
 - **Black-box testing** — Test Writer and Integration Tester are physically blocked from reading source code by a PreToolUse hook. They write tests against documented contracts only.
 
 The full source of truth is [AGENTS.md](AGENTS.md). The Copilot-specific entry point is [.github/copilot-instructions.md](.github/copilot-instructions.md) (a thin pointer to AGENTS.md).
@@ -65,8 +65,10 @@ The full source of truth is [AGENTS.md](AGENTS.md). The Copilot-specific entry p
 | **Change Pipeline** | Modifying existing code | Spec → impact analysis → research → architecture → adversarial review → plan → deprecation timeline → approval → tests → implement → review → docs → retrospective | 22 steps |
 | **Onboarding Pipeline** | Existing project audit | Discovery → documentation → audits (security/quality/deps/types/error-handling/monitoring) → structure & cleanup → test harness → improvement plan | 7 phases |
 | **Incident Response Pipeline** | Live production incident | Declare → stabilise → investigate (Debug + Performance + Security + Database) → root cause → permanent fix (Change Pipeline) → resolution → blameless postmortem | 7 phases |
+| **Budget Pipeline** | `"budget"` / `"quick"` / `"prototype"` | Spec → architecture (single pass, no Critic) → plan → approval → scaffold → test (≥5/fn) → implement → review → docs | 12 steps, 1 gate |
+| **Super Greedy Pipeline** | `"greedy"` / `"max quality"` / `"unlimited"` | Multi-model Council on all decisions → N-version programming → continuous auditing → mutation testing → cross-file coherence → adversarial red-teaming | 40+ steps, 5 gates |
 
-Each pipeline has **three Consistency Check gates** that block progress until drift between plan, code, docs, and test harness is resolved. See [AGENTS.md](AGENTS.md) for the full step-by-step flow and the canonical workflow diagram.
+Each pipeline has **three Consistency Check gates** that block progress until drift between plan, code, docs, and test harness is resolved (Budget has 1 gate; Super Greedy has 5). See [AGENTS.md](AGENTS.md) for the full step-by-step flow and the canonical workflow diagram.
 
 ---
 
@@ -150,11 +152,38 @@ feedback/                           # Optional template-improvement feedback col
 
 ## Documentation
 
-- **[AGENTS.md](AGENTS.md)** — single source of truth: orchestrator identity, 50-agent roster, all four pipelines, Cross-Pipeline Step Matrix, Consistency Check gates, Core Rules.
+- **[AGENTS.md](AGENTS.md)** — single source of truth: orchestrator identity, 50-agent roster, all pipelines (Planning, Change, Onboarding, Incident, Budget, Super Greedy), Cross-Pipeline Step Matrix, Consistency Check gates, Core Rules.
+- **[CLAUDE.md](CLAUDE.md)** — Claude Code entry point (pointer to AGENTS.md + Claude Code–specific config).
 - **[TEMPLATE_README.md](TEMPLATE_README.md)** — detailed template documentation: full agent list, slash commands, customisation guide.
 - **[.github/copilot-instructions.md](.github/copilot-instructions.md)** — Copilot entry point (pointer to AGENTS.md).
 - **[.ai/DEEP_MODE.md](.ai/DEEP_MODE.md)** — adversarial pipeline reference.
+- **[.ai/LLM_COUNCIL.md](.ai/LLM_COUNCIL.md)** — LLM Council protocol for Super Greedy multi-model consensus.
 - **[.ai/TOOL_MANIFEST.md](.ai/TOOL_MANIFEST.md)** — per-agent tool restrictions and enforcement.
+
+---
+
+## Claude Code support
+
+This template works natively with Claude Code:
+
+- **`CLAUDE.md`** — project-level instructions (Claude Code loads this automatically)
+- **`.claude/settings.json`** — hooks config (PreToolUse → tool-guard.py), model selection
+- **`.claude/commands/`** — slash commands (`/project:greedy`, `/project:plan`, `/project:change`, `/project:onboard`, `/project:implement`)
+- **Global config** — put `AGENTS.md` content in `~/.claude/CLAUDE.md` to apply across ALL projects without per-project template copies
+
+See [ideas/centralized-agent-hub.md](ideas/centralized-agent-hub.md) for the centralized (non-template) approach.
+
+---
+
+## Using without per-project template copies
+
+You don't need to copy this template into every project. Three approaches:
+
+1. **Global Claude Code config** — put orchestrator rules in `~/.claude/CLAUDE.md`. Zero per-project files needed.
+2. **Git submodule** — `git submodule add <url> .agent-hub` in each project. Updates pull from upstream.
+3. **Symlinks** — clone once to `~/agent-hub/`, symlink `.github/` and `AGENTS.md` into each project.
+
+Each project only needs its own `.ai/` (session memory) and `docs/` (project-specific documentation). The agent infrastructure lives in one place.
 
 ---
 
